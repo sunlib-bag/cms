@@ -16,8 +16,10 @@ Api.install = function (Vue, options) {
   };
   Api.prototype.getSubject = function (cb) {
     
-    let query = new this.AV.Query('Lesson');
-    query.get('5a701d6b0b61600044485e6d').then(function (todo) {
+    let query = new this.AV.Query('Course');
+    query.include('todoFolder');
+    query.get('5a7418be128fe1003da106fb').then(function (todo) {
+      console.log(todo)
       cb(todo)
     }, function (error) {
       console.log(error)
