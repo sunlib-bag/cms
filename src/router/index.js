@@ -1,34 +1,31 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import 'element-ui/lib/theme-chalk/index.css'
-import HelloWorld from '@/components/HelloWorld'
 import CourseList from '@/components/CourseList'
 import NewCourse  from '@/components/NewCourse'
 import NewCourseBaseInfo  from '@/components/course/NewCourseBaseInfo.vue'
 import Plan from '@/components/course/Plan.vue'
+import SideBar from '@/components/side_bar/SideBar.vue'
+import md5 from 'js-md5';
+
 
 
 
 import  config from "../config"
-import api from "../api/index"
+import Api from "../api/index"
 import ElementUI from 'element-ui'
-
 
 
 Vue.use(ElementUI);
 Vue.use(Router);
 Vue.use(config);
-Vue.use(api);
+Vue.use(Api);
+
 
 export default new Router({
   routes: [
     {
-      path: '/',
-      name: 'HelloWorld',
-      component: HelloWorld
-    },
-    {
-      path: '/CourseList',
+      path: '/lessonList',
       name: 'CourseList',
       component: CourseList
     },
@@ -46,6 +43,11 @@ export default new Router({
       path: '/Plan',
       name: 'Plan',
       component: Plan
+    },
+    {
+      path: '/SideBar',
+      name: 'SideBar',
+      component: SideBar
     }
   ]
 })

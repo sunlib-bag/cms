@@ -3,6 +3,7 @@
     <el-form-item label="封面" prop="desc">
       <el-upload
         class="upload-demo"
+        action=""
         list-type="picture"
         :on-preview="handlePreview"
         :on-remove="handleRemove"
@@ -70,8 +71,8 @@
 
         option.action = "https://cqbvih8f.api.lncld.net/1.1/files/" + option.file.name;
         option.headers = {
-          "X-LC-Id": "l31Sq3CjoyLUR6Bqq7Ks1SjK-gzGzoHsz",
-          "X-LC-Key": "SUIMcV7cnbWVAzRU8tbAoARk",
+          "X-LC-Id": this.$config.APP_ID,
+          "X-LC-Key": this.$config.APP_KEY,
           "Content-Type": option.file.type
         }
         if (typeof XMLHttpRequest === 'undefined') {
