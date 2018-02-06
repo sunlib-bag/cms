@@ -82,7 +82,7 @@
 //          self.$API.deleteLesson(scope.row.objectId,function(){
 //            self.$message({
 //              type: 'success',
-//              message: '删除成功!'
+//              messa ge: '删除成功!'
 //            });
 //          });
 

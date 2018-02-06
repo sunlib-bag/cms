@@ -19,7 +19,7 @@
 
 <script>
   import SideBar from './side_bar/SideBar.vue'
-  import LessonList from './course/LessonList.vue'
+  import LessonList from './lesson/LessonList.vue'
   import ElContainer from "../../node_modules/element-ui/packages/container/src/main.vue";
   import ElButton from "../../node_modules/element-ui/packages/button/src/button.vue";
 

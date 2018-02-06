@@ -21,7 +21,7 @@
 
 <script>
   export default {
-    name: 'NewCourse',
+    name: 'NewLesson',
     data() {
       return {
         gridData: [{

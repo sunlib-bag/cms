@@ -1,10 +1,10 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import 'element-ui/lib/theme-chalk/index.css'
-import CourseList from '@/components/CourseList'
-import NewCourse from '@/components/NewCourse'
-import NewCourseBaseInfo from '@/components/course/NewCourseBaseInfo.vue'
-import Plan from '@/components/course/Plan.vue'
+import LessonList from '@/components/LessonList'
+import NewLesson from '@/components/NewLesson'
+import NewLessonBaseInfo from '@/components/lesson/NewLessonBaseInfo.vue'
+import Plan from '@/components/lesson/Plan.vue'
 import Login from '@/components/Login.vue'
 import test from '@/components/test'
 
@@ -31,21 +31,21 @@ export default new Router({
     },
     {
       path: '/lessonList',
-      name: 'CourseList',
-      component: CourseList
+      name: 'LessonList',
+      component: LessonList
     },
     {
-      path: '/NewCourse',
-      name: 'NewCourse',
-      component: NewCourse
+      path: '/newLesson',
+      name: 'NewLesson',
+      component: NewLesson
     },
     {
-      path: '/NewCourseBaseInfo',
-      name: 'NewCourseBaseInfo',
-      component: NewCourseBaseInfo
+      path: '/newLessonBaseInfo',
+      name: 'NewLessonBaseInfo',
+      component: NewLessonBaseInfo
     },
     {
-      path: '/Plan',
+      path: '/plan',
       name: 'Plan',
       component: Plan
     },
