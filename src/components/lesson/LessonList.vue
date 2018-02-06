@@ -9,7 +9,7 @@
       width="100">
     </el-table-column>
     <el-table-column
-      :filters="[{ text: '儿歌', value: '儿歌' }, { text: '童话', value: '童话' }]"
+      :filters="subjectFilter"
       :filter-method="filterTag"
       filter-placement="bottom-start"
       prop="subject.title"
@@ -53,18 +53,29 @@
 
     data() {
       return {
-        lessonList: []
+        lessonList: [],
+        subjectFilter:[]
       }
     },
     mounted() {
       let self = this;
       this.$API.getLesson(function (lessons) {
         self.lessonList = lessons['results']
+      });
+      this.$API.getSubjectList(function(subjectList){
+
+        for(let i =0; i< subjectList.results.length;i++){
+          let subject ={text: subjectList.results[i].title, value: subjectList.results[i].objectId};
+          self.subjectFilter.push(subject)
+        }
+        console.log(self.subjectFilter)
+      },function(){
+
       })
     },
     methods: {
       filterTag(value, row) {
-        return row.subject.title === value;
+        return row.subject.objectId === value;
       },
       handleStatus(row) {
         return row.isPublished ? "已发布" : "草稿"

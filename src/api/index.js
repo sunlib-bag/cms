@@ -11,18 +11,17 @@ Api.install = function (Vue, options) {
   
   Api.prototype.login = function (data, sucFuc, errFuc) {
     
-    var headers = this.getHeaders();
+    let headers = this.getHeaders();
     $.ajax({
       url: 'https://cqbvih8f.api.lncld.net/1.1/usersByMobilePhone',
       headers: headers,
       data: data,
       method: 'post',
       success: function (data) {
-        sucFuc(data)
         localStorage.setItem('sessionToken', data.sessionToken)
-        // cb(data)
+        sucFuc(data)
+        
       }, error: function (data) {
-        console.log('==================')
         errFuc(data)
       
       }
@@ -72,8 +71,8 @@ Api.install = function (Vue, options) {
   };
   
   Api.prototype.getHeaders = function (type) {
-    var time = new Date().getTime();
-    var headers = {
+    let time = new Date().getTime();
+    let headers = {
       "X-LC-Id": this.appId,
       "X-LC-Sign": md5(time + this.appKey)+","+time,
       "Content-Type": "application/json"
@@ -82,6 +81,20 @@ Api.install = function (Vue, options) {
       headers['X-LC-Session'] = localStorage.getItem('sessionToken')
     }
     return headers
+  };
+  
+  Api.prototype.getSubjectList = function(sucFuc, errFuc){
+    let headers = this.getHeaders();
+    $.ajax({
+      url: this.base_url+'/classes/Subject',
+      method: 'GET',
+      headers: headers,
+      success: function (data) {
+        sucFuc(data)
+      }, error: function () {
+        errFuc()
+      }
+    })
   };
   
   let api = new Api();
