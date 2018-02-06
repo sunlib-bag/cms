@@ -9,18 +9,21 @@ Api.install = function (Vue, options) {
     this.appKey = Vue.prototype.$config.APP_KEY;
   }
   
-  Api.prototype.login = function (data, cb) {
+  Api.prototype.login = function (data, sucFuc, errFuc) {
     
     var headers = this.getHeaders();
     $.ajax({
-      url: 'https://cqbvih8f.api.lncld.net/1.1/login',
+      url: 'https://cqbvih8f.api.lncld.net/1.1/usersByMobilePhone',
       headers: headers,
       data: data,
       method: 'post',
       success: function (data) {
+        sucFuc(data)
         localStorage.setItem('sessionToken', data.sessionToken)
         // cb(data)
-      }, error: function () {
+      }, error: function (data) {
+        console.log('==================')
+        errFuc(data)
       
       }
     })
@@ -52,7 +55,21 @@ Api.install = function (Vue, options) {
       
       }
     })
-  }
+  };
+  Api.prototype.sendSMSCode = function(data,sucFuc, errFuc){
+    let headers = this.getHeaders();
+    $.ajax({
+      url: 'https://cqbvih8f.api.lncld.net/1.1/requestSmsCode',
+      method: 'POST',
+      headers: headers,
+      data: data,
+      success: function (data) {
+        sucFuc(data)
+      }, error: function () {
+        errFuc()
+      }
+    })
+  };
   
   Api.prototype.getHeaders = function (type) {
     var time = new Date().getTime();

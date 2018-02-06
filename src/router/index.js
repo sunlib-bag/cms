@@ -5,6 +5,7 @@ import CourseList from '@/components/CourseList'
 import NewCourse  from '@/components/NewCourse'
 import NewCourseBaseInfo  from '@/components/course/NewCourseBaseInfo.vue'
 import Plan from '@/components/course/Plan.vue'
+import Login from '@/components/Login.vue'
 import test from '@/components/test'
 
 import md5 from 'js-md5';
@@ -44,6 +45,11 @@ export default new Router({
       path: '/Plan',
       name: 'Plan',
       component: Plan
+    },
+    {
+      path: '/Login',
+      name: 'Login',
+      component: Login
     },
     {
       path: '/test',
