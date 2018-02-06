@@ -55,6 +55,11 @@ export default new Router({
       path: '/test',
       name: 'test',
       component: test
-    }
+    },
+    {
+      path: '*',
+      name: 'Login',
+      component: Login
+    },
   ]
 })
