@@ -11,7 +11,7 @@
         @select="handleOpen"
         @close="handleClose">
         <el-menu-item index="/lessonList">
-          <i class="el-icon-menu"></i>
+          <i class="el-icon-tickets"></i>
           <span slot="title">课程列表</span>
         </el-menu-item>
         <el-menu-item index="/subjectList">
