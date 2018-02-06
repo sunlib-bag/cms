@@ -5,7 +5,7 @@
       <div class='el-input-container'>
         <div class="lable">手机号：</div>
         <el-input v-model="phone"></el-input>
-        <el-button type="text" class="extra-button" @click="sendSMSCode()">发送验证码
+        <el-button type="text" class="extra-button" @click="sendSMSCode()" :disabled = isDisabled>{{SMSCodeText}}
         </el-button>
       </div>
       <div class='el-input-container'>
@@ -31,11 +31,14 @@
     data() {
       return {
         verificationCode: '',
-        phone: ''
+        phone: '',
+        SMSCodeText: '发送验证码',
+        isDisabled: false,
+        timer:""
       }
     },
-    mounted(){
-      if(localStorage.getItem("sessionToken")){
+    mounted() {
+      if (localStorage.getItem("sessionToken")) {
         this.$router.push({path: '/lessonList'})
       }
     },
@@ -58,18 +61,33 @@
       },
       sendSMSCode: function () {
         let self = this;
-        var phoneInfo = JSON.stringify({"mobilePhoneNumber": this.phone});
-        this.$API.sendSMSCode(phoneInfo, function (result) {
-          self.$message({
-            type: 'info',
-            message: '发送成功'
-          });
-        }, function () {
-          self.$message({
-            type: 'info',
-            message: '发送失败,检查手机号'
-          });
-        })
+        let maxTime = 30;
+        this.isDisabled = true;
+        clearInterval(this.timer);
+        this.timer = setInterval(function () {
+          maxTime--;
+          self.SMSCodeText = "(" + maxTime + "s)";
+          if (maxTime === 0) {
+            self.SMSCodeText = '发送验证码';
+            self.isDisabled = false;
+            clearInterval(self.timer)
+          }
+
+        }, 1000);
+
+
+//        var phoneInfo = JSON.stringify({"mobilePhoneNumber": this.phone});
+//        this.$API.sendSMSCode(phoneInfo, function (result) {
+//          self.$message({
+//            type: 'info',
+//            message: '发送成功'
+//          });
+//        }, function () {
+//          self.$message({
+//            type: 'info',
+//            message: '发送失败,检查手机号'
+//          });
+//        })
       }
     }
 
@@ -123,6 +141,8 @@
     position: absolute;
     top: 0;
     right: -82px;
+    width: 72px;
+    text-align: center;
   }
 
 </style>
