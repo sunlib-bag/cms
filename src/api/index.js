@@ -4,6 +4,7 @@ var md5 = require('js-md5')
 Api.install = function (Vue, options) {
   
   function Api() {
+    this.base_url = "https://cqbvih8f.api.lncld.net/1.1";
     this.appId = Vue.prototype.$config.APP_ID;
     this.appKey = Vue.prototype.$config.APP_KEY;
   }
@@ -11,7 +12,6 @@ Api.install = function (Vue, options) {
   Api.prototype.login = function (data, cb) {
     
     var headers = this.getHeaders();
-    
     $.ajax({
       url: 'https://cqbvih8f.api.lncld.net/1.1/login',
       headers: headers,
@@ -38,7 +38,22 @@ Api.install = function (Vue, options) {
       
       }
     })
+  };
+  
+  Api.prototype.deleteLesson =  function(id,cb){
+    let headers = this.getHeaders();
+    $.ajax({
+      url: 'https://cqbvih8f.api.lncld.net/1.1/classes/Lesson/'+id,
+      method: 'delete',
+      headers: headers,
+      success: function (data) {
+        cb(data)
+      }, error: function () {
+      
+      }
+    })
   }
+  
   Api.prototype.getHeaders = function (type) {
     var time = new Date().getTime();
     var headers = {

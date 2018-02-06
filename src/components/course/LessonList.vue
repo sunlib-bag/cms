@@ -14,7 +14,7 @@
       filter-placement="bottom-start"
       prop="subject.title"
       label="科目"
-      >
+    >
     </el-table-column>
     <el-table-column
       prop="updatedAt"
@@ -22,37 +22,27 @@
       filter-placement="bottom-start"
       :filters="[{ text: 'test', value: 'test' }, { text: 'ui', value: 'ui' }]"
       :filter-method="filterTag"
-      >
+    >
     </el-table-column>
     <el-table-column
       prop="updatedAt"
-      label="updatedAt"
-      >
+      :formatter="handleDate"
+      label="创建时间"
+    >
     </el-table-column>
     <el-table-column
       prop="isPublished"
       :formatter="handleStatus"
       label="状态"
-      >
+    >
     </el-table-column>
     <el-table-column
       label="操作"
-      >
+    >
       <template slot-scope="scope">
-        <!--<el-popover-->
-          <!--ref="1"-->
-          <!--placement="top"-->
-          <!--width="160"-->
-          <!--&gt;-->
-          <!--<p>这是一段内容这是一段内容确定删除吗？</p>-->
-          <!--<div style="text-align: right; margin: 0">-->
-            <!--<el-button size="mini" type="text">取消</el-button>-->
-            <!--<el-button type="primary" size="mini">确定</el-button>-->
-          <!--</div>-->
-        <!--</el-popover>-->
+        <el-button type="success" size="small">编辑</el-button>
+        <el-button type="danger" size="small" @click="deleteLesson(scope)">删除</el-button>
 
-        <!--<el-button v-popover="1">删除</el-button>-->
-        <!--<el-button type="text" size="small">编辑</el-button>-->
       </template>
 
     </el-table-column>
@@ -63,21 +53,63 @@
 
     data() {
       return {
-        lessonList:[]
+        lessonList: []
       }
     },
-    mounted(){
+    mounted() {
       let self = this;
       this.$API.getLesson(function (lessons) {
         self.lessonList = lessons['results']
       })
     },
-    methods:{
+    methods: {
       filterTag(value, row) {
-        return row.subject.title === value ;
+        return row.subject.title === value;
       },
-      handleStatus(row){
-       return row.isPublished?"已发布":"草稿"
+      handleStatus(row) {
+        return row.isPublished ? "已发布" : "草稿"
+      },
+      handleDate(row) {
+
+      },
+      deleteLesson(scope) {
+        let self = this;
+        this.$confirm('此操作将永久删除' + scope.row.name + ', 是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+//          self.$API.deleteLesson(scope.row.objectId,function(){
+//            self.$message({
+//              type: 'success',
+//              message: '删除成功!'
+//            });
+//          });
+
+        }).catch(() => {
+          self.$message({
+            type: 'info',
+            message: '已取消删除'
+          });
+        });
+      },
+      handleDate(time_info) {
+        var fmt = 'yyyy/MM/dd';
+        var time = new Date(time_info.createdAt);
+        var o = {
+          "M+": time.getMonth() + 1, //月份
+          "d+": time.getDate(), //日
+          "h+": time.getHours(), //小时
+          "m+": time.getMinutes(), //分
+          "s+": time.getSeconds(), //秒
+          "q+": Math.floor((time.getMonth() + 3) / 3), //季度
+          "S": time.getMilliseconds() //毫秒
+        };
+        if (/(y+)/.test(fmt)) fmt = fmt.replace(RegExp.$1, (time.getFullYear() + "").substr(4 - RegExp.$1.length));
+        for (var k in o)
+          if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+
+        return fmt;
       }
 
     }

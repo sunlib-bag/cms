@@ -5,7 +5,8 @@ import CourseList from '@/components/CourseList'
 import NewCourse  from '@/components/NewCourse'
 import NewCourseBaseInfo  from '@/components/course/NewCourseBaseInfo.vue'
 import Plan from '@/components/course/Plan.vue'
-import SideBar from '@/components/side_bar/SideBar.vue'
+import test from '@/components/test'
+
 import md5 from 'js-md5';
 
 
@@ -45,9 +46,9 @@ export default new Router({
       component: Plan
     },
     {
-      path: '/SideBar',
-      name: 'SideBar',
-      component: SideBar
+      path: '/test',
+      name: 'test',
+      component: test
     }
   ]
 })

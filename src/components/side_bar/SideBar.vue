@@ -1,9 +1,9 @@
 <template>
-  <div style="border-right:  solid 1px #e6e6e6">
-
-      <h4 style="padding-left: 24px">阳光盒子后台</h4>
+  <div >
+      <div class="el-submenu__title">
+        <h1>阳光盒子后台</h1>
+      </div>
       <el-menu
-        v-bind:style="{ 'min-height': minHeight+'px'}"
         style="border-right: none"
         :default-active= "this.$route.path"
         class="el-menu-vertical-demo"
@@ -27,6 +27,7 @@
   </div>
 </template>
 <script>
+//  v-bind:style="{ 'min-height': minHeight+'px'}"
   export default {
     data(){
       return{
