@@ -11,7 +11,7 @@
         :on-exceed="handleExceed"
         :on-change="handleChange"
         :httpRequest="httpRequest"
-        :file-list="fileList"
+        :file-list="images"
         :accept="'image/*'">
         <el-button size="small" type="primary">点击上传</el-button>
       </el-upload>
@@ -29,7 +29,7 @@
           type:Boolean,
           defalut:true
         },
-        fileList:{
+      images:{
           type:Array,
           defalut:[]
         }
@@ -54,7 +54,7 @@
       },
       handleChange(file, fileList) {
         if(!this.isUpload) return;
-        this.fileList = fileList.slice(-1)
+        this.images = fileList.slice(-1)
       },
       httpRequest(option) {
         function getBody(xhr) {

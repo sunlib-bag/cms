@@ -64,6 +64,7 @@
         let maxTime = 30;
         this.isDisabled = true;
         clearInterval(this.timer);
+
         this.timer = setInterval(function () {
           maxTime--;
           self.SMSCodeText = "(" + maxTime + "s)";
@@ -76,18 +77,18 @@
         }, 1000);
 
 
-//        var phoneInfo = JSON.stringify({"mobilePhoneNumber": this.phone});
-//        this.$API.sendSMSCode(phoneInfo, function (result) {
-//          self.$message({
-//            type: 'info',
-//            message: '发送成功'
-//          });
-//        }, function () {
-//          self.$message({
-//            type: 'info',
-//            message: '发送失败,检查手机号'
-//          });
-//        })
+        let phoneInfo = JSON.stringify({"mobilePhoneNumber": this.phone});
+        this.$API.sendSMSCode(phoneInfo, function (result) {
+          self.$message({
+            type: 'info',
+            message: '发送成功'
+          });
+        }, function () {
+          self.$message({
+            type: 'info',
+            message: '发送失败,检查手机号'
+          });
+        })
       }
     }
 

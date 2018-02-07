@@ -40,7 +40,7 @@
       label="操作"
     >
       <template slot-scope="scope">
-        <el-button type="success" size="small">编辑</el-button>
+        <el-button type="success" size="small" @click="goToUpdateLesson(scope)">编辑</el-button>
         <el-button type="danger" size="small" @click="deleteLesson(scope)">删除</el-button>
 
       </template>
@@ -62,13 +62,12 @@
       this.$API.getLesson(function (lessons) {
         self.lessonList = lessons['results']
       });
-      this.$API.getSubjectList(function(subjectList){
 
+      this.$API.getSubjectList(function(subjectList){
         for(let i =0; i< subjectList.results.length;i++){
           let subject ={text: subjectList.results[i].title, value: subjectList.results[i].objectId};
           self.subjectFilter.push(subject)
         }
-        console.log(self.subjectFilter)
       },function(){
 
       })
@@ -103,6 +102,9 @@
             message: '已取消删除'
           });
         });
+      },
+      goToUpdateLesson(scope){
+        this.$router.push('/lessonInfo/'+scope.row.objectId)
       },
       handleDate(time_info) {
         var fmt = 'yyyy/MM/dd';

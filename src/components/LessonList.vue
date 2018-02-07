@@ -20,8 +20,8 @@
 <script>
   import SideBar from './side_bar/SideBar.vue'
   import LessonList from './lesson/LessonList.vue'
-  import ElContainer from "../../node_modules/element-ui/packages/container/src/main.vue";
-  import ElButton from "../../node_modules/element-ui/packages/button/src/button.vue";
+
+
 
   export default {
     data() {
@@ -30,8 +30,6 @@
       }
     },
     components: {
-      ElButton,
-      ElContainer,
       "side_bar": SideBar,
       'course_list': LessonList
     },

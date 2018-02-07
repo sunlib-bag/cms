@@ -9,6 +9,7 @@ Api.install = function (Vue, options) {
     this.appKey = Vue.prototype.$config.APP_KEY;
   }
   
+  
   Api.prototype.login = function (data, sucFuc, errFuc) {
     
     let headers = this.getHeaders();
@@ -18,12 +19,12 @@ Api.install = function (Vue, options) {
       data: data,
       method: 'post',
       success: function (data) {
-        localStorage.setItem('sessionToken', data.sessionToken)
+        localStorage.setItem('sessionToken', data.sessionToken);
         sucFuc(data)
         
       }, error: function (data) {
         errFuc(data)
-      
+        
       }
     })
   };
@@ -42,10 +43,10 @@ Api.install = function (Vue, options) {
     })
   };
   
-  Api.prototype.deleteLesson =  function(id,cb){
+  Api.prototype.deleteLesson = function (id, cb) {
     let headers = this.getHeaders();
     $.ajax({
-      url: 'https://cqbvih8f.api.lncld.net/1.1/classes/Lesson/'+id,
+      url: 'https://cqbvih8f.api.lncld.net/1.1/classes/Lesson/' + id,
       method: 'delete',
       headers: headers,
       success: function (data) {
@@ -55,7 +56,7 @@ Api.install = function (Vue, options) {
       }
     })
   };
-  Api.prototype.sendSMSCode = function(data,sucFuc, errFuc){
+  Api.prototype.sendSMSCode = function (data, sucFuc, errFuc) {
     let headers = this.getHeaders();
     $.ajax({
       url: 'https://cqbvih8f.api.lncld.net/1.1/requestSmsCode',
@@ -74,7 +75,7 @@ Api.install = function (Vue, options) {
     let time = new Date().getTime();
     let headers = {
       "X-LC-Id": this.appId,
-      "X-LC-Sign": md5(time + this.appKey)+","+time,
+      "X-LC-Sign": md5(time + this.appKey) + "," + time,
       "Content-Type": "application/json"
     };
     if (localStorage.getItem('sessionToken')) {
@@ -83,10 +84,40 @@ Api.install = function (Vue, options) {
     return headers
   };
   
-  Api.prototype.getSubjectList = function(sucFuc, errFuc){
+  Api.prototype.getSubjectList = function (sucFuc, errFuc) {
     let headers = this.getHeaders();
     $.ajax({
-      url: this.base_url+'/classes/Subject',
+      url: this.base_url + '/classes/Subject',
+      method: 'GET',
+      headers: headers,
+      success: function (data) {
+        sucFuc(data)
+      }, error: function () {
+        errFuc()
+      }
+    })
+  };
+  Api.prototype.getLessonInfo = function (lessonId, sucFuc, errFuc) {
+    
+    // window.AV.init({
+    //   appId: this.appId,
+    //   appKey: this.appId
+    // });
+    //
+    // var query = new AV.Query('Lesson');
+    // query.include('subject');
+    // query.include('plan');
+    // query.descending('createdAt');
+    // query.find().then(function (products) {
+    //   console.log(products)
+    // }).catch(function(error) {
+    //
+    // });
+  
+    
+    let headers = this.getHeaders();
+    $.ajax({
+      url: this.base_url + '/classes/Lesson/' + lessonId + "?include=subject%2Cplan",
       method: 'GET',
       headers: headers,
       success: function (data) {
