@@ -15,9 +15,9 @@
                 <el-form-item label="所属科目" prop="region">
                   <el-select v-model="lessonInfo.subjectId" placeholder="请选择活动区域"><el-option
                     v-for="item in subjectFilter"
-                    :key="item.objectId"
-                    :label="item.title"
-                    :value="item.objectId">
+                    :key="item.id"
+                    :label="item.attributes.title"
+                    :value="item.id">
                   </el-option>
                   </el-select>
                 </el-form-item>
@@ -157,27 +157,30 @@
       let self = this;
       this.getSubjectList();
       this.$bus.on('insertImage', this.insertImage);
-//      if(this.$route.params.id){
+      if(this.$route.params.id){
+
 
         this.$API.getLessonInfo(this.$route.params.id,function(lesson){
-          let tagsInfo = self.handleTags(lesson.tags);
+
+          let tagsInfo = self.handleTags(lesson.attributes.tags);
           let lessonInfo = {
-            subjectId: lesson.subject.objectId,
+            subjectId: lesson.attributes.subject.id,
             domain: tagsInfo.domain,
             source: tagsInfo.source,
-            author:  lesson.plan.author,
+            author:  lesson.attributes.plan.attributes.author,
             misc: '',
-            name: lesson.name,
-            plan: lesson.plan.content,
+            name: lesson.attributes.name,
+            plan: lesson.attributes.plan.attributes.content,
             Material: []
           };
           self.lessonInfo =  lessonInfo;
           self.plan = lessonInfo.plan
+          console.log(self.lessonInfo)
 
         },function(){
 
         })
-//      }
+      }
 
 
     },
@@ -206,7 +209,7 @@
       getSubjectList(){
         let self = this;
         this.$API.getSubjectList(function(subjectList){
-          self.subjectFilter=subjectList.results
+          self.subjectFilter=subjectList
         },function(){
         })
       },

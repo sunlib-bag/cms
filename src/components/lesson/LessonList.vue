@@ -4,7 +4,7 @@
     :data="lessonList"
     style="width: 100%; text-align: left">
     <el-table-column
-      prop="name"
+      prop="attributes.name"
       label="课程名称"
       width="100">
     </el-table-column>
@@ -12,7 +12,7 @@
       :filters="subjectFilter"
       :filter-method="filterTag"
       filter-placement="bottom-start"
-      prop="subject.title"
+      prop="attributes.subject.attributes.title"
       label="科目"
     >
     </el-table-column>
@@ -31,7 +31,7 @@
     >
     </el-table-column>
     <el-table-column
-      prop="isPublished"
+      prop="attributes.isPublished"
       :formatter="handleStatus"
       label="状态"
     >
@@ -60,12 +60,14 @@
     mounted() {
       let self = this;
       this.$API.getLesson(function (lessons) {
-        self.lessonList = lessons['results']
+
+        self.lessonList = lessons
       });
 
       this.$API.getSubjectList(function(subjectList){
-        for(let i =0; i< subjectList.results.length;i++){
-          let subject ={text: subjectList.results[i].title, value: subjectList.results[i].objectId};
+
+        for(let i =0; i< subjectList.length;i++){
+          let subject ={text: subjectList[i].attributes.title, value: subjectList[i].attributes.objectId};
           self.subjectFilter.push(subject)
         }
       },function(){
@@ -74,17 +76,17 @@
     },
     methods: {
       filterTag(value, row) {
-        return row.subject.objectId === value;
+        return row.attributes.subject.attributes.objectId === value;
       },
       handleStatus(row) {
-        return row.isPublished ? "已发布" : "草稿"
+        return row.attributes.isPublished ? "已发布" : "草稿"
       },
       handleDate(row) {
 
       },
       deleteLesson(scope) {
         let self = this;
-        this.$confirm('此操作将永久删除' + scope.row.name + ', 是否继续?', '提示', {
+        this.$confirm('此操作将永久删除' + scope.row.attributes.name + ', 是否继续?', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'
@@ -104,7 +106,8 @@
         });
       },
       goToUpdateLesson(scope){
-        this.$router.push('/lessonInfo/'+scope.row.objectId)
+
+        this.$router.push('/lessonInfo/'+scope.row.id)
       },
       handleDate(time_info) {
         var fmt = 'yyyy/MM/dd';

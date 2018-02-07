@@ -45,7 +45,7 @@
     methods: {
       login: function () {
         let self = this;
-        let userInfo = JSON.stringify({mobilePhoneNumber: this.phone, smsCode: this.verificationCode});
+        let userInfo = {mobilePhoneNumber: this.phone, smsCode: this.verificationCode};
         this.$API.login(userInfo, function (result) {
           self.$message({
             type: 'info',
@@ -77,8 +77,7 @@
         }, 1000);
 
 
-        let phoneInfo = JSON.stringify({"mobilePhoneNumber": this.phone});
-        this.$API.sendSMSCode(phoneInfo, function (result) {
+        this.$API.sendSMSCode(this.phone, function (result) {
           self.$message({
             type: 'info',
             message: '发送成功'
