@@ -47,17 +47,6 @@ export default new Router({
       component: LessonInfo
     },
     {
-      path: '/newLesson',
-      name: 'NewLesson',
-      component: NewLesson
-    },
-   
-    {
-      path: '/plan',
-      name: 'Plan',
-      component: Plan
-    },
-    {
       path: '/test',
       name: 'test',
       component: test

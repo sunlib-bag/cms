@@ -4,12 +4,12 @@
     <el-dialog :visible.sync="dialogTableVisible">
       <el-table
         ref="singleTable"
-        :data="tableData"
+        :data="images"
         @current-change="handleCurrentChange"
         highlight-current-row
         style="width: 100%">
         <el-table-column
-          property="name"
+          property="attributes.name"
           label="选择要插入的图片">
         </el-table-column>
       </el-table>
@@ -24,31 +24,31 @@
   export default {
     data() {
       return {
-        tableData: [
-          {
-            name: "huaban.png",
-            url: 'http://ac-l31sq3cj.clouddn.com/4f6435760b8fe76cc61a.png'
-          },
-          {
-            name: "%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7%202017-06-22%20%E4%B8%8B%E5%8D%885.16.59.png",
-            url: 'http://ac-l31sq3cj.clouddn.com/4f6435760b8fe76cc61a.png'
-          }
+        images: [
+
         ],
         dialogTableVisible: false,
         currentSelected:{}
       }
 
     },
+    mounted(){
+      this.getLessonAllImage()
+    },
     methods: {
       handleCurrentChange: function (data) {
         this.currentSelected =  data
       },
       insertImage: function(){
-        this.$bus.emit('insertImage',this.currentSelected);
+        this.$bus.emit('insertImage',this.currentSelected.attributes.file.attributes);
         this.dialogTableVisible = false;
       },
       getLessonAllImage: function(){
-
+          var self = this;
+          this.$API.getLessonImage(this.$route.params.id,function(images){
+            console.log(images)
+            self.images = images
+          })
       }
     }
 

@@ -61,7 +61,7 @@
                 </el-row>
 
 
-                <el-input
+                <el-input id="markdown_editor"
                   type="textarea"
                   placeholder="请输入内容"
                   :rows="30"
@@ -174,8 +174,7 @@
             Material: []
           };
           self.lessonInfo =  lessonInfo;
-          self.plan = lessonInfo.plan
-          console.log(self.lessonInfo)
+          self.plan = lessonInfo.plan;
 
         },function(){
 
@@ -217,10 +216,42 @@
         console.log(this.activeName);
       },
       insertImage(selectImageInfo){
-          this.plan += "<img src='"+ selectImageInfo.url +"'>";
+        let $markdown_edit = $("#markdown_editor");
+         this.insertAtCursor($markdown_edit[0],  "<img src='"+ selectImageInfo.url +"'>");
+        this.plan = $markdown_edit.val()
       },
       getLessonInfo(){
 
+      },
+      insertAtCursor(myField, myValue) {
+
+        let document = window.document;
+        if (document.selection) {
+          myField.focus();
+          let sel = document.selection.createRange();
+          sel.text = myValue;
+          sel.select();
+        }
+
+        //FireFox、Chrome等
+        else if (myField.selectionStart || myField.selectionStart == '0') {
+          let startPos = myField.selectionStart;
+          let endPos = myField.selectionEnd;
+          // 保存滚动条
+          let restoreTop = myField.scrollTop;
+          myField.value = myField.value.substring(0, startPos) + myValue + myField.value.substring(endPos, myField.value.length);
+
+          if (restoreTop > 0) {
+            myField.scrollTop = restoreTop;
+          }
+
+          myField.focus();
+          myField.selectionStart = startPos + myValue.length;
+          myField.selectionEnd = startPos + myValue.length;
+        } else {
+          myField.value += myValue;
+          myField.focus();
+        }
       }
     }
   }
