@@ -32,10 +32,18 @@
     >
     </el-table-column>
     <el-table-column
-      prop="attributes.isPublished"
-      :formatter="handleStatus"
-      label="状态"
+      prop="attributes.draft_version_code"
+      label="最新草稿版本"
     >
+
+    </el-table-column>
+
+    <el-table-column
+      prop="attributes.version_code"
+      :formatter="handleStatus"
+      label="发布版本"
+    >
+
     </el-table-column>
     <el-table-column
       label="操作"
@@ -80,7 +88,7 @@
         return row.attributes.subject.attributes.objectId === value;
       },
       handleStatus(row) {
-        return row.attributes.isPublished ? "已发布" : "草稿"
+        return row.attributes.isPublished ?  row.attributes.version_code : "未发布"
       },
       handleDate(row) {
 
