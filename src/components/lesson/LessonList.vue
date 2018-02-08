@@ -17,8 +17,9 @@
     >
     </el-table-column>
     <el-table-column
-      prop="updatedAt"
+      prop="attributes.tages"
       label="来源"
+      :formatter="handleSource"
       filter-placement="bottom-start"
       :filters="[{ text: 'test', value: 'test' }, { text: 'ui', value: 'ui' }]"
       :filter-method="filterTag"
@@ -84,6 +85,15 @@
       handleDate(row) {
 
       },
+      handleSource(row){
+        let tags = row.attributes.tags
+        for(let i = 0;i<tags.length;i++){
+          let tagInfo = tags[i].split('.'); //todo
+          if(tagInfo[0] === 'source'){
+            return tagInfo[1]
+          }
+        }
+      },
       deleteLesson(scope) {
         let self = this;
         this.$confirm('此操作将永久删除' + scope.row.attributes.name + ', 是否继续?', '提示', {
@@ -126,7 +136,8 @@
           if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
 
         return fmt;
-      }
+      },
+
 
     }
   }

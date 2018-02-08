@@ -192,6 +192,7 @@ Api.install = function (Vue, options) {
   
       let MaterialQuery = new self.AV.Query('Material');
       MaterialQuery.containedIn("parent", atlasId);
+      LessonMaterialQuery.equalTo('type', 3);
       MaterialQuery.find().then(function(atlasImage){
        for(let i =0; i<atlasImage.length;i++){
          images.push(atlasImage[i])

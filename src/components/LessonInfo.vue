@@ -189,7 +189,7 @@
         let source ;
         let misc ;
         for(let i =0; i< tags.length; i++){
-          let tagInfo = tags[i].split('.');
+          let tagInfo = tags[i].split('.'); //todo
           if(tagInfo[0] === 'domain'){
             domain.push(tagInfo[1])
           }
