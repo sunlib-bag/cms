@@ -155,8 +155,6 @@ Api.install = function (Vue, options) {
   };
   
   Api.prototype.getMaterials =  function(lessonId, sucFuc, errFuc){
-    
-    
     let self = this;
     let lesson = this.AV.Object.createWithoutData('Lesson', lessonId);
     let LessonMaterialQuery = new this.AV.Query('LessonMaterial');
@@ -167,6 +165,18 @@ Api.install = function (Vue, options) {
     }).catch(function(err){
       console.log(err)
     });
+  };
+  
+  Api.prototype.getAtlasImage =  function(mateiralId, sucFuc, errFuc){
+    let MaterialQuery = new this.AV.Query('Material');
+    let mateiral = this.AV.Object.createWithoutData('Material', mateiralId);
+    MaterialQuery.equalTo("parent", mateiral);
+    
+    MaterialQuery.find().then(function(materials){
+      sucFuc(materials)
+    }).catch(function(){
+    
+    })
     
   };
   

@@ -76,7 +76,7 @@
       this.$API.getSubjectList(function (subjectList) {
 
         for (let i = 0; i < subjectList.length; i++) {
-          let subject = {text: subjectList[i].attributes.title, value: subjectList[i].attributes.objectId};
+          let subject = {text: subjectList[i].attributes.title, value: subjectList[i].id};
           self.subjectFilter.push(subject)
         }
       }, function () {
@@ -85,7 +85,7 @@
     },
     methods: {
       filterTag(value, row) {
-        return row.attributes.subject.attributes.objectId === value;
+        return row.attributes.subject.id === value;
       },
       handleStatus(row) {
         return row.attributes.isPublished ? row.attributes.version_code : "未发布"
