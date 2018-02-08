@@ -140,12 +140,7 @@ Api.install = function (Vue, options) {
     // })
   };
   Api.prototype.getLessonInfo = function (lessonId, sucFuc, errFuc) {
-    
-    // window.AV.init({
-    //   appId: this.appId,
-    //   appKey: this.appId
-    // });
-    //
+
     let query = new AV.Query('Lesson');
     query.include('subject');
     query.include('plan');
@@ -156,18 +151,23 @@ Api.install = function (Vue, options) {
 
     });
   
+  
+  };
+  
+  Api.prototype.getMaterials =  function(lessonId, sucFuc, errFuc){
     
-    // let headers = this.getHeaders();
-    // $.ajax({
-    //   url: this.base_url + '/classes/Lesson/' + lessonId + "?include=subject%2Cplan",
-    //   method: 'GET',
-    //   headers: headers,
-    //   success: function (data) {
-    //     sucFuc(data)
-    //   }, error: function () {
-    //     errFuc()
-    //   }
-    // })
+    
+    let self = this;
+    let lesson = this.AV.Object.createWithoutData('Lesson', lessonId);
+    let LessonMaterialQuery = new this.AV.Query('LessonMaterial');
+    LessonMaterialQuery.equalTo('lesson', lesson);
+    LessonMaterialQuery.include('material');
+    LessonMaterialQuery.find().then(function(lessonMaterial){
+      sucFuc(lessonMaterial)
+    }).catch(function(err){
+      console.log(err)
+    });
+    
   };
   
   Api.prototype.getLessonImage = function(lessonId,sucFuc, errFuc){
@@ -205,39 +205,6 @@ Api.install = function (Vue, options) {
     }).catch(function(err){
       console.log(err)
     });
-    
-    
-    
-    // let images =[];
-    // let fileId = [];
-    // let self = this;
-    // let lessonQuery = new this.AV.Query('Lesson');
-    // lessonQuery.get(lessonId).then(function(products){
-    //   let materialQuery =  new self.AV.Query('Material');
-    //   let materialsFilter = products.attributes.materials;
-    //   materialQuery.containedIn('objectId', materialsFilter);
-    //   materialQuery.containedIn('type', [3,0]);
-    //   materialQuery.find().then(function(materials){
-    //     for(let i =0 ;i<materials.length;i++){
-    //       if(materials[i].attributes.type === 3){
-    //         images.push(materials)
-    //       }
-    //       if(materials[i].type === 0){
-    //         fileId.concat(materials[i].attributes.files)
-    //       }
-    //     }
-    //     let fileQuery =  self.AV.File.containedIn(fileId);
-    //     fileQuery.find().then(function(files){
-    //       images.concat(files)
-    //     })
-    //
-    //   })
-    // })
-    
-    
-    
-    // console.log(a)
-    
     
   };
   

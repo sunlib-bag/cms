@@ -63,7 +63,7 @@
     data() {
       return {
         lessonList: [],
-        subjectFilter:[]
+        subjectFilter: []
       }
     },
     mounted() {
@@ -73,13 +73,13 @@
         self.lessonList = lessons
       });
 
-      this.$API.getSubjectList(function(subjectList){
+      this.$API.getSubjectList(function (subjectList) {
 
-        for(let i =0; i< subjectList.length;i++){
-          let subject ={text: subjectList[i].attributes.title, value: subjectList[i].attributes.objectId};
+        for (let i = 0; i < subjectList.length; i++) {
+          let subject = {text: subjectList[i].attributes.title, value: subjectList[i].attributes.objectId};
           self.subjectFilter.push(subject)
         }
-      },function(){
+      }, function () {
 
       })
     },
@@ -88,19 +88,24 @@
         return row.attributes.subject.attributes.objectId === value;
       },
       handleStatus(row) {
-        return row.attributes.isPublished ?  row.attributes.version_code : "未发布"
+        return row.attributes.isPublished ? row.attributes.version_code : "未发布"
       },
       handleDate(row) {
 
       },
-      handleSource(row){
-        let tags = row.attributes.tags
-        for(let i = 0;i<tags.length;i++){
+      handleSource(row) {
+        let tags = row.attributes.tags;
+        if (!tags) return ''
+
+        for (let i = 0; i < tags.length; i++) {
           let tagInfo = tags[i].split('.'); //todo
-          if(tagInfo[0] === 'source'){
+          if (tagInfo[0] === 'source') {
             return tagInfo[1]
           }
         }
+        return ''
+
+
       },
       deleteLesson(scope) {
         let self = this;
@@ -123,9 +128,9 @@
           });
         });
       },
-      goToUpdateLesson(scope){
+      goToUpdateLesson(scope) {
 
-        this.$router.push('/lessonInfo/'+scope.row.id)
+        this.$router.push('/lessonInfo/' + scope.row.id)
       },
       handleDate(time_info) {
         var fmt = 'yyyy/MM/dd';

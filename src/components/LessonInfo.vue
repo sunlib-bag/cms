@@ -13,7 +13,7 @@
                   <el-input v-model="lessonInfo.name"></el-input>
                 </el-form-item>
                 <el-form-item label="所属科目" prop="region">
-                  <el-select v-model="lessonInfo.subjectId" placeholder="请选择活动区域"><el-option
+                  <el-select v-model="lessonInfo.subjectId" placeholder="请选择所属科目"><el-option
                     v-for="item in subjectFilter"
                     :key="item.id"
                     :label="item.attributes.title"
@@ -81,7 +81,7 @@
 
           </el-tab-pane>
           <el-tab-pane label="文件" name="files">
-            角色管理
+            <mateiral></mateiral>
           </el-tab-pane>
         </el-tabs>
       </el-form>
@@ -94,6 +94,7 @@
   import SideBar from './side_bar/SideBar.vue'
   import VueMarkdown from 'vue-markdown';
   import InsertImage from "./lesson/InsertImage.vue"
+  import Mateiral  from './lesson/Mateiral.vue'
   export default {
     data() {
       return {
@@ -145,7 +146,8 @@
     components: {
       "side_bar": SideBar,
       'vue-markdown': VueMarkdown,
-      'insert-image': InsertImage
+      'insert-image': InsertImage,
+      "mateiral": Mateiral
     },
     watch:{
       plan:function(value){

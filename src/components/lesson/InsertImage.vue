@@ -33,20 +33,24 @@
 
     },
     mounted(){
-      this.getLessonAllImage()
+      if(this.$route.params.id){
+        this.getLessonAllImage()
+      }
+
     },
     methods: {
       handleCurrentChange: function (data) {
         this.currentSelected =  data
       },
       insertImage: function(){
+
         this.$bus.emit('insertImage',this.currentSelected.attributes.file.attributes);
         this.dialogTableVisible = false;
       },
       getLessonAllImage: function(){
           var self = this;
           this.$API.getLessonImage(this.$route.params.id,function(images){
-            console.log(images)
+
             self.images = images
           })
       }
