@@ -138,9 +138,6 @@
         this.$API.deleteMaterial(this.$route.params.id, material.id, function(){
           self.materials.splice(index, 1)
         });
-
-
-
       },
 
       editAtlasImage(index, material){

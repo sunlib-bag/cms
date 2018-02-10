@@ -170,29 +170,38 @@
       }
     },
     mounted() {
-      this.initPage();
       let self = this;
-      this.getSubjectList(function(){
-        self.$API.getLessonInfo(self.$route.params.id, function (lesson) {
-          let tagsInfo = self.handleTags(lesson.attributes.tags);
-          let lessonInfo = {
-            subjectId: lesson.attributes.subject.id,
-            domain: tagsInfo.domain,
-            source: tagsInfo.source,
-            author: lesson.attributes.plan ? lesson.attributes.plan.attributes.author : undefined ,
-            misc: '',
-            name: lesson.attributes.name,
-            plan: lesson.attributes.plan ? lesson.attributes.plan.attributes.content : undefined,
-            materials: self.handleMaterials(lesson.attributes.materials)
-          };
+      this.$API.checkUser(function(authenticated){
+        if(!authenticated){
+         return self.$router.push('/')
+        }
+        self.initPage();
+
+        self.getSubjectList(function(){
+          self.$API.getLessonInfo(self.$route.params.id, function (lesson) {
+            let tagsInfo = self.handleTags(lesson.attributes.tags);
+            let lessonInfo = {
+              subjectId: lesson.attributes.subject.id,
+              domain: tagsInfo.domain,
+              source: tagsInfo.source,
+              author: lesson.attributes.plan ? lesson.attributes.plan.attributes.author : undefined ,
+              misc: '',
+              name: lesson.attributes.name,
+              plan: lesson.attributes.plan ? lesson.attributes.plan.attributes.content : undefined,
+              materials: self.handleMaterials(lesson.attributes.materials)
+            };
 //          self.materials = lessonInfo.materials;
-          self.lessonInfo = lessonInfo;
-          self.plan = lessonInfo.plan;
+            self.lessonInfo = lessonInfo;
+            self.plan = lessonInfo.plan;
 
-        }, function () {
+          }, function () {
 
-        })
+          })
+        });
+
+
       });
+
       this.$bus.on('insertImage', this.insertImage);
 //      if (this.$route.params.id) {
 //

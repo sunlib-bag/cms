@@ -364,6 +364,7 @@ Api.install = function (Vue, options) {
     material.set('type', type);
     material.set('file', file);
     material.set('parent',atlas);
+    material.set('index',index);
     material.save().then(function (material) {
      sucFuc(material)
     }).catch(function () {
@@ -486,6 +487,12 @@ Api.install = function (Vue, options) {
     
     
   }
+  Api.prototype.checkUser =  function(cb){
+    let currentUser = this.AV.User.current();
+    currentUser.isAuthenticated().then(function(authenticated){
+      cb(authenticated)
+    });
+  };
   
   Api.prototype.init = function () {
     window.AV.init({

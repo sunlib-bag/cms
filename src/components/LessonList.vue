@@ -37,7 +37,12 @@
     },
 
     mounted() {
-
+      let self = this;
+      this.$API.checkUser(function(authenticated){
+          if(!authenticated){
+            self.$router.push('/')
+          }
+      });
       $('.big-container').css('min-height',window.screen.height+'px')
 
     },
@@ -45,7 +50,6 @@
       initLesson(){
         let self = this;
         this.$API.initLesson(function(lesson){
-          console.log(lesson)
           self.$router.push('/lessonInfo/' + lesson.id)
         })
       }

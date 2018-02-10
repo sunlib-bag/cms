@@ -19,6 +19,7 @@
     <el-table-column
       prop="attributes.tages"
       label="来源"
+
       :formatter="handleSource"
       filter-placement="bottom-start"
       :filters="[{ text: 'test', value: 'test' }, { text: 'ui', value: 'ui' }]"
@@ -27,6 +28,7 @@
     </el-table-column>
     <el-table-column
       prop="updatedAt"
+
       :formatter="handleDate"
       label="创建时间"
     >
@@ -34,6 +36,7 @@
     <el-table-column
       prop="attributes.draft_version_code"
       label="最新草稿版本"
+
     >
 
     </el-table-column>
@@ -41,11 +44,13 @@
     <el-table-column
       prop="attributes.version_code"
       :formatter="handleStatus"
+
       label="发布版本"
     >
 
     </el-table-column>
     <el-table-column
+      width="200px"
       label="操作"
     >
       <template slot-scope="scope">
@@ -67,6 +72,7 @@
       }
     },
     mounted() {
+
       let self = this;
       this.$API.getLesson(function (lessons) {
 
@@ -117,7 +123,7 @@
 //          self.$API.deleteLesson(scope.row.objectId,function(){
 //            self.$message({
 //              type: 'success',
-//              messa ge: '删除成功!'
+//              message: '删除成功!'
 //            });
 //          });
 

@@ -38,9 +38,12 @@
       }
     },
     mounted() {
-      if (localStorage.getItem("sessionToken")) {
-        this.$router.push({path: '/lessonList'})
-      }
+      let self = this;
+      this.$API.checkUser(function(authenticated){
+        if(authenticated){
+          self.$router.push({path: '/lessonList'})
+        }
+      })
     },
     methods: {
       login: function () {
