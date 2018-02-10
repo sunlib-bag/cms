@@ -5,7 +5,7 @@
     </el-aside>
     <el-main class="big-main">
       <el-form :model="lessonInfo" :rules="rules" ref="lessonInfo" label-width="100px" class="demo-ruleForm">
-        <el-tabs v-model="activeName" @tab-click="handleClick">
+        <el-tabs v-model="activeName">
           <el-tab-pane label="基本信息" name="baseInfo">
             <el-row>
               <el-col :span="12">
@@ -91,7 +91,13 @@
         </el-tabs>
       </el-form>
 
-      <el-button @click="test">test</el-button>
+      <el-dropdown split-button type="primary" class="save_btn" @command="publicLesson" @click="updateLesson">
+        更新草稿
+        <el-dropdown-menu slot="dropdown">
+          <el-dropdown-item>发布</el-dropdown-item>
+        </el-dropdown-menu>
+      </el-dropdown>
+
     </el-main>
   </el-container>
 
@@ -112,8 +118,8 @@
         lessonList: [],
         plan: '',
         planHtml: '',
-        actionPage:'lessonList',
-        materials:[],
+        actionPage: 'lessonList',
+        materials: [],
         lessonInfo: {
           subjectId: '',
           domain: [],
@@ -165,27 +171,29 @@
     },
     watch: {
       plan: function (value) {
-        this.lessonInfo.plan = value
+        this.lessonInfo.plan = value;
         this.planHtml = value
       }
     },
     mounted() {
       let self = this;
-      this.$API.checkUser(function(authenticated){
-        if(!authenticated){
-         return self.$router.push('/')
+      this.$API.checkUser(function (authenticated) {
+        if (!authenticated) {
+          return self.$router.push('/')
         }
         self.initPage();
 
-        self.getSubjectList(function(){
+        self.getSubjectList(function () {
           self.$API.getLessonInfo(self.$route.params.id, function (lesson) {
             let tagsInfo = self.handleTags(lesson.attributes.tags);
             let lessonInfo = {
+              id: lesson.id,
+              draft_version_code: lesson.attributes.draft_version_code,
               subjectId: lesson.attributes.subject.id,
               domain: tagsInfo.domain,
               source: tagsInfo.source,
-              author: lesson.attributes.plan ? lesson.attributes.plan.attributes.author : undefined ,
-              misc: '',
+              author: lesson.attributes.plan ? lesson.attributes.plan.attributes.author : undefined,
+              misc: tagsInfo.misc,
               name: lesson.attributes.name,
               plan: lesson.attributes.plan ? lesson.attributes.plan.attributes.content : undefined,
               materials: self.handleMaterials(lesson.attributes.materials)
@@ -208,37 +216,33 @@
 //      }
 
       this.$bus.on('changeMaterial', function (value) {
-        self.materials =  value
+        self.materials = value
       })
-
 
 
     },
     methods: {
-      test() {
-        console.log(this.lessonInfo)
-      },
+     
       handleMaterials(materials) {
 
-        let materialsInfo = []
+        let materialsInfo = [];
         for (let i = 0; i < materials.length; i++) {
-          console.log(materials[i])
           let material = {
             id: materials[i].id,
             name: materials[i].name,
             type: materials[i].type,
             index: materials[i].index,
           };
-          if(materials[i].type !==0){
+          if (materials[i].type !== 0) {
             material.url = materials[i].file.attributes.url
-          }else{
+          } else {
             let atlas = [];
-            for(let j =0 ;j <materials[i].files.length; j++){
+            for (let j = 0; j < materials[i].files.length; j++) {
               let imageInfo = materials[i].files[j];
               let image = {
                 id: imageInfo.id,
-                name:imageInfo.attributes.name,
-                type:imageInfo.attributes.type,
+                name: imageInfo.attributes.name,
+                type: imageInfo.attributes.type,
                 index: imageInfo.attributes.index,
                 url: imageInfo.attributes.file.attributes.url
               };
@@ -248,7 +252,7 @@
           }
           materialsInfo.push(material)
         }
-        return  materialsInfo
+        return materialsInfo
 
 
       },
@@ -256,7 +260,7 @@
         let domain = [];
         let source;
         let misc;
-        if(!tags) return {domain: domain, source: source, misc: misc}
+        if (!tags) return {domain: domain, source: source, misc: misc}
         for (let i = 0; i < tags.length; i++) {
           let tagInfo = tags[i].split('.'); //todo
           if (tagInfo[0] === 'domain') {
@@ -282,15 +286,44 @@
         }, function () {
         })
       },
-      handleClick(tab, event) {
-        console.log(this.activeName);
+      updateLesson(tab, event) {
+        let lessonInfo = this.handleLessonInfo();
+
+
+
       },
+      publicLesson() {
+        console.log('publicLesson');
+      }
+      ,
       insertImage(selectImageInfo) {
         let $markdown_edit = $("#markdown_editor");
         this.insertAtCursor($markdown_edit[0], "<img src='" + selectImageInfo.url + "'>");
         this.plan = $markdown_edit.val()
       },
-      getLessonInfo() {
+      handleLessonInfo() {
+
+        let newLessonInfo = {};
+        let lessonInfo = this.lessonInfo;
+        newLessonInfo.plan = lessonInfo.plan;
+        newLessonInfo.author =  lessonInfo.author;
+        newLessonInfo.name = lessonInfo.name;
+        newLessonInfo.draft_version_code = lessonInfo.draft_version_code + 1;
+        newLessonInfo.subjectId = lessonInfo.subjectId;
+        let tags = [];
+        for (let i = 0; i < lessonInfo.domain.length; i++) {
+          tags.push('domain.' + lessonInfo.domain[i])
+        }
+        if(lessonInfo.source){
+          tags.push('source.' + lessonInfo.source);
+        }
+        if(lessonInfo.misc){
+          tags.push('misc.'+lessonInfo.misc)
+        }
+        newLessonInfo.tags =  tags;
+
+
+        return newLessonInfo
 
       },
       insertAtCursor(myField, myValue) {
@@ -340,6 +373,7 @@
   .big-main {
     padding-left: 40px;
     padding-right: 40px;
+    position: relative;
 
   }
 
@@ -373,6 +407,12 @@
 
   .markdown-container {
     padding: 12px;
+  }
+
+  .save_btn {
+    position: absolute;
+    top: 20px;
+    right: 40px;
   }
 
   .markdown-preview-container {

@@ -395,97 +395,13 @@ Api.install = function (Vue, options) {
     
   };
   
+  Api.prototype.updateLesson =  function(){
+  
+  }
+  
   Api.prototype.test = function () {
-    
-    // var todoFolder = new this.AV.Object('TEST');
-    // todoFolder.set('name', '工作');
-    // todoFolder.set('priority', 1);
-    //
-    // var todo1 = new this.AV.Object('TEST2');
-    // todo1.set('title', '工程师周会');
-    // todo1.set('content', '每周工程师会议，周一下午2点');
-    // todo1.set('location', '会议室');
-    //
-    // var todo2 = new this.AV.Object('TEST2');
-    // todo2.set('title', '维护文档');
-    // todo2.set('content', '每天 16：00 到 18：00 定期维护文档');
-    // todo2.set('location', '当前工位');
-    //
-    // var todo3 = new this.AV.Object('TEST2');
-    // todo3.set('title', '发布 SDK');
-    // todo3.set('content', '每周一下午 15：00');
-    // todo3.set('location', 'SA 工位');
-    //
-    // var todos = [todo1, todo2, todo3];
-    // this.AV.Object.saveAll(todos).then(function () {
-    //   var relation = todoFolder.relation('containedTodos'); // 创建 AV.Relation
-    //   todos.map(relation.add.bind(relation));
-    //   return todoFolder.save();// 保存到云端
-    // }).then(function(todoFolder) {
-    //   // 保存成功
-    // }, function (error) {
-    //   // 异常处理
-    // });
-    
-    
-    // var a =  this.AV.Object.createWithoutData('TEST2','5a7bf8cba22b9d00449e661a');
-    // var b =  this.AV.Object.createWithoutData('TEST2','5a7bf8cba22b9d00449e661b');
-    // var c =  this.AV.Object.createWithoutData('TEST2','5a7bf8cba22b9d00449e6619');
-    // var d = this.AV.Object.createWithoutData('TEST','5a7bf85f17d0090035fdc65c');
-    // var todos = [c];
-    // var relation = d.relation('containedTodos')
-    //
-    //     todos.map(relation.add.bind(relation));
-    //      d.save();// 保存到云端
-    //
-    
-    
-    // var studentCourseMapTom = new AV.Object('StudentCourseMap');
-    //
-    // // 设置关联
-    // studentCourseMapTom.set('test', d);
-    // studentCourseMapTom.set('test1', a);
-    // studentCourseMapTom.save();
-    //
-    // var studentCourseMapTom2 = new AV.Object('StudentCourseMap');
-    //
-    // studentCourseMapTom2.set('test', d);
-    // studentCourseMapTom2.set('test1', b);
-    // studentCourseMapTom2.save();
-    // var studentCourseMapTom3 = new AV.Object('StudentCourseMap');
-    //
-    // studentCourseMapTom3.set('test', d);
-    // studentCourseMapTom3.set('test1', c);
-    // studentCourseMapTom3.save();
-    
-    
-    // var studentTom = AV.Object.createWithoutData('TEST', '5a7bf85f17d0090035fdc65c');
-    // var query = new AV.Query('StudentCourseMap');
-    // query.equalTo('test', studentTom);
-    // // query.include('test1')
-    // query.find().then(function(data){
-    //   console.log(data)
-    // })
-    
-    
-    // var todos = [a, b, c];
-    //
-    //
-    // var relation = d.relation('containedTodos')
-    // todos.map(relation.add.bind(relation))
-    // // d.save()
-    
-    
-    //
-    // let a = this.AV.Object.createWithoutData('TEST', '5a7bf85f17d0090035fdc65c');
-    // var relation = a.relation('containedTodos');
-    // var relation = a.relation('containedTodos');
-    // var query = relation.query();
-    // query.find().then(function(data){
-    //   console.log(data)
-    // })
-    
-    
+  
+  
   }
   Api.prototype.checkUser =  function(cb){
     let currentUser = this.AV.User.current();
