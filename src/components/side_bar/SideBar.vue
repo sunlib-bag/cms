@@ -5,16 +5,16 @@
       </div>
       <el-menu
         style="border-right: none"
-        :default-active= "this.$route.path"
+        :default-active= "actionPage"
         class="el-menu-vertical-demo"
-        router
+
         @select="handleOpen"
         @close="handleClose">
-        <el-menu-item index="/lessonList">
+        <el-menu-item index="lessonList">
           <i class="el-icon-tickets"></i>
           <span slot="title">课程列表</span>
         </el-menu-item>
-        <el-menu-item index="/subjectList">
+        <el-menu-item index="subjectList">
           <i class="el-icon-menu"></i>
           <span slot="title">科目设置</span>
         </el-menu-item>
@@ -29,6 +29,11 @@
 <script>
 //  v-bind:style="{ 'min-height': minHeight+'px'}"
   export default {
+    props:{
+      actionPage : {
+        default: 'lessonList'
+      }
+    },
     data(){
       return{
         minHeight: window.screen.height-65
@@ -36,8 +41,7 @@
     },
     methods:{
       handleOpen(key, keyPath) {
-        console.log(key);
-        console.log(keyPath);
+        this.$router.push('/'+key )
       },
       handleClose(key, keyPath) {
         console.log(key, keyPath);

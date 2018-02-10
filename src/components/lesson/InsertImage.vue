@@ -9,7 +9,7 @@
         highlight-current-row
         style="width: 100%">
         <el-table-column
-          property="attributes.name"
+          property="name"
           label="选择要插入的图片">
         </el-table-column>
       </el-table>
@@ -22,6 +22,11 @@
 </template>
 <script>
   export default {
+    props:{
+      lessonMaterials:{
+        default:[]
+      }
+    },
     data() {
       return {
         images: [
@@ -33,9 +38,34 @@
 
     },
     mounted(){
-      if(this.$route.params.id){
-        this.getLessonAllImage()
+
+
+    },
+    watch:{
+      lessonMaterials:{
+        handler: function(lessonMaterials){
+
+
+          this.images = [];
+          for(let i = 0; i<lessonMaterials.length;i++){
+            if(lessonMaterials[i].type === 3){
+              this.images.push(lessonMaterials[i])
+            }
+            if(lessonMaterials[i].type === 0){
+              for(let j =0 ;j < lessonMaterials[i].files.length; j++){
+                console.log(lessonMaterials[i].files[j])
+                if(lessonMaterials[i].files[j].type===3){
+
+                  this.images.push(lessonMaterials[i].files[j])
+                }
+              }
+            }
+          }
+          console.log(this.images)
+        },
+        deep:true
       }
+
 
     },
     methods: {
@@ -43,14 +73,13 @@
         this.currentSelected =  data
       },
       insertImage: function(){
-
-        this.$bus.emit('insertImage',this.currentSelected.attributes.file.attributes);
+        console.log(this.currentSelected)
+        this.$bus.emit('insertImage',this.currentSelected);
         this.dialogTableVisible = false;
       },
       getLessonAllImage: function(){
           var self = this;
           this.$API.getLessonImage(this.$route.params.id,function(images){
-
             self.images = images
           })
       }

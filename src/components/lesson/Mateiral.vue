@@ -2,49 +2,17 @@
   <div>
     <div v-show="isMaterialsShow">
       <div>
-        <el-button>
+        <el-button @click="change('materialInput')">
           上传文件
         </el-button>
-        <el-button>
+
+        <input v-on:change="createMaterial" id="materialInput" type ='file' style="display:none"/>
+        <el-button @click="addAtlas">
           添加图集
         </el-button>
       </div>
       <div style="width: 320px;border: solid 1px #e6e6e6;margin-top: 10px">
-
-        <!--<el-table-->
-          <!--:data="materials"-->
-          <!--style="width: 320px">-->
-          <!--<el-table-column-->
-            <!--width="50">-->
-            <!--<template slot-scope="scope">-->
-
-              <!--<span class='el-icon-picture' v-if="scope.row.type===3"></span>-->
-              <!--<span class='el-icon-tickets' v-if="scope.row.type===2"></span>-->
-              <!--<span class='el-icon-tickets' v-if="scope.row.type===1"></span>-->
-              <!--<span class='el-icon-goods' v-if="scope.row.type===0"> </span>-->
-
-            <!--</template>-->
-          <!--</el-table-column>-->
-
-          <!--<el-table-column-->
-            <!--prop="name"-->
-            <!--width="200"-->
-            <!--:cell-click="goToAtlas"-->
-          <!--&gt;-->
-          <!--</el-table-column>-->
-
-          <!--<el-table-column-->
-            <!--prop="address"-->
-            <!--width="70">-->
-            <!--<template slot-scope="scope">-->
-              <!--<el-button type="text" icon="el-icon-edit" @click="edit(scope)"></el-button>-->
-              <!--<el-button type="text" icon="el-icon-delete"></el-button>-->
-            <!--</template>-->
-          <!--</el-table-column>-->
-        <!--</el-table>-->
-
-
-        <div v-for="material in materials" >
+        <div v-for="(material, index) in materials" >
           <el-row  style="width: 300px;padding: 5px; border-bottom: solid 1px #e6e6e6;line-height: 51px;">
             <el-col  :span="3">
               <div @click="goToAtlas(material)">
@@ -56,12 +24,12 @@
 
             </el-col>
             <el-col :span="16" >
-              <div @click="goToAtlas(material)">{{ material.name }}</div>
+              <div @click="goToAtlas(material,index)" class="materialName">{{ material.name }}</div>
             </el-col>
 
             <el-col :span="5">
-              <el-button type="text" icon="el-icon-edit" @click="edit(material)"></el-button>
-              <el-button type="text" icon="el-icon-delete"></el-button>
+              <el-button type="text" icon="el-icon-edit" @click="editMaterialFile(index,material)"></el-button>
+              <el-button type="text" icon="el-icon-delete" @click="deleteMaterialFile(index,material)"></el-button>
             </el-col>
           </el-row>
         </div>
@@ -73,18 +41,23 @@
         <div class="left" @click="back">  文件》 </div>
         <div class="left">{{currentAtlasName}}</div>
         <div class="left">
-          <el-button>长传图片</el-button>
+          <el-button @click="change('imageInput')">长传图片</el-button>
+          <input v-on:change="changeImageInput" id="imageInput" type ='file' style="display:none"/>
         </div>
       </div>
       <div>
         <div class="table-container">
-          <div v-for="image in images" class="image-container">
-            <div class="extra-button-container"><el-button type="text" icon="el-icon-delete"></el-button></div>
-            <div class="image-contain">
-              <img style="width: 200px" :src="image.attributes.file.attributes.url">
+          <div v-for="(image, imageIndex) in images" class="mid-container">
+            <div class="image-container">
+              <div class="extra-button-container"><el-button type="text" icon="el-icon-delete" @click="deleteAtlasImage(imageIndex, image)"></el-button></div>
+              <div class="image-contain">
+                <img style="width: 200px" :src="image.url">
+              </div>
+
+              <div><div class="atlasName">{{image.name}}</div><el-button type="text" icon="el-icon-edit" @click="editAtlasImage(imageIndex,image)"></el-button></div>
+
             </div>
 
-            <div>{{image.attributes.name}}<el-button type="text" icon="el-icon-edit" @click="edit(image)"></el-button></div>
           </div>
         </div>
 
@@ -100,74 +73,159 @@
 
 </template>
 <script>
-  import ElRow from "element-ui/packages/row/src/row";
-  import ElCol from "element-ui/packages/col/src/col";
-  import ElButton from "../../../node_modules/element-ui/packages/button/src/button.vue";
 
   export default {
     components: {
-      ElButton,
-      ElCol,
-      ElRow},
+
+    },
+    props:{
+      materials:{
+        type: Array,
+        default:[]
+      }
+    },
     data() {
       return {
-        materials: [{name: 1}, {name: 2}],
+
         isMaterialsShow: true,
-        currentAtlasName:'图集',
+        currentAtlasName:'',
+        currentAtlasIndex:'',
         images:[]
+      }
+    },
+    watch:{
+      materials:{
+        handler:function(value){
+          this.$bus.emit('changeMaterial',value)
+        },
+        deep: true
       }
     },
     mounted() {
       let self = this;
-      this.$API.getMaterials(this.$route.params.id, function (materials) {
-        let materialsInfo = [];
-        for (let i = 0; i < materials.length; i++) {
-          let info = {
-            name: materials[i].attributes.material.attributes.name,
-            type: materials[i].attributes.material.attributes.type,
-            id: materials[i].attributes.material.id
-
-          };
-          if (materials[i].attributes.material.attributes.type !== 0) {
-
-            let type  = materials[i].attributes.material.attributes.file.attributes.name.split(".")[1];
-            info.name = info.name + "." + type;
-            info.url = materials[i].attributes.material.attributes.file.attributes.url
-          }
-          materialsInfo.push(info)
-        }
-        self.materials = materialsInfo
-
-
-      }, function () {
-
-      })
     },
     methods: {
-      goToAtlas(material){
-        console.log(material)
-        var self = this;
+      goToAtlas(material,index){
+
+        let self = this;
         if(material.type === 0){
           this.isMaterialsShow = false;
-
-          this.$API.getAtlasImage(material.id, function(images){
-            console.log(images)
-            self.images =  images;
-
-          },function(){
-
-          })
+          this.images = material.files;
+          this.currentAtlasName =  material.name;
+          this.currentAtlasIndex = index;
         }
       },
-      edit(){
-        this.$message({
-          type: 'info',
-          message: '发送成功'
+      editMaterialFile(index, material){
+        let self = this;
+        this.$prompt('请输入新文件名', '修改文件名', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消'
+
+        }).then(({ value }) => {
+          self.$API.changeMaterialName(material, value,function(newMaterial){
+            self.materials[index].name = newMaterial.name
+
+          })
+
+
+        }).catch(() => {
+
         });
+      },
+      deleteMaterialFile(index, material){
+
+        let self = this;
+        this.$API.deleteMaterial(this.$route.params.id, material.id, function(){
+          self.materials.splice(index, 1)
+        });
+
+
+
+      },
+
+      editAtlasImage(index, material){
+        let self = this;
+        this.$prompt('请输入新文件名', '修改文件名', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消'
+
+        }).then(({ value }) => {
+//            let nameInfo = self.materials[index].name.split('.'); //todo
+//
+//            if(self.materials[self.currentAtlasIndex].files[index].type===0){
+//
+//              self.materials[self.currentAtlasIndex].files[index].name = value
+//            }else{
+//
+//              self.materials[self.currentAtlasIndex].files[index].name = value+"."+nameInfo[1]
+//            }
+
+            self.$API.changeMaterialName(material, value,function(newMaterial){
+              self.materials[self.currentAtlasIndex].files[index].name = newMaterial.name
+
+            })
+
+
+
+
+
+          }).catch(() => {
+        })
+      },
+      deleteAtlasImage(index, material){
+        var self = this;
+        console.log(material)
+        this.$API.deleteAtlasMaterial(material.id, function(){
+          self.materials[self.currentAtlasIndex].files.splice(index, 1)
+        })
+
       },
       back(){
         this.isMaterialsShow = true;
         this.images =  [];
+      },
+      createMaterial(value){
+        if(!value) return;
+        let self = this;
+        let fileUploadControl = $('#materialInput')[0];
+        if (fileUploadControl.files.length > 0) {
+          let localFile = fileUploadControl.files[0];
+          this.$API.createMaterial(this.$route.params.id, this.materials.length+1 ,localFile.name, localFile,function(result){
+            self.materials.push({id: result.id,name: result.attributes.name, type:result.attributes.type, url:result.attributes.file.attributes.url})
+            $("#materialInput").val('')
+          })
+        }
+
+      },
+      changeImageInput(value){
+
+        if(!value) return;
+        let fileUploadControl = $('#imageInput')[0];
+        let self = this;
+
+        if (fileUploadControl.files.length > 0) {
+          let localFile = fileUploadControl.files[0];
+          this.$API.createAtlasMaterial(this.materials[this.currentAtlasIndex].id,(this.images.length+1) ,localFile.name, localFile,function(result){
+
+            self.materials[self.currentAtlasIndex].files.push({id: result.id,name: result.attributes.name, type:result.attributes.type, url:result.attributes.file.attributes.url})
+            self.images =  self.materials[self.currentAtlasIndex].files;
+            console.log(self.images)
+            $("#imageInput").val('')
+          })
+        }
+      },
+      addAtlas(){
+        let self = this;
+
+        this.$API.addAtlas(this.$route.params.id, (this.materials.length+1) , function(material){
+          let materialInfo = material
+          self.materials.push({id:materialInfo.id, name: materialInfo.attributes.name, files:[], type: materialInfo.attributes.type, index: materialInfo.attributes.index})
+        })
+
+      }
+
+      ,change(id){
+        $("#"+id).click()
       }
 
     }
@@ -183,11 +241,16 @@
     margin-left: 50px;
   }
   .image-container{
-    float: left;
-    height: 230px;
-    width: 200px;
     position: relative;
     text-align: center;
+  }
+
+  .mid-container{
+    float: left;
+    height: 250px;
+    width: 200px;
+    padding: 10px;
+
   }
 
   .image-contain{
@@ -204,5 +267,18 @@
   .table-container{
     padding-bottom: 20px;
     display: table;
+  }
+  .materialName{
+    width: 200px;
+    overflow: hidden;
+    text-overflow:ellipsis;
+    white-space: nowrap;
+  }
+  .atlasName{
+    width: 150px;
+    display: inline-block;
+    overflow: hidden;
+    text-overflow:ellipsis;
+    white-space: nowrap;
   }
 </style>

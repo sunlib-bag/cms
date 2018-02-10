@@ -1,12 +1,12 @@
 <template>
   <el-container class="big-container">
     <el-aside class="big-side">
-      <side_bar></side_bar>
+      <side_bar :actionPage="actionPage"></side_bar>
     </el-aside>
     <el-main class="big-main">
       <el-row align="middle">
         <el-col :span="18"><h3>课程列表</h3></el-col>
-        <el-col :span="6" style="text-align: right"><el-button>添加课程</el-button></el-col>
+        <el-col :span="6" style="text-align: right"><el-button @click="initLesson">添加课程</el-button></el-col>
       </el-row>
       <div class="lesson-list">
         <course_list>
@@ -26,7 +26,9 @@
   export default {
     data() {
       return {
-        lessonList: []
+        lessonList: [],
+        subjectFilter:[],
+        actionPage:'lessonList'
       }
     },
     components: {
@@ -39,7 +41,15 @@
       $('.big-container').css('min-height',window.screen.height+'px')
 
     },
-    methods: {}
+    methods: {
+      initLesson(){
+        let self = this;
+        this.$API.initLesson(function(lesson){
+          console.log(lesson)
+          self.$router.push('/lessonInfo/' + lesson.id)
+        })
+      }
+    }
   }
 </script>
 
