@@ -188,6 +188,7 @@
             let tagsInfo = self.handleTags(lesson.attributes.tags);
             let lessonInfo = {
               id: lesson.id,
+              planId: lesson.attributes.plan.id,
               draft_version_code: lesson.attributes.draft_version_code,
               subjectId: lesson.attributes.subject.id,
               domain: tagsInfo.domain,
@@ -222,7 +223,7 @@
 
     },
     methods: {
-     
+
       handleMaterials(materials) {
 
         let materialsInfo = [];
@@ -287,8 +288,17 @@
         })
       },
       updateLesson(tab, event) {
+        let self = this;
+        console.log(this.lessonInfo)
         let lessonInfo = this.handleLessonInfo();
-
+        console.log(lessonInfo)
+          this.$API.updateLesson(lessonInfo, function(){
+            self.$message({
+              type: 'success',
+              message: '成功更新草稿'
+            });
+            self.lessonInfo.draft_version_code ++;
+          })
 
 
       },
@@ -305,6 +315,8 @@
 
         let newLessonInfo = {};
         let lessonInfo = this.lessonInfo;
+        newLessonInfo.id = lessonInfo.id;
+        newLessonInfo.planId =  lessonInfo.planId;
         newLessonInfo.plan = lessonInfo.plan;
         newLessonInfo.author =  lessonInfo.author;
         newLessonInfo.name = lessonInfo.name;

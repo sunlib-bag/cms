@@ -51,13 +51,13 @@
         let userInfo = {mobilePhoneNumber: this.phone, smsCode: this.verificationCode};
         this.$API.login(userInfo, function (result) {
           self.$message({
-            type: 'info',
+            type: 'success',
             message: '登录成功'
           });
           self.$router.push({path: '/lessonList'})
         }, function () {
           self.$message({
-            type: 'info',
+            type: 'error',
             message: '登录失败'
           });
         })

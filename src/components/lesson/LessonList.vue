@@ -55,7 +55,7 @@
     >
       <template slot-scope="scope">
         <el-button type="success" size="small" @click="goToUpdateLesson(scope)">编辑</el-button>
-        <el-button type="danger" size="small" @click="deleteLesson(scope)">删除</el-button>
+        <el-button type="danger" size="small" @click="deleteLesson(scope, lessonList)">删除</el-button>
 
       </template>
 
@@ -90,6 +90,13 @@
       })
     },
     methods: {
+      getLessonList(){
+        let self = this;
+        this.$API.getLesson(function (lessons) {
+
+          self.lessonList = lessons
+        });
+      },
       filterTag(value, row) {
         return row.attributes.subject.id === value;
       },
@@ -113,19 +120,21 @@
 
 
       },
-      deleteLesson(scope) {
+      deleteLesson(scope, lessonList) {
         let self = this;
         this.$confirm('此操作将永久删除' + scope.row.attributes.name + ', 是否继续?', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
-//          self.$API.deleteLesson(scope.row.objectId,function(){
-//            self.$message({
-//              type: 'success',
-//              message: '删除成功!'
-//            });
-//          });
+          console.log(scope.row.id)
+          self.$API.deleteLesson(scope.row.id,function(){
+            self.$message({
+              type: 'success',
+              message: '删除成功!'
+            });
+            lessonList.splice(scope.$index, 1)
+          });
 
         }).catch(() => {
           self.$message({

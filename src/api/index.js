@@ -379,10 +379,13 @@ Api.install = function (Vue, options) {
     let self = this;
     query.find().then(function (products) {
       let subject = self.AV.Object.createWithoutData('Subject', products[0].id);
+      let LessonPlan = new self.AV.Object('LessonPlan');
       let newLesson = new self.AV.Object('Lesson');
-      newLesson.set('isPublic', false);
+      newLesson.set('isPublished', false);
       newLesson.set('name', '草稿');
-      newLesson.set('subject', subject)
+      newLesson.set('subject', subject);
+      newLesson.set('plan', LessonPlan)
+      
       newLesson.save().then(function (lesson) {
         sucFuc(lesson)
       }).catch(function () {
@@ -395,9 +398,25 @@ Api.install = function (Vue, options) {
     
   };
   
-  Api.prototype.updateLesson =  function(){
-  
-  }
+  Api.prototype.updateLesson =  function(lessonInfo, sucFuc, errFuc){
+    let plan = this.AV.Object.createWithoutData('LessonPlan',lessonInfo.planId);
+    
+    plan.set('content',lessonInfo.plan);
+    plan.set('author',lessonInfo.author);
+    let subject = this.AV.Object.createWithoutData('Subject', lessonInfo.subjectId);
+    let lesson = this.AV.Object.createWithoutData('Lesson',lessonInfo.id);
+    lesson.set('name',lessonInfo.name);
+    lesson.set('tags',lessonInfo.tags);
+    lesson.set('subject', subject);
+    lesson.set('draft_version_code', lessonInfo.draft_version_code);
+    console.log('=====')
+    this.AV.Object.saveAll([plan, lesson]).then(function(){
+      sucFuc()
+    }).catch(function(){
+      errFuc()
+    })
+    
+  };
   
   Api.prototype.test = function () {
   
