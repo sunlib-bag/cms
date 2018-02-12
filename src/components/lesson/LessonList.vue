@@ -115,7 +115,9 @@
         for (let i = 0; i < tags.length; i++) {
           let tagInfo = tags[i].split('.'); //todo
           if (tagInfo[0] === 'source') {
-            return tagInfo[1]
+            tagInfo.shift()
+            let source = tagInfo.join('.')
+            return source
           }
         }
         return ''

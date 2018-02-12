@@ -274,13 +274,18 @@
         for (let i = 0; i < tags.length; i++) {
           let tagInfo = tags[i].split('.'); //todo
           if (tagInfo[0] === 'domain') {
-            domain.push(tagInfo[1])
+            tagInfo.shift();
+            domain.push(tagInfo.join('.'))
+
+
           }
           if (tagInfo[0] === 'source') {
-            source = tagInfo[1]
+            tagInfo.shift();
+             source = tagInfo.join('.')
           }
           if (tagInfo[0] === 'misc') {
-            misc = tagInfo[1]
+            tagInfo.shift();
+            misc =tagInfo.join('.')
           }
         }
         return {domain: domain, source: source, misc: misc}
