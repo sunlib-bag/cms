@@ -176,7 +176,7 @@
       }
     },
     beforeDestroy(){
-      
+
       this.$bus.$off("changeMaterial");
       this.$bus.$off("insertImage")
     },
@@ -309,7 +309,7 @@
         this.$API.updateLesson(lessonInfo, function () {
           self.$message({
             type: 'success',
-            message: '成功更新草稿'
+            message: '成功保存草稿'
           });
           self.lessonInfo.draft_version_code++;
         }, function () {
