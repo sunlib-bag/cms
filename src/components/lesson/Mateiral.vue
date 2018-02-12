@@ -10,6 +10,7 @@
         <el-button @click="addAtlas">
           添加图集
         </el-button>
+        <span class="color-dark-light" style="color:#909399">操作会实时保存，不要乱搞哦</span>
       </div>
       <div style="width: 320px;border: solid 1px #e6e6e6;margin-top: 10px">
         <div v-for="(material, index) in materials" >
@@ -41,7 +42,7 @@
         <div class="left" @click="back">  文件》 </div>
         <div class="left">{{currentAtlasName}}</div>
         <div class="left">
-          <el-button @click="change('imageInput')">长传图片</el-button>
+          <el-button @click="change('imageInput')">上传图片</el-button>
           <input v-on:change="changeImageInput" id="imageInput" type ='file' style="display:none"/>
         </div>
       </div>

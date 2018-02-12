@@ -176,7 +176,7 @@
       }
     },
     beforeDestroy(){
-      console.log("=================beforeDestroy")
+      
       this.$bus.$off("changeMaterial");
       this.$bus.$off("insertImage")
     },
