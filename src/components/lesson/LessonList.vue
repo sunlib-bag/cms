@@ -22,8 +22,8 @@
 
       :formatter="handleSource"
       filter-placement="bottom-start"
-      :filters="[{ text: 'test', value: 'test' }, { text: 'ui', value: 'ui' }]"
-      :filter-method="filterTag"
+      :filters="sourceList"
+      :filter-method="filterSource"
     >
     </el-table-column>
     <el-table-column
@@ -68,7 +68,22 @@
     data() {
       return {
         lessonList: [],
-        subjectFilter: []
+        subjectFilter: [],
+        sourceList: [
+          {"value": "千千树", text: "千千树"},
+          {"value": "儿童乐益会", text: "儿童乐益会"},
+          {"value": "安利基金会", text: "安利基金会"},
+          {"value": "广西师大出版社", text: "广西师大出版社"},
+          {"value": "救助儿童会", text: "救助儿童会"},
+          {"value": "信谊基金会", text: "信谊基金会"},
+          {"value": "一公斤盒子", text: "一公斤盒子"},
+          {"value": "澳门同济慈善会", text: "澳门同济慈善会"},
+          {"value": "奕阳教育", text: "奕阳教育"},
+          {"value": "通州儿童之家", text: "通州儿童之家"},
+          {"value": "西部阳光基金会", text: "西部阳光基金会"},
+          {"value": "农村小规模学校联盟", text: "农村小规模学校联盟"},
+          {"value": "凉善公益", text: "凉善公益"},
+        ]
       }
     },
     mounted() {
@@ -98,7 +113,21 @@
       })
     },
     methods: {
+      filterSource(value, row){
 
+        let tags = row.attributes.tags;
+        let source;
+        if (!tags) return false;
+
+        for (let i = 0; i < tags.length; i++) {
+          let tagInfo = tags[i].split('.'); //todo
+          if (tagInfo[0] === 'source') {
+            tagInfo.shift();
+            source = tagInfo.join('.')
+          }
+        }
+        return value === source
+      },
       filterTag(value, row) {
         return row.attributes.subject.id === value;
       },
