@@ -6,7 +6,9 @@
     <el-main class="big-main">
       <el-row align="middle">
         <el-col :span="18"><h3>课程列表</h3></el-col>
-        <el-col :span="6" style="text-align: right"><el-button @click="initLesson">添加课程</el-button></el-col>
+        <el-col :span="6" style="text-align: right">
+          <el-button @click="initLesson">添加课程</el-button>
+        </el-col>
       </el-row>
       <div class="lesson-list">
         <course_list>
@@ -22,13 +24,12 @@
   import LessonList from './lesson/LessonList.vue'
 
 
-
   export default {
     data() {
       return {
         lessonList: [],
-        subjectFilter:[],
-        actionPage:'lessonList'
+        subjectFilter: [],
+        actionPage: 'lessonList'
       }
     },
     components: {
@@ -38,19 +39,24 @@
 
     mounted() {
       let self = this;
-      this.$API.checkUser(function(authenticated){
-          if(!authenticated){
-            self.$router.push('/')
-          }
+      this.$API.checkUser(function (authenticated) {
+        if (!authenticated) {
+          self.$router.push('/')
+        }
       });
-      $('.big-container').css('min-height',window.screen.height+'px')
+      $('.big-container').css('min-height', window.screen.height + 'px')
 
     },
     methods: {
-      initLesson(){
+      initLesson() {
         let self = this;
-        this.$API.initLesson(function(lesson){
+        this.$API.initLesson(function (lesson) {
           self.$router.push('/lessonInfo/' + lesson.id)
+        }, function () {
+          self.$message({
+            type: 'error',
+            message: '创建课程失败！'
+          });
         })
       }
     }

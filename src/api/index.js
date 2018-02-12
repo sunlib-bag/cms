@@ -26,11 +26,10 @@ Api.install = function (Vue, options) {
       sucFuc(success)
     }, function (error) {
       errFuc()
-      
     });
   };
   
-  Api.prototype.getLesson = function (cb) {
+  Api.prototype.getLesson = function (cb,errFuc) {
     
     let query = new this.AV.Query('Lesson');
     query.include('subject');
@@ -38,7 +37,7 @@ Api.install = function (Vue, options) {
     query.find().then(function (products) {
       cb(products)
     }).catch(function (error) {
-      console.log(error)
+      errFuc(error)
     });
   };
   
@@ -103,11 +102,11 @@ Api.install = function (Vue, options) {
       sucFuc()
       
     }).catch(function (err) {
-    
+      errFuc()
     });
   }
   
-  Api.prototype.deleteLesson = function (id, cb) {
+  Api.prototype.deleteLesson = function (id, cb, errFuc) {
     
     
     var todo = this.AV.Object.createWithoutData('Lesson', id);
@@ -115,6 +114,7 @@ Api.install = function (Vue, options) {
       // 删除成功
       cb(success)
     }, function (error) {
+      errFuc()
       // 删除失败
     });
   };
@@ -204,14 +204,18 @@ Api.install = function (Vue, options) {
           }
           lessonInfo.attributes.materials = materials;
           sucFuc(lessonInfo)
-        })
+        }).catch(function (error) {
+          errFuc()
+        });
         
         
-      });
+      }).catch(function (error) {
+        errFuc()
+      });;
       
       
     }).catch(function (error) {
-    
+      errFuc()
     });
     
     
@@ -310,7 +314,7 @@ Api.install = function (Vue, options) {
     materialLessonQuery.destroyAll().then(function(result){
             sucFuc()
     }).catch(function(error){
-    
+      errFuc()
     })
   };
   Api.prototype.deleteAtlasMaterial = function(materialId, sucFuc, errFuc){
@@ -320,7 +324,7 @@ Api.install = function (Vue, options) {
     material.save().then(function(){
       sucFuc()
     }).catch(function(){
-
+      errFuc()
     })
     
   };
@@ -346,7 +350,7 @@ Api.install = function (Vue, options) {
       });
       
     }).catch(function () {
-    
+      errFuc()
     })
     
   };
@@ -368,7 +372,7 @@ Api.install = function (Vue, options) {
     material.save().then(function (material) {
      sucFuc(material)
     }).catch(function () {
-    
+      errFuc()
     })
   
   
@@ -392,7 +396,7 @@ Api.install = function (Vue, options) {
       
       })
     }).catch(function (error) {
-      console.log(error)
+      errFuc()
     });
     
     
@@ -409,7 +413,6 @@ Api.install = function (Vue, options) {
     lesson.set('tags',lessonInfo.tags);
     lesson.set('subject', subject);
     lesson.set('draft_version_code', lessonInfo.draft_version_code);
-    console.log('=====')
     this.AV.Object.saveAll([plan, lesson]).then(function(){
       sucFuc()
     }).catch(function(){
@@ -424,6 +427,7 @@ Api.install = function (Vue, options) {
   }
   Api.prototype.checkUser =  function(cb){
     let currentUser = this.AV.User.current();
+    if(!currentUser) return cb(false)
     currentUser.isAuthenticated().then(function(authenticated){
       cb(authenticated)
     });

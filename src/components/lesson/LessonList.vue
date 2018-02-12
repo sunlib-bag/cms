@@ -77,6 +77,11 @@
       this.$API.getLesson(function (lessons) {
 
         self.lessonList = lessons
+      }, function () {
+        self.$message({
+          type: 'error',
+          message: '获取课程列表失败!'
+        });
       });
 
       this.$API.getSubjectList(function (subjectList) {
@@ -86,17 +91,14 @@
           self.subjectFilter.push(subject)
         }
       }, function () {
-
+        self.$message({
+          type: 'error',
+          message: '获取科目列表失败!'
+        });
       })
     },
     methods: {
-      getLessonList(){
-        let self = this;
-        this.$API.getLesson(function (lessons) {
 
-          self.lessonList = lessons
-        });
-      },
       filterTag(value, row) {
         return row.attributes.subject.id === value;
       },
@@ -127,13 +129,17 @@
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
-          console.log(scope.row.id)
           self.$API.deleteLesson(scope.row.id,function(){
             self.$message({
               type: 'success',
               message: '删除成功!'
             });
             lessonList.splice(scope.$index, 1)
+          },function(){
+            self.$message({
+              type: 'error',
+              message: '删除课程失败!'
+            });
           });
 
         }).catch(() => {

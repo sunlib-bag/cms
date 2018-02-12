@@ -175,6 +175,11 @@
         this.planHtml = value
       }
     },
+    beforeDestroy(){
+      console.log("=================beforeDestroy")
+      this.$bus.$off("changeMaterial");
+      this.$bus.$off("insertImage")
+    },
     mounted() {
       let self = this;
       this.$API.checkUser(function (authenticated) {
@@ -204,7 +209,11 @@
             self.plan = lessonInfo.plan;
 
           }, function () {
-
+            self.$message({
+              type: 'error',
+              message: '该课程不存在'
+            });
+            self.$router.push({path: '/lessonList'})
           })
         });
 
@@ -285,20 +294,30 @@
           self.subjectFilter = subjectList
           cb()
         }, function () {
+
+          self.$message({
+            type: 'error',
+            message: '获取科目列表失败!'
+          });
+
         })
       },
       updateLesson(tab, event) {
         let self = this;
-        console.log(this.lessonInfo)
+
         let lessonInfo = this.handleLessonInfo();
-        console.log(lessonInfo)
-          this.$API.updateLesson(lessonInfo, function(){
-            self.$message({
-              type: 'success',
-              message: '成功更新草稿'
-            });
-            self.lessonInfo.draft_version_code ++;
-          })
+        this.$API.updateLesson(lessonInfo, function () {
+          self.$message({
+            type: 'success',
+            message: '成功更新草稿'
+          });
+          self.lessonInfo.draft_version_code++;
+        }, function () {
+          self.$message({
+            type: 'error',
+            message: '保存草稿失败!'
+          });
+        })
 
 
       },
@@ -316,9 +335,9 @@
         let newLessonInfo = {};
         let lessonInfo = this.lessonInfo;
         newLessonInfo.id = lessonInfo.id;
-        newLessonInfo.planId =  lessonInfo.planId;
+        newLessonInfo.planId = lessonInfo.planId;
         newLessonInfo.plan = lessonInfo.plan;
-        newLessonInfo.author =  lessonInfo.author;
+        newLessonInfo.author = lessonInfo.author;
         newLessonInfo.name = lessonInfo.name;
         newLessonInfo.draft_version_code = lessonInfo.draft_version_code + 1;
         newLessonInfo.subjectId = lessonInfo.subjectId;
@@ -326,13 +345,13 @@
         for (let i = 0; i < lessonInfo.domain.length; i++) {
           tags.push('domain.' + lessonInfo.domain[i])
         }
-        if(lessonInfo.source){
+        if (lessonInfo.source) {
           tags.push('source.' + lessonInfo.source);
         }
-        if(lessonInfo.misc){
-          tags.push('misc.'+lessonInfo.misc)
+        if (lessonInfo.misc) {
+          tags.push('misc.' + lessonInfo.misc)
         }
-        newLessonInfo.tags =  tags;
+        newLessonInfo.tags = tags;
 
 
         return newLessonInfo

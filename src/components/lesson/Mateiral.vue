@@ -125,6 +125,11 @@
           self.$API.changeMaterialName(material, value,function(newMaterial){
             self.materials[index].name = newMaterial.name
 
+          },function(){
+            self.$message({
+              type: 'error',
+              message: '修改失败!'
+            });
           })
 
 
@@ -137,6 +142,11 @@
         let self = this;
         this.$API.deleteMaterial(this.$route.params.id, material.id, function(){
           self.materials.splice(index, 1)
+        },function(){
+          self.$message({
+            type: 'error',
+            message: '删除失败!'
+          });
         });
       },
 
@@ -160,6 +170,11 @@
             self.$API.changeMaterialName(material, value,function(newMaterial){
               self.materials[self.currentAtlasIndex].files[index].name = newMaterial.name
 
+            },function(){
+              self.$message({
+                type: 'error',
+                message: '修改失败!'
+              });
             })
 
 
@@ -171,9 +186,13 @@
       },
       deleteAtlasImage(index, material){
         var self = this;
-        console.log(material)
         this.$API.deleteAtlasMaterial(material.id, function(){
           self.materials[self.currentAtlasIndex].files.splice(index, 1)
+        },function(){
+          self.$message({
+            type: 'error',
+            message: '删除素材失败!'
+          });
         })
 
       },
@@ -190,6 +209,11 @@
           this.$API.createMaterial(this.$route.params.id, this.materials.length+1 ,localFile.name, localFile,function(result){
             self.materials.push({id: result.id,name: result.attributes.name, type:result.attributes.type, url:result.attributes.file.attributes.url})
             $("#materialInput").val('')
+          },function(){
+            self.$message({
+              type: 'error',
+              message: '添加素材失败!'
+            });
           })
         }
 
@@ -206,8 +230,12 @@
 
             self.materials[self.currentAtlasIndex].files.push({id: result.id,name: result.attributes.name, type:result.attributes.type, url:result.attributes.file.attributes.url})
             self.images =  self.materials[self.currentAtlasIndex].files;
-            console.log(self.images)
             $("#imageInput").val('')
+          }, function(){
+            self.$message({
+              type: 'error',
+              message: '添加素材失败!'
+            });
           })
         }
       },
@@ -217,6 +245,11 @@
         this.$API.addAtlas(this.$route.params.id, (this.materials.length+1) , function(material){
           let materialInfo = material
           self.materials.push({id:materialInfo.id, name: materialInfo.attributes.name, files:[], type: materialInfo.attributes.type, index: materialInfo.attributes.index})
+        }, function(){
+          self.$message({
+            type: 'error',
+            message: '添加素材失败!'
+          });
         })
 
       }
