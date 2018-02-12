@@ -205,16 +205,19 @@ Api.install = function (Vue, options) {
           lessonInfo.attributes.materials = materials;
           sucFuc(lessonInfo)
         }).catch(function (error) {
+          console.log("1")
           errFuc()
         });
         
         
       }).catch(function (error) {
+        console.log(2)
         errFuc()
-      });;
+      });
       
       
     }).catch(function (error) {
+      console.log("3")
       errFuc()
     });
     
@@ -414,8 +417,11 @@ Api.install = function (Vue, options) {
     lesson.set('subject', subject);
     lesson.set('draft_version_code', lessonInfo.draft_version_code);
     this.AV.Object.saveAll([plan, lesson]).then(function(){
+      console.log('=====sdf======')
       sucFuc()
-    }).catch(function(){
+      
+    }).catch(function(error){
+      console.log('===========2'+error)
       errFuc()
     })
     

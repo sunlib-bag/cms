@@ -115,6 +115,7 @@
     data() {
       return {
         lessonImages: [],
+        oldLeesonInfo:'',
         lessonList: [],
         plan: '',
         planHtml: '',
@@ -131,10 +132,6 @@
         },
         subjectFilter: [],
         rules: {
-          name: [
-            {required: true, message: '请输入活动名称', trigger: 'blur'},
-            {min: 3, max: 5, message: '长度在 3 到 5 个字符', trigger: 'blur'}
-          ]
         },
         domain: [
           {value: '健康', label: '健康'},
@@ -158,7 +155,8 @@
           {"value": "农村小规模学校联盟", label: "农村小规模学校联盟"},
           {"value": "凉善公益", label: "凉善公益"},
         ],
-        activeName: 'baseInfo'
+        activeName: 'baseInfo',
+        isUpdate: -1
       }
     },
     components: {
@@ -173,14 +171,73 @@
       plan: function (value) {
         this.lessonInfo.plan = value;
         this.planHtml = value
+      },
+      lessonInfo:{
+        handler: function(value){
+          console.log('=============update')
+          if(this.isUpdate === -1){
+            this.isUpdate = false;
+          }
+          if(this.isUpdate === false){
+            this.isUpdate = true
+          }
+
+        },
+        deep: true
       }
+    },
+    beforeRouteLeave (to, from, next) {
+      let self = this;
+      let isUpdate = this.isUpdateLesson();
+      if(isUpdate === true){
+        this.$confirm('你正在编辑课程，离开将丢失为保存的部分', '确定离开本页', {
+          confirmButtonText: '离开并保存',
+          cancelButtonText: '留下',
+          type: 'warning'
+        }).then(() => {
+
+          let lessonInfo = self.handleLessonInfo();
+          self.$API.updateLesson(lessonInfo, function () {
+            self.$message({
+              type: 'success',
+              message: '成功保存草稿'
+            });
+            self.lessonInfo.draft_version_code++;
+            next(true)
+
+          }, function () {
+            self.$message({
+              type: 'error',
+              message: '保存草稿失败!'
+            });
+            next(false)
+
+          })
+        }).catch(() => {
+          next(false)
+        });
+      }else{
+        
+        next(true)
+      }
+
+//      this.beforeLeave(next)
+
+
     },
     beforeDestroy(){
 
       this.$bus.$off("changeMaterial");
       this.$bus.$off("insertImage")
+
+
     },
     mounted() {
+
+//      window.onbeforeunload = function(){
+//        return "Are you sure you want to close the window?";
+//      }
+
       let self = this;
       this.$API.checkUser(function (authenticated) {
         if (!authenticated) {
@@ -205,6 +262,7 @@
               materials: self.handleMaterials(lesson.attributes.materials)
             };
 //          self.materials = lessonInfo.materials;
+            self.oldLeesonInfo = JSON.stringify(lessonInfo);
             self.lessonInfo = lessonInfo;
             self.plan = lessonInfo.plan;
 
@@ -220,6 +278,8 @@
 
       });
 
+
+
       this.$bus.on('insertImage', this.insertImage);
 //      if (this.$route.params.id) {
 //
@@ -232,6 +292,47 @@
 
     },
     methods: {
+      isUpdateLesson(){
+        return JSON.stringify(this.lessonInfo) != this.oldLeesonInfo
+      },
+      beforeLeave(next){
+        if(next){
+          next = function(){}
+        }
+        let self = this;
+        let isUpdate = this.isUpdateLesson();
+        if(isUpdate === true){
+          this.$confirm('你正在编辑课程，离开将丢失为保存的部分', '确定离开本页', {
+            confirmButtonText: '离开并保存',
+            cancelButtonText: '留下',
+            type: 'warning'
+          }).then(() => {
+
+            let lessonInfo = self.handleLessonInfo();
+            self.$API.updateLesson(lessonInfo, function () {
+              self.$message({
+                type: 'success',
+                message: '成功保存草稿'
+              });
+              self.lessonInfo.draft_version_code++;
+              next(true)
+
+            }, function () {
+              self.$message({
+                type: 'error',
+                message: '保存草稿失败!'
+              });
+              next(false)
+
+            })
+          }).catch(() => {
+            next(false)
+          });
+        }else{
+          console.log('========='+isUpdate)
+          next(true)
+        }
+      },
 
       handleMaterials(materials) {
 
@@ -307,7 +408,7 @@
 
         })
       },
-      updateLesson(tab, event) {
+      updateLesson() {
         let self = this;
 
         let lessonInfo = this.handleLessonInfo();
@@ -317,11 +418,13 @@
             message: '成功保存草稿'
           });
           self.lessonInfo.draft_version_code++;
+
         }, function () {
           self.$message({
             type: 'error',
             message: '保存草稿失败!'
           });
+
         })
 
 
