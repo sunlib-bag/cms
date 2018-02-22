@@ -115,7 +115,7 @@
     data() {
       return {
         lessonImages: [],
-        oldLeesonInfo:'',
+        oldLeesonInfo: '',
         lessonList: [],
         plan: '',
         planHtml: '',
@@ -131,8 +131,7 @@
           materials: []
         },
         subjectFilter: [],
-        rules: {
-        },
+        rules: {},
         domain: [
           {value: '健康', label: '健康'},
           {value: '语言', label: '语言'},
@@ -172,13 +171,12 @@
         this.lessonInfo.plan = value;
         this.planHtml = value
       },
-      lessonInfo:{
-        handler: function(value){
-          console.log('=============update')
-          if(this.isUpdate === -1){
+      lessonInfo: {
+        handler: function (value) {
+          if (this.isUpdate === -1) {
             this.isUpdate = false;
           }
-          if(this.isUpdate === false){
+          if (this.isUpdate === false) {
             this.isUpdate = true
           }
 
@@ -186,10 +184,10 @@
         deep: true
       }
     },
-    beforeRouteLeave (to, from, next) {
+    beforeRouteLeave(to, from, next) {
       let self = this;
       let isUpdate = this.isUpdateLesson();
-      if(isUpdate === true){
+      if (isUpdate === true) {
         this.$confirm('你正在编辑课程，离开将丢失为保存的部分', '确定离开本页', {
           confirmButtonText: '离开并保存',
           cancelButtonText: '留下',
@@ -216,7 +214,7 @@
         }).catch(() => {
           next(false)
         });
-      }else{
+      } else {
 
         next(true)
       }
@@ -225,7 +223,7 @@
 
 
     },
-    beforeDestroy(){
+    beforeDestroy() {
 
       this.$bus.$off("changeMaterial");
       this.$bus.$off("insertImage")
@@ -246,38 +244,11 @@
         self.initPage();
 
         self.getSubjectList(function () {
-          self.$API.getLessonInfo(self.$route.params.id, function (lesson) {
-            let tagsInfo = self.handleTags(lesson.attributes.tags);
-            let lessonInfo = {
-              id: lesson.id,
-              planId: lesson.attributes.plan.id,
-              draft_version_code: lesson.attributes.draft_version_code,
-              subjectId: lesson.attributes.subject.id,
-              domain: tagsInfo.domain,
-              source: tagsInfo.source,
-              author: lesson.attributes.plan ? lesson.attributes.plan.attributes.author : undefined,
-              misc: tagsInfo.misc,
-              name: lesson.attributes.name,
-              plan: lesson.attributes.plan ? lesson.attributes.plan.attributes.content : undefined,
-              materials: self.handleMaterials(lesson.attributes.materials)
-            };
-//          self.materials = lessonInfo.materials;
-            self.oldLeesonInfo = JSON.stringify(lessonInfo);
-            self.lessonInfo = lessonInfo;
-            self.plan = lessonInfo.plan;
-
-          }, function () {
-            self.$message({
-              type: 'error',
-              message: '该课程不存在'
-            });
-            self.$router.push({path: '/lessonList'})
-          })
+          self.initLessonInfo()
         });
 
 
       });
-
 
 
       this.$bus.on('insertImage', this.insertImage);
@@ -292,16 +263,50 @@
 
     },
     methods: {
-      isUpdateLesson(){
+      initLessonInfo(cb){
+        let self = this;
+        self.$API.getLessonInfo(self.$route.params.id, function (lesson) {
+          let tagsInfo = self.handleTags(lesson.attributes.tags);
+          let lessonInfo = {
+            id: lesson.id,
+            planId: lesson.attributes.plan.id,
+            draft_version_code: lesson.attributes.draft_version_code,
+            subjectId: lesson.attributes.subject.id,
+            domain: tagsInfo.domain,
+            source: tagsInfo.source,
+            author: lesson.attributes.plan ? lesson.attributes.plan.attributes.author : undefined,
+            misc: tagsInfo.misc,
+            name: lesson.attributes.name,
+            plan: lesson.attributes.plan ? lesson.attributes.plan.attributes.content : undefined,
+            materials: self.handleMaterials(lesson.attributes.materials)
+          };
+//          self.materials = lessonInfo.materials;
+          self.oldLeesonInfo = JSON.stringify(lessonInfo);
+          self.lessonInfo = lessonInfo;
+          self.plan = lessonInfo.plan;
+          if(cb){
+            cb()
+          }
+
+        }, function () {
+          self.$message({
+            type: 'error',
+            message: '该课程不存在'
+          });
+          self.$router.push({path: '/lessonList'})
+        })
+      },
+      isUpdateLesson() {
         return JSON.stringify(this.lessonInfo) != this.oldLeesonInfo
       },
-      beforeLeave(next){
-        if(next){
-          next = function(){}
+      beforeLeave(next) {
+        if (next) {
+          next = function () {
+          }
         }
         let self = this;
         let isUpdate = this.isUpdateLesson();
-        if(isUpdate === true){
+        if (isUpdate === true) {
           this.$confirm('你正在编辑课程，离开将丢失为保存的部分', '确定离开本页', {
             confirmButtonText: '离开并保存',
             cancelButtonText: '留下',
@@ -328,8 +333,8 @@
           }).catch(() => {
             next(false)
           });
-        }else{
-          console.log('========='+isUpdate)
+        } else {
+          console.log('=========' + isUpdate)
           next(true)
         }
       },
@@ -382,11 +387,11 @@
           }
           if (tagInfo[0] === 'source') {
             tagInfo.shift();
-             source = tagInfo.join('.')
+            source = tagInfo.join('.')
           }
           if (tagInfo[0] === 'misc') {
             tagInfo.shift();
-            misc =tagInfo.join('.')
+            misc = tagInfo.join('.')
           }
         }
         return {domain: domain, source: source, misc: misc}
@@ -413,11 +418,13 @@
 
         let lessonInfo = this.handleLessonInfo();
         this.$API.updateLesson(lessonInfo, function () {
-          self.$message({
-            type: 'success',
-            message: '成功保存草稿'
-          });
-          self.lessonInfo.draft_version_code++;
+
+          self.initLessonInfo(function(){
+            self.$message({
+              type: 'success',
+              message: '成功保存草稿'
+            });
+          })
 
         }, function () {
           self.$message({
@@ -430,7 +437,31 @@
 
       },
       publicLesson() {
-        console.log('publicLesson');
+        let self = this;
+        let lessonInfo = this.handleLessonInfo();
+        this.$API.updateLesson(lessonInfo, function () {
+          self.initLessonInfo(function(){
+            self.$API.publishLesson(lessonInfo.id, function () {
+              self.$message({
+                type: 'success',
+                message: '成功发布'
+              });
+            }, function () {
+              self.$message({
+                type: 'error',
+                message: '发布失败!'
+              });
+            })
+          })
+
+        }, function () {
+          self.$message({
+            type: 'error',
+            message: '发布失败!'
+          });
+
+        })
+
       }
       ,
       insertImage(selectImageInfo) {

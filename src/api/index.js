@@ -9,9 +9,7 @@ Api.install = function (Vue, options) {
     this.appKey = Vue.prototype.$config.APP_KEY;
   }
   
-  
   Api.prototype.login = function (data, sucFuc, errFuc) {
-    
     AV.User.logInWithMobilePhoneSmsCode(data.mobilePhoneNumber, data.smsCode).then(function (success) {
       sucFuc(success)
     }, function (error) {
@@ -308,6 +306,18 @@ Api.install = function (Vue, options) {
 
     })
   };
+  
+  Api.prototype.publishLesson =  function(lessonId, sucFuc, errFuc){
+    let paramsJson = {
+      lesson_id: lessonId
+    };
+    this.AV.Cloud.run('pack', paramsJson).then(function(data) {
+      sucFuc(data)
+    }, function(err) {
+      errFuc(data)
+    });
+  };
+  
   Api.prototype.deleteMaterial = function(lessonId, materialId, sucFuc, errFuc){
     let material = this.AV.Object.createWithoutData('Material', materialId);
     let lesson = this.AV.Object.createWithoutData('Lesson', lessonId);
