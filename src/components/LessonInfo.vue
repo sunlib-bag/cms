@@ -4,92 +4,24 @@
       <side_bar :actionPage="actionPage"></side_bar>
     </el-aside>
     <el-main class="big-main">
-      <el-form :model="lessonInfo" :rules="rules" ref="lessonInfo" label-width="100px" class="demo-ruleForm">
+
         <el-tabs v-model="activeName">
           <el-tab-pane label="基本信息" name="baseInfo">
             <el-row>
               <el-col :span="12">
-                <el-form-item label="标题" prop="name">
-                  <el-input v-model="lessonInfo.name"></el-input>
-                </el-form-item>
-                <el-form-item label="所属科目" prop="region">
-                  <el-select v-model="lessonInfo.subjectId" placeholder="请选择所属科目">
-                    <el-option
-                      v-for="item in subjectFilter"
-                      :key="item.id"
-                      :label="item.attributes.title"
-                      :value="item.id">
-                    </el-option>
-                  </el-select>
-                </el-form-item>
-
-                <el-form-item label="所属领域" required>
-                  <el-select v-model="lessonInfo.domain" multiple placeholder="请选择所属领域">
-                    <el-option
-                      v-for="item in domain"
-                      :key="item.value"
-                      :label="item.label"
-                      :value="item.value">
-                    </el-option>
-                  </el-select>
-                </el-form-item>
-
-                <el-form-item label="来源" required>
-                  <el-select v-model="lessonInfo.source" placeholder="请选择来源">
-                    <el-option
-                      v-for="item in sources"
-                      :key="item.value"
-                      :label="item.label"
-                      :value="item.value">
-                    </el-option>
-                  </el-select>
-                </el-form-item>
-                <el-form-item label="作者">
-                  <el-input v-model="lessonInfo.author"></el-input>
-                </el-form-item>
-                <el-form-item label="其他标签">
-                  <el-input v-model="lessonInfo.misc"></el-input>
-                </el-form-item>
+                <base-info :lessonInfo="lessonInfo" :subjectFilter="subjectFilter"></base-info>
               </el-col>
             </el-row>
-            <!--<base-info :lessonInfo="lessonInfo"></base-info>-->
           </el-tab-pane>
           <el-tab-pane label="教案" name="plan">
+            <plan :lessonInfo="lessonInfo"></plan>
 
-            <el-row>
-              <el-col class="markdown-container" :span="12">
-                <el-row class="markdown-title">
-                  <el-col :span="4">编辑</el-col>
-                  <el-col :span="20">
-                    <insert-image :lessonMaterials="lessonInfo.materials"></insert-image>
-                  </el-col>
-                </el-row>
-
-
-                <el-input id="markdown_editor"
-                          type="textarea"
-                          placeholder="请输入内容"
-                          :rows="30"
-                          v-model="plan">
-                </el-input>
-
-              </el-col>
-              <el-col :span="12" class="markdown-container">
-
-                <div class="markdown-title">预览</div>
-                <div class="markdown-preview-container">
-                  <vue-markdown :source="planHtml"></vue-markdown>
-                </div>
-              </el-col>
-            </el-row>
-            <div></div>
 
           </el-tab-pane>
           <el-tab-pane label="文件" name="files">
             <mateiral :materials="lessonInfo.materials"></mateiral>
           </el-tab-pane>
         </el-tabs>
-      </el-form>
 
       <el-dropdown split-button type="primary" class="save_btn" @command="publicLesson" @click="updateLesson">
         更新草稿
@@ -106,23 +38,18 @@
 <script>
   import SideBar from './side_bar/SideBar.vue'
   import VueMarkdown from 'vue-markdown';
-  import InsertImage from "./lesson/InsertImage.vue"
+  import Plan from './lesson/Plan.vue';
   import Mateiral from './lesson/Mateiral.vue'
   import baseInfo from "./lesson/baseInfo.vue"
-  import ElButton from "../../node_modules/element-ui/packages/button/src/button.vue";
 
   export default {
     data() {
       return {
-        lessonImages: [],
         oldLeesonInfo: '',
-        lessonList: [],
-        plan: '',
-        planHtml: '',
         actionPage: 'lessonList',
         materials: [],
         lessonInfo: {
-          subjectId: '',
+          subject: {},
           domain: [],
           source: '',
           author: '',
@@ -131,46 +58,19 @@
           materials: []
         },
         subjectFilter: [],
-        rules: {},
-        domain: [
-          {value: '健康', label: '健康'},
-          {value: '语言', label: '语言'},
-          {value: '社会', label: '社会'},
-          {value: '科学', label: '科学'},
-          {value: '艺术', label: '艺术'}
-        ],
-        sources: [
-          {"value": "千千树", label: "千千树"},
-          {"value": "儿童乐益会", label: "儿童乐益会"},
-          {"value": "安利基金会", label: "安利基金会"},
-          {"value": "广西师大出版社", label: "广西师大出版社"},
-          {"value": "救助儿童会", label: "救助儿童会"},
-          {"value": "信谊基金会", label: "信谊基金会"},
-          {"value": "一公斤盒子", label: "一公斤盒子"},
-          {"value": "澳门同济慈善会", label: "澳门同济慈善会"},
-          {"value": "奕阳教育", label: "奕阳教育"},
-          {"value": "通州儿童之家", label: "通州儿童之家"},
-          {"value": "西部阳光基金会", label: "西部阳光基金会"},
-          {"value": "农村小规模学校联盟", label: "农村小规模学校联盟"},
-          {"value": "凉善公益", label: "凉善公益"},
-        ],
         activeName: 'baseInfo',
         isUpdate: -1
       }
     },
     components: {
-      ElButton,
       "side_bar": SideBar,
       'vue-markdown': VueMarkdown,
-      'insert-image': InsertImage,
       "mateiral": Mateiral,
-      "base-info": baseInfo
+      "base-info": baseInfo,
+      "plan": Plan
     },
     watch: {
-      plan: function (value) {
-        this.lessonInfo.plan = value;
-        this.planHtml = value
-      },
+
       lessonInfo: {
         handler: function (value) {
           if (this.isUpdate === -1) {
@@ -183,6 +83,9 @@
         },
         deep: true
       }
+    },
+    beforeDestroy(){
+      this.$bus.$off("changeMaterial");
     },
     beforeRouteLeave(to, from, next) {
       let self = this;
@@ -216,74 +119,40 @@
         });
       } else {
 
+
         next(true)
       }
-
-//      this.beforeLeave(next)
-
-
-    },
-    beforeDestroy() {
-
-      this.$bus.$off("changeMaterial");
-      this.$bus.$off("insertImage")
 
 
     },
     mounted() {
-
-//      window.onbeforeunload = function(){
-//        return "Are you sure you want to close the window?";
-//      }
-
       let self = this;
       this.$API.checkUser(function (authenticated) {
         if (!authenticated) {
           return self.$router.push('/')
         }
         self.initPage();
-
         self.getSubjectList(function () {
           self.initLessonInfo()
         });
-
-
       });
-
-
-      this.$bus.on('insertImage', this.insertImage);
-//      if (this.$route.params.id) {
-//
-//      }
-
       this.$bus.on('changeMaterial', function (value) {
         self.materials = value
       })
-
 
     },
     methods: {
       initLessonInfo(cb){
         let self = this;
         self.$API.getLessonInfo(self.$route.params.id, function (lesson) {
-          let tagsInfo = self.handleTags(lesson.attributes.tags);
-          let lessonInfo = {
-            id: lesson.id,
-            planId: lesson.attributes.plan.id,
-            draft_version_code: lesson.attributes.draft_version_code,
-            subjectId: lesson.attributes.subject.id,
-            domain: tagsInfo.domain,
-            source: tagsInfo.source,
-            author: lesson.attributes.plan ? lesson.attributes.plan.attributes.author : undefined,
-            misc: tagsInfo.misc,
-            name: lesson.attributes.name,
-            plan: lesson.attributes.plan ? lesson.attributes.plan.attributes.content : undefined,
-            materials: self.handleMaterials(lesson.attributes.materials)
-          };
-//          self.materials = lessonInfo.materials;
-          self.oldLeesonInfo = JSON.stringify(lessonInfo);
-          self.lessonInfo = lessonInfo;
-          self.plan = lessonInfo.plan;
+          let newLessonInfo = JSON.parse(JSON.stringify(lesson));
+
+          let tagsInfo = self.handleTags(newLessonInfo.tags);
+          newLessonInfo.domain = tagsInfo.domain;
+          newLessonInfo.source = tagsInfo.source;
+          newLessonInfo.misc = tagsInfo.misc;
+          self.oldLeesonInfo = JSON.stringify(newLessonInfo);
+          self.lessonInfo = newLessonInfo;
           if(cb){
             cb()
           }
@@ -297,93 +166,19 @@
         })
       },
       isUpdateLesson() {
-        return JSON.stringify(this.lessonInfo) != this.oldLeesonInfo
-      },
-      beforeLeave(next) {
-        if (next) {
-          next = function () {
-          }
-        }
-        let self = this;
-        let isUpdate = this.isUpdateLesson();
-        if (isUpdate === true) {
-          this.$confirm('你正在编辑课程，离开将丢失为保存的部分', '确定离开本页', {
-            confirmButtonText: '离开并保存',
-            cancelButtonText: '留下',
-            type: 'warning'
-          }).then(() => {
-
-            let lessonInfo = self.handleLessonInfo();
-            self.$API.updateLesson(lessonInfo, function () {
-              self.$message({
-                type: 'success',
-                message: '成功保存草稿'
-              });
-              self.lessonInfo.draft_version_code++;
-              next(true)
-
-            }, function () {
-              self.$message({
-                type: 'error',
-                message: '保存草稿失败!'
-              });
-              next(false)
-
-            })
-          }).catch(() => {
-            next(false)
-          });
-        } else {
-          console.log('=========' + isUpdate)
-          next(true)
-        }
+        return JSON.stringify(this.lessonInfo) !== this.oldLeesonInfo
       },
 
-      handleMaterials(materials) {
-
-        let materialsInfo = [];
-        for (let i = 0; i < materials.length; i++) {
-          let material = {
-            id: materials[i].id,
-            name: materials[i].name,
-            type: materials[i].type,
-            index: materials[i].index,
-          };
-          if (materials[i].type !== 0) {
-            material.url = materials[i].file.attributes.url
-          } else {
-            let atlas = [];
-            for (let j = 0; j < materials[i].files.length; j++) {
-              let imageInfo = materials[i].files[j];
-              let image = {
-                id: imageInfo.id,
-                name: imageInfo.attributes.name,
-                type: imageInfo.attributes.type,
-                index: imageInfo.attributes.index,
-                url: imageInfo.attributes.file.attributes.url
-              };
-              atlas.push(image)
-            }
-            material.files = atlas;
-          }
-          materialsInfo.push(material)
-        }
-        return materialsInfo
-
-
-      },
       handleTags(tags) {
         let domain = [];
         let source;
         let misc;
-        if (!tags) return {domain: domain, source: source, misc: misc}
+        if (!tags) return {domain: domain, source: source, misc: misc};
         for (let i = 0; i < tags.length; i++) {
           let tagInfo = tags[i].split('.'); //todo
           if (tagInfo[0] === 'domain') {
             tagInfo.shift();
             domain.push(tagInfo.join('.'))
-
-
           }
           if (tagInfo[0] === 'source') {
             tagInfo.shift();
@@ -405,35 +200,28 @@
           self.subjectFilter = subjectList
           cb()
         }, function () {
-
           self.$message({
             type: 'error',
             message: '获取科目列表失败!'
           });
-
         })
       },
       updateLesson() {
         let self = this;
-
         let lessonInfo = this.handleLessonInfo();
         this.$API.updateLesson(lessonInfo, function () {
-
           self.initLessonInfo(function(){
             self.$message({
               type: 'success',
               message: '成功保存草稿'
             });
           })
-
         }, function () {
           self.$message({
             type: 'error',
             message: '保存草稿失败!'
           });
-
         })
-
 
       },
       publicLesson() {
@@ -459,72 +247,25 @@
             type: 'error',
             message: '发布失败!'
           });
-
         })
-
       }
       ,
-      insertImage(selectImageInfo) {
-        let $markdown_edit = $("#markdown_editor");
-        this.insertAtCursor($markdown_edit[0], "<img src='" + selectImageInfo.url + "'>");
-        this.plan = $markdown_edit.val()
-      },
-      handleLessonInfo() {
 
-        let newLessonInfo = {};
-        let lessonInfo = this.lessonInfo;
-        newLessonInfo.id = lessonInfo.id;
-        newLessonInfo.planId = lessonInfo.planId;
-        newLessonInfo.plan = lessonInfo.plan;
-        newLessonInfo.author = lessonInfo.author;
-        newLessonInfo.name = lessonInfo.name;
-        newLessonInfo.draft_version_code = lessonInfo.draft_version_code + 1;
-        newLessonInfo.subjectId = lessonInfo.subjectId;
+      handleLessonInfo() {
+        let newLessonInfo = JSON.parse(JSON.stringify(this.lessonInfo));
         let tags = [];
-        for (let i = 0; i < lessonInfo.domain.length; i++) {
-          tags.push('domain.' + lessonInfo.domain[i])
+        for (let i = 0; i < newLessonInfo.domain.length; i++) {
+          tags.push('domain.' + newLessonInfo.domain[i])
         }
-        if (lessonInfo.source) {
-          tags.push('source.' + lessonInfo.source);
+        if (newLessonInfo.source) {
+          tags.push('source.' + newLessonInfo.source);
         }
-        if (lessonInfo.misc) {
-          tags.push('misc.' + lessonInfo.misc)
+        if (newLessonInfo.misc) {
+          tags.push('misc.' + newLessonInfo.misc)
         }
         newLessonInfo.tags = tags;
-
-
         return newLessonInfo
 
-      },
-      insertAtCursor(myField, myValue) {
-
-        let document = window.document;
-        if (document.selection) {
-          myField.focus();
-          let sel = document.selection.createRange();
-          sel.text = myValue;
-          sel.select();
-        }
-
-        //FireFox、Chrome等
-        else if (myField.selectionStart || myField.selectionStart == '0') {
-          let startPos = myField.selectionStart;
-          let endPos = myField.selectionEnd;
-          // 保存滚动条
-          let restoreTop = myField.scrollTop;
-          myField.value = myField.value.substring(0, startPos) + myValue + myField.value.substring(endPos, myField.value.length);
-
-          if (restoreTop > 0) {
-            myField.scrollTop = restoreTop;
-          }
-
-          myField.focus();
-          myField.selectionStart = startPos + myValue.length;
-          myField.selectionEnd = startPos + myValue.length;
-        } else {
-          myField.value += myValue;
-          myField.focus();
-        }
       }
     }
   }

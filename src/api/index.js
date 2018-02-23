@@ -3,6 +3,14 @@ var md5 = require('js-md5')
 
 Api.install = function (Vue, options) {
   
+  function handleArrayData(array){
+    let newArray = [];
+    for(let i =0 ;i < array.length; i++){
+      newArray.push(array[i].toJSON())
+    }
+    return newArray;
+  }
+  
   function Api() {
     // this.base_url = "https://cqbvih8f.api.lncld.net/1.1";
     this.appId = Vue.prototype.$config.APP_ID;
@@ -28,12 +36,11 @@ Api.install = function (Vue, options) {
   };
   
   Api.prototype.getLesson = function (cb,errFuc) {
-    
     let query = new this.AV.Query('Lesson');
     query.include('subject');
     query.descending('createdAt');
     query.find().then(function (products) {
-      cb(products)
+      cb(handleArrayData(products))
     }).catch(function (error) {
       errFuc(error)
     });
@@ -42,42 +49,27 @@ Api.install = function (Vue, options) {
   
   Api.prototype.addAtlas = function (lessonId, index, sucFuc, errFuc) {
     
-    // let query = new this.AV.Query('Material');
     let self = this;
     let newMaterial = new this.AV.Object('Material');
     newMaterial.set('name', '图集');
     newMaterial.set('type', 0);
     newMaterial.fetchWhenSave(true);
-    
     newMaterial.save().then(function (material) {
-      
       let materialObject = self.AV.Object.createWithoutData('Material', material.id);
-      
       let lesson = self.AV.Object.createWithoutData('Lesson', lessonId);
-      
       let newLessonMaterial = new self.AV.Object('LessonMaterial');
       newLessonMaterial.fetchWhenSave(true);
-      
       newLessonMaterial.set('material', materialObject);
-      
       newLessonMaterial.set('lesson', lesson);
-      
       newLessonMaterial.set('index',index);
-      
-      
       newLessonMaterial.save().then(function (lessonMaterial) {
-  
-        
-        
         material.attributes.index  =  lessonMaterial.attributes.index;
-        
         sucFuc(material)
       }).catch(function (err) {
       
       });
       
     }).catch(function () {
-    
     
     })
     
@@ -118,24 +110,11 @@ Api.install = function (Vue, options) {
   };
   
   
-  Api.prototype.getHeaders = function (type) {
-    let time = new Date().getTime();
-    let headers = {
-      "X-LC-Id": this.appId,
-      "X-LC-Sign": md5(time + this.appKey) + "," + time,
-      "Content-Type": "application/json"
-    };
-    if (localStorage.getItem('sessionToken')) {
-      headers['X-LC-Session'] = localStorage.getItem('sessionToken')
-    }
-    return headers
-  };
-  
   Api.prototype.getSubjectList = function (sucFuc, errFuc) {
     
     let query = new this.AV.Query('Subject');
     query.find().then(function (products) {
-      sucFuc(products)
+      sucFuc(handleArrayData(products));
     }).catch(function (error) {
       console.log(error)
     });
@@ -146,76 +125,71 @@ Api.install = function (Vue, options) {
     let query = new AV.Query('Lesson');
     query.include('subject');
     query.include('plan');
-    query.descending('createdAt');
     query.get(lessonId).then(function (lessonInfo) {
+      let newLessonInfo =  lessonInfo.toJSON();
       let materials = [];
-      let lesson = this.AV.Object.createWithoutData('Lesson', lessonId);
-      let LessonMaterialQuery = new this.AV.Query('LessonMaterial');
+      let lesson = AV.Object.createWithoutData('Lesson', lessonId);
+      let LessonMaterialQuery = new AV.Query('LessonMaterial');
       LessonMaterialQuery.equalTo('lesson', lesson);
       LessonMaterialQuery.ascending("index");
       LessonMaterialQuery.include('material');
       LessonMaterialQuery.find().then(function (lessonMaterial) {
         for (let i = 0; i < lessonMaterial.length; i++) {
+          let lessonMaterialInfo = lessonMaterial[i].toJSON();
           let material = {
-            name: lessonMaterial[i].attributes.material.attributes.name,
-            type: lessonMaterial[i].attributes.material.attributes.type,
-            index: lessonMaterial[i].attributes.index,
-            id: lessonMaterial[i].attributes.material.id
+            name: lessonMaterialInfo.material.name,
+            type: lessonMaterialInfo.material.type,
+            index: lessonMaterialInfo.index,
+            id: lessonMaterialInfo.material.objectId
           };
           
           if (material.type !== 0) {
-            let type = lessonMaterial[i].attributes.material.attributes.file.attributes.name.split(".")[1];
-            material.file = lessonMaterial[i].attributes.material.attributes.file
+            let type = lessonMaterialInfo.material.file.name.split(".")[1];
+            material.file = lessonMaterialInfo.material.file
           }
           materials.push(material)
           
         }
         
-        
-        
         let atlas = [];
         for (let i = 0; i < materials.length; i++) {
-          let material = self.AV.Object.createWithoutData('Material', materials[i].id);
+          let material = AV.Object.createWithoutData('Material', materials[i].id);
           atlas.push(material)
-          
         }
         
         let atlasFiles = {};
         
-        let MaterialQuery = new self.AV.Query('Material');
+        let MaterialQuery = new AV.Query('Material');
         MaterialQuery.containedIn("parent", atlas);
         MaterialQuery.find().then(function (atlasImage) {
-          
           for (let i = 0; i < atlasImage.length; i++) {
-            if (atlasFiles.hasOwnProperty(atlasImage[i].attributes.parent.id)) {
-              atlasFiles[atlasImage[i].attributes.parent.id].push(atlasImage[i])
+            let atlasImageInfo = atlasImage[i].toJSON();
+            if (atlasFiles.hasOwnProperty(atlasImageInfo.parent.objectId)) {
+              atlasFiles[atlasImageInfo.parent.objectId].push(atlasImageInfo)
             } else {
-              atlasFiles[atlasImage[i].attributes.parent.id] = [atlasImage[i]]
+              atlasFiles[atlasImageInfo.parent.objectId] = [atlasImageInfo]
             }
           }
           
           for (let i = 0; i < materials.length; i++) {
             if (materials[i].type === 0) {
-              
               materials[i].files = atlasFiles[materials[i].id] ? atlasFiles[materials[i].id] : [];
             }
           }
-          lessonInfo.attributes.materials = materials;
-          sucFuc(lessonInfo)
+          newLessonInfo.materials = materials;
+          sucFuc(newLessonInfo)
         }).catch(function (error) {
-          console.log("1")
+          console.log(error)
           errFuc()
         });
         
-        
       }).catch(function (error) {
-        console.log(2)
+        console.log(error)
         errFuc()
       });
       
       
     }).catch(function (error) {
-      console.log("3")
       errFuc()
     });
     
@@ -342,9 +316,6 @@ Api.install = function (Vue, options) {
     
   };
   
-  
-  
-  
   Api.prototype.createMaterial = function (lessonId, index ,name, data, sucFuc, errFuc) {
     let type;
     let self = this;
@@ -416,31 +387,24 @@ Api.install = function (Vue, options) {
   };
   
   Api.prototype.updateLesson =  function(lessonInfo, sucFuc, errFuc){
-    let plan = this.AV.Object.createWithoutData('LessonPlan',lessonInfo.planId);
+    let plan = this.AV.Object.createWithoutData('LessonPlan',lessonInfo.plan.objectId);
     
-    plan.set('content',lessonInfo.plan);
-    plan.set('author',lessonInfo.author);
-    let subject = this.AV.Object.createWithoutData('Subject', lessonInfo.subjectId);
-    let lesson = this.AV.Object.createWithoutData('Lesson',lessonInfo.id);
+    plan.set('content',lessonInfo.plan.content);
+    plan.set('author',lessonInfo.plan.author);
+    let subject = this.AV.Object.createWithoutData('Subject', lessonInfo.subject.objectId);
+    let lesson = this.AV.Object.createWithoutData('Lesson',lessonInfo.objectId);
     lesson.set('name',lessonInfo.name);
     lesson.set('tags',lessonInfo.tags);
     lesson.set('subject', subject);
-    lesson.set('draft_version_code', lessonInfo.draft_version_code);
+    lesson.set('draft_version_code', lessonInfo.draft_version_code + 1);
     this.AV.Object.saveAll([plan, lesson]).then(function(){
-      console.log('=====sdf======')
       sucFuc()
       
     }).catch(function(error){
-      console.log('===========2'+error)
       errFuc()
     })
     
   };
-  
-  Api.prototype.test = function () {
-  
-  
-  }
   Api.prototype.checkUser =  function(cb){
     let currentUser = this.AV.User.current();
     if(!currentUser) return cb(false)

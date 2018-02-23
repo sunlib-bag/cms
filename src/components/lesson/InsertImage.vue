@@ -44,8 +44,6 @@
     watch:{
       lessonMaterials:{
         handler: function(lessonMaterials){
-
-
           this.images = [];
           for(let i = 0; i<lessonMaterials.length;i++){
             if(lessonMaterials[i].type === 3){
@@ -53,15 +51,12 @@
             }
             if(lessonMaterials[i].type === 0){
               for(let j =0 ;j < lessonMaterials[i].files.length; j++){
-                console.log(lessonMaterials[i].files[j])
                 if(lessonMaterials[i].files[j].type===3){
-
                   this.images.push(lessonMaterials[i].files[j])
                 }
               }
             }
           }
-          console.log(this.images)
         },
         deep:true
       }
@@ -73,7 +68,6 @@
         this.currentSelected =  data
       },
       insertImage: function(){
-        console.log(this.currentSelected)
         this.$bus.emit('insertImage',this.currentSelected);
         this.dialogTableVisible = false;
       },

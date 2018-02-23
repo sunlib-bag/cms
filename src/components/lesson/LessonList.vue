@@ -4,7 +4,7 @@
     :data="lessonList"
     style="width: 100%; text-align: left">
     <el-table-column
-      prop="attributes.name"
+      prop="name"
       label="课程名称"
       width="100">
     </el-table-column>
@@ -12,12 +12,12 @@
       :filters="subjectFilter"
       :filter-method="filterTag"
       filter-placement="bottom-start"
-      prop="attributes.subject.attributes.title"
+      prop="subject.title"
       label="科目"
     >
     </el-table-column>
     <el-table-column
-      prop="attributes.tages"
+      prop="tages"
       label="来源"
 
       :formatter="handleSource"
@@ -34,7 +34,7 @@
     >
     </el-table-column>
     <el-table-column
-      prop="attributes.draft_version_code"
+      prop="draft_version_code"
       label="最新草稿版本"
 
     >
@@ -42,7 +42,7 @@
     </el-table-column>
 
     <el-table-column
-      prop="attributes.version_code"
+      prop="version_code"
       :formatter="handleStatus"
 
       label="发布版本"
@@ -102,7 +102,7 @@
       this.$API.getSubjectList(function (subjectList) {
 
         for (let i = 0; i < subjectList.length; i++) {
-          let subject = {text: subjectList[i].attributes.title, value: subjectList[i].id};
+          let subject = {text: subjectList[i].title, value: subjectList[i].objectId};
           self.subjectFilter.push(subject)
         }
       }, function () {
@@ -115,7 +115,7 @@
     methods: {
       filterSource(value, row){
 
-        let tags = row.attributes.tags;
+        let tags = row.tags;
         let source;
         if (!tags) return false;
 
@@ -129,16 +129,16 @@
         return value === source
       },
       filterTag(value, row) {
-        return row.attributes.subject.id === value;
+        return row.subject.objectId === value;
       },
       handleStatus(row) {
-        return row.attributes.isPublished ? row.attributes.version_code : "未发布"
+        return row.isPublished ? row.version_code : "未发布"
       },
       handleDate(row) {
 
       },
       handleSource(row) {
-        let tags = row.attributes.tags;
+        let tags = row.tags;
         if (!tags) return ''
 
         for (let i = 0; i < tags.length; i++) {
@@ -155,12 +155,12 @@
       },
       deleteLesson(scope, lessonList) {
         let self = this;
-        this.$confirm('此操作将永久删除' + scope.row.attributes.name + ', 是否继续?', '提示', {
+        this.$confirm('此操作将永久删除' + scope.row.name + ', 是否继续?', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
-          self.$API.deleteLesson(scope.row.id,function(){
+          self.$API.deleteLesson(scope.row.objectId,function(){
             self.$message({
               type: 'success',
               message: '删除成功!'
@@ -182,7 +182,7 @@
       },
       goToUpdateLesson(scope) {
 
-        this.$router.push('/lessonInfo/' + scope.row.id)
+        this.$router.push('/lessonInfo/' + scope.row.objectId)
       },
       handleDate(time_info) {
         var fmt = 'yyyy/MM/dd';
