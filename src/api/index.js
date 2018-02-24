@@ -96,22 +96,37 @@ Api.install = function (Vue, options) {
     });
   }
   
-  Api.prototype.deleteLesson = function (id, cb, errFuc) {
+  Api.prototype.deleteLesson = function (id, sucFuc, errFuc) {
     
-    
-    var todo = this.AV.Object.createWithoutData('Lesson', id);
-    todo.destroy().then(function (success) {
-      // 删除成功
-      cb(success)
+    let lessonQuery = new  AV.Query('Lesson');
+    lessonQuery.get(id).then(function (result) {
+      let lessonInfo =  result.toJSON();
+      let deleteList = [];
+      let lesson = AV.Object.createWithoutData('Lesson', lessonInfo.objectId);
+      deleteList.push(lesson);
+      if(lessonInfo.plan){
+        let plan = AV.Object.createWithoutData('LessonPlan', lessonInfo.plan.objectId);
+        deleteList.push(plan);
+      }
+      
+      let materialLessonQuery = new AV.Query('LessonMaterial');
+      materialLessonQuery.equalTo('lesson', lesson);
+      materialLessonQuery.destroyAll().then(function () {
+        AV.Object.destroyAll(deleteList).then(function (data) {
+          sucFuc()
+        }).catch(function (error) {
+          errFuc()
+        })
+      }).catch(function (error) {
+        errFuc()
+      });
     }, function (error) {
       errFuc()
-      // 删除失败
     });
   };
   
   
   Api.prototype.getSubjectList = function (sucFuc, errFuc) {
-    
     let query = new this.AV.Query('Subject');
     query.find().then(function (products) {
       sucFuc(handleArrayData(products));

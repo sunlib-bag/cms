@@ -103,7 +103,6 @@
               type: 'success',
               message: '成功保存草稿'
             });
-            self.lessonInfo.draft_version_code++;
             next(true)
 
           }, function () {
