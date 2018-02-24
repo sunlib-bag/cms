@@ -91,3 +91,24 @@
 
 
 </script>
+<style scoped="">
+  .markdown-container {
+    padding: 12px;
+  }
+  .markdown-preview-container {
+    height: 642px;
+    border: solid 1px #e6e6e6;
+    border-radius: 5px;
+    padding: 5px 15px;
+    box-sizing: border-box;
+    overflow: auto
+  }
+  .markdown-title {
+    height: 50px;
+    line-height: 50px;
+  }
+
+  .el-select {
+    display: block;
+  }
+</style>

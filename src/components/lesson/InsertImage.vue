@@ -70,12 +70,6 @@
       insertImage: function(){
         this.$bus.emit('insertImage',this.currentSelected);
         this.dialogTableVisible = false;
-      },
-      getLessonAllImage: function(){
-          var self = this;
-          this.$API.getLessonImage(this.$route.params.id,function(images){
-            self.images = images
-          })
       }
     }
 

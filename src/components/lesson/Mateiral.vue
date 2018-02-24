@@ -6,11 +6,11 @@
           上传文件
         </el-button>
 
-        <input v-on:change="createMaterial" id="materialInput" type='file' style="display:none"/>
+        <input v-on:change="createMaterial" id="materialInput" type='file' class="hide"/>
         <el-button @click="addAtlas">
           添加图集
         </el-button>
-        <span class="color-dark-light" style="color:#909399">操作会实时保存，不要乱搞哦</span>
+        <span class="color-dark-light warn">操作会实时保存，不要乱搞哦</span>
       </div>
       <div class="materialContainer">
         <div v-for="(material, index) in materials">
@@ -43,7 +43,7 @@
         <div class="left">{{currentAtlasName}}</div>
         <div class="left">
           <el-button @click="change('imageInput')">上传图片</el-button>
-          <input v-on:change="changeImageInput" id="imageInput" type='file' style="display:none"/>
+          <input v-on:change="changeImageInput" id="imageInput" type='file' class="hide"/>
         </div>
       </div>
       <div>
@@ -54,24 +54,17 @@
                 <el-button type="text" icon="el-icon-delete" @click="deleteAtlasImage(imageIndex, image)"></el-button>
               </div>
               <div class="image-contain">
-                <img style="width: 200px" :src="image.url">
+                <img :src="image.file.url">
               </div>
-
               <div>
                 <div class="atlasName">{{image.name}}</div>
                 <el-button type="text" icon="el-icon-edit" @click="editAtlasImage(imageIndex,image)"></el-button>
               </div>
-
             </div>
-
           </div>
         </div>
-
       </div>
-
     </div>
-
-
   </div>
 
 </template>
@@ -87,7 +80,6 @@
     },
     data() {
       return {
-
         isMaterialsShow: true,
         currentAtlasName: '',
         currentAtlasIndex: '',
@@ -102,13 +94,8 @@
         deep: true
       }
     },
-    mounted() {
-      let self = this;
-    },
     methods: {
       goToAtlas(material, index) {
-
-        let self = this;
         if (material.type === 0) {
           this.isMaterialsShow = false;
           this.images = material.files;
@@ -121,27 +108,20 @@
         this.$prompt('请输入新文件名', '修改文件名', {
           confirmButtonText: '确定',
           cancelButtonText: '取消'
-
         }).then(({value}) => {
           self.$API.changeMaterialName(material, value, function (newMaterial) {
             self.materials[index].name = newMaterial.name
-
           }, function () {
             self.$message({
               type: 'error',
               message: '修改失败!'
             });
           })
-
-
-        }).catch(() => {
-
-        });
+        }).catch(() => {});
       },
       deleteMaterialFile(index, material) {
-
         let self = this;
-        this.$API.deleteMaterial(this.$route.params.id, material.id, function () {
+        this.$API.deleteMaterial(this.$route.params.id, material.objectId, function () {
           self.materials.splice(index, 1)
         }, function () {
           self.$message({
@@ -150,7 +130,29 @@
           });
         });
       },
+      createMaterial(value) {
+        if (!value) return;
+        let self = this;
+        let fileUploadControl = $('#materialInput')[0];
+        if (fileUploadControl.files.length > 0) {
+          let localFile = fileUploadControl.files[0];
+          this.$API.createMaterial(this.$route.params.id, this.materials.length + 1, localFile.name, localFile, function (result) {
+            self.materials.push({
+              objectId: result.id,
+              name: result.attributes.name,
+              type: result.attributes.type,
+              url: result.attributes.file.attributes.url
+            })
+            $("#materialInput").val('')
+          }, function () {
+            self.$message({
+              type: 'error',
+              message: '添加素材失败!'
+            });
+          })
+        }
 
+      },
       editAtlasImage(index, material) {
         let self = this;
         this.$prompt('请输入新文件名', '修改文件名', {
@@ -183,8 +185,8 @@
         })
       },
       deleteAtlasImage(index, material) {
-        var self = this;
-        this.$API.deleteAtlasMaterial(material.id, function () {
+        let self = this;
+        this.$API.deleteAtlasMaterial(material.objectId, function () {
           self.materials[self.currentAtlasIndex].files.splice(index, 1)
         }, function () {
           self.$message({
@@ -198,45 +200,15 @@
         this.isMaterialsShow = true;
         this.images = [];
       },
-      createMaterial(value) {
-        if (!value) return;
-        let self = this;
-        let fileUploadControl = $('#materialInput')[0];
-        if (fileUploadControl.files.length > 0) {
-          let localFile = fileUploadControl.files[0];
-          this.$API.createMaterial(this.$route.params.id, this.materials.length + 1, localFile.name, localFile, function (result) {
-            self.materials.push({
-              id: result.id,
-              name: result.attributes.name,
-              type: result.attributes.type,
-              url: result.attributes.file.attributes.url
-            })
-            $("#materialInput").val('')
-          }, function () {
-            self.$message({
-              type: 'error',
-              message: '添加素材失败!'
-            });
-          })
-        }
 
-      },
       changeImageInput(value) {
-
         if (!value) return;
         let fileUploadControl = $('#imageInput')[0];
         let self = this;
-
         if (fileUploadControl.files.length > 0) {
           let localFile = fileUploadControl.files[0];
-          this.$API.createAtlasMaterial(this.materials[this.currentAtlasIndex].id, (this.images.length + 1), localFile.name, localFile, function (result) {
-
-            self.materials[self.currentAtlasIndex].files.push({
-              id: result.id,
-              name: result.attributes.name,
-              type: result.attributes.type,
-              url: result.attributes.file.attributes.url
-            })
+          this.$API.createAtlasMaterial(this.materials[this.currentAtlasIndex].objectId, (this.images.length + 1), localFile.name, localFile, function (result) {
+            self.materials[self.currentAtlasIndex].files.push(result);
             self.images = self.materials[self.currentAtlasIndex].files;
             $("#imageInput").val('')
           }, function () {
@@ -249,15 +221,13 @@
       },
       addAtlas() {
         let self = this;
-
-        this.$API.addAtlas(this.$route.params.id, (this.materials.length + 1), function (material) {
-          let materialInfo = material
+        this.$API.addAtlas(this.$route.params.id, (this.materials.length + 1), function (lessonMaterial) {
           self.materials.push({
-            id: materialInfo.id,
-            name: materialInfo.attributes.name,
+            objectId: lessonMaterial.material.objectId,
+            name: lessonMaterial.material.name,
             files: [],
-            type: materialInfo.attributes.type,
-            index: materialInfo.attributes.index
+            type: lessonMaterial.material.type,
+            index: lessonMaterial.index
           })
         }, function () {
           self.$message({
@@ -266,9 +236,8 @@
           });
         })
 
-      }
-
-      , change(id) {
+      },
+      change(id) {
         $("#" + id).click()
       }
 
@@ -342,10 +311,19 @@
   .materialList img {
     height: 12px;
   }
+  .warn{
+    color:#909399
+  }
+  .hide{
+    display:none
+  }
 
   .materialContainer {
     width: 320px;
     border: solid 1px #e6e6e6;
     margin-top: 10px
+  }
+  .image-contain img{
+    width: 200px
   }
 </style>

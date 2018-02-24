@@ -45,7 +45,6 @@
   export default {
     data() {
       return {
-        oldLeesonInfo: '',
         actionPage: 'lessonList',
         materials: [],
         lessonInfo: {
@@ -59,6 +58,7 @@
         },
         subjectFilter: [],
         activeName: 'baseInfo',
+        oldLeesonInfo: JSON.stringify({subject: {}, domain: [], source: '', author: '', misc: '', plan: '', materials: []}),
         isUpdate: -1
       }
     },
@@ -99,17 +99,11 @@
 
           let lessonInfo = self.handleLessonInfo();
           self.$API.updateLesson(lessonInfo, function () {
-            self.$message({
-              type: 'success',
-              message: '成功保存草稿'
-            });
+            self.sendSuccessMessage("成功保存草稿");
             next(true)
 
           }, function () {
-            self.$message({
-              type: 'error',
-              message: '保存草稿失败!'
-            });
+            self.sendErrorMessage('保存草稿失败!');
             next(false)
 
           })
@@ -117,8 +111,6 @@
           next(false)
         });
       } else {
-
-
         next(true)
       }
 
@@ -155,18 +147,15 @@
           if(cb){
             cb()
           }
-
         }, function () {
-          self.$message({
-            type: 'error',
-            message: '该课程不存在'
-          });
+          self.sendErrorMessage('该课程不存在!');
           self.$router.push({path: '/lessonList'})
         })
       },
       isUpdateLesson() {
         return JSON.stringify(this.lessonInfo) !== this.oldLeesonInfo
       },
+
 
       handleTags(tags) {
         let domain = [];
@@ -196,13 +185,10 @@
       getSubjectList(cb) {
         let self = this;
         this.$API.getSubjectList(function (subjectList) {
-          self.subjectFilter = subjectList
+          self.subjectFilter = subjectList;
           cb()
         }, function () {
-          self.$message({
-            type: 'error',
-            message: '获取科目列表失败!'
-          });
+          self.sendErrorMessage('获取科目列表失败!');
         })
       },
       updateLesson() {
@@ -210,16 +196,10 @@
         let lessonInfo = this.handleLessonInfo();
         this.$API.updateLesson(lessonInfo, function () {
           self.initLessonInfo(function(){
-            self.$message({
-              type: 'success',
-              message: '成功保存草稿'
-            });
+            self.sendSuccessMessage("成功保存草稿")
           })
         }, function () {
-          self.$message({
-            type: 'error',
-            message: '保存草稿失败!'
-          });
+          self.sendErrorMessage('保存草稿失败!');
         })
 
       },
@@ -229,27 +209,16 @@
         this.$API.updateLesson(lessonInfo, function () {
           self.initLessonInfo(function(){
             self.$API.publishLesson(lessonInfo.id, function () {
-              self.$message({
-                type: 'success',
-                message: '成功发布'
-              });
+              self.sendSuccessMessage("成功发布")
             }, function () {
-              self.$message({
-                type: 'error',
-                message: '发布失败!'
-              });
+              self.sendErrorMessage('发布失败!');
             })
           })
 
         }, function () {
-          self.$message({
-            type: 'error',
-            message: '发布失败!'
-          });
+          self.sendErrorMessage('发布失败!');
         })
-      }
-      ,
-
+      },
       handleLessonInfo() {
         let newLessonInfo = JSON.parse(JSON.stringify(this.lessonInfo));
         let tags = [];
@@ -265,7 +234,20 @@
         newLessonInfo.tags = tags;
         return newLessonInfo
 
+      },
+      sendErrorMessage(message){
+        this.$message({
+          type: 'error',
+          message: message
+        });
+      },
+      sendSuccessMessage(message){
+        this.$message({
+          type: 'success',
+          message: message
+        });
       }
+
     }
   }
 </script>
@@ -306,18 +288,9 @@
     text-align: right;
   }
 
-  .markdown-title {
-    height: 50px;
-    line-height: 50px;
-  }
 
-  .el-select {
-    display: block;
-  }
 
-  .markdown-container {
-    padding: 12px;
-  }
+
 
   .save_btn {
     position: absolute;
@@ -325,12 +298,5 @@
     right: 40px;
   }
 
-  .markdown-preview-container {
-    height: 642px;
-    border: solid 1px #e6e6e6;
-    border-radius: 5px;
-    padding: 5px 15px;
-    box-sizing: border-box;
-    overflow: auto
-  }
+
 </style>
