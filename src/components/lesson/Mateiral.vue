@@ -162,16 +162,6 @@
           cancelButtonText: '取消'
 
         }).then(({value}) => {
-//            let nameInfo = self.materials[index].name.split('.'); //todo
-//
-//            if(self.materials[self.currentAtlasIndex].files[index].type===0){
-//
-//              self.materials[self.currentAtlasIndex].files[index].name = value
-//            }else{
-//
-//              self.materials[self.currentAtlasIndex].files[index].name = value+"."+nameInfo[1]
-//            }
-
           self.$API.changeMaterialName(material, value, function (newMaterial) {
             self.materials[self.currentAtlasIndex].files[index].name = newMaterial.name
 

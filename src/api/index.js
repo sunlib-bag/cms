@@ -43,10 +43,24 @@ Api.install = function (Vue, options) {
   Api.prototype.checkUser = function (cb) {
     let currentUser = AV.User.current();
     if (!currentUser) return cb(false);
-    currentUser.isAuthenticated().then(function (authenticated) {
-      cb(authenticated)
-    });
+    currentUser.getRoles().then(function(roles){
+      let isAdmin  = false;
+      for(let i = 0; i< roles.length; i++){
+        if(roles[i].toJSON().name === 'admin'){
+          isAdmin = true;
+          break
+        }
+      }
+      if(!isAdmin) return cb(false);
+      currentUser.isAuthenticated().then(function (authenticated) {
+        cb(authenticated)
+      });
+    }).catch(function(){
+      cb(false)
+    })
+    
   };
+  
   
   
   //素材
@@ -258,7 +272,6 @@ Api.install = function (Vue, options) {
               materials[i].files = atlasFiles[materials[i].objectId] ? atlasFiles[materials[i].objectId] : [];
             }
           }
-          //todo 顺序
           newLessonInfo.materials = materials;
           sucFuc(newLessonInfo)
         }).catch(function (error) {
@@ -266,7 +279,6 @@ Api.install = function (Vue, options) {
         });
         
       }).catch(function (error) {
-        console.log(error)
         errFuc()
       });
       
