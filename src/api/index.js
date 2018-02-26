@@ -2,15 +2,15 @@ let Api = {};
 
 Api.install = function (Vue, options) {
   
-  function handleArrayData(array){
+  function handleArrayData(array) {
     let newArray = [];
-    for(let i =0 ;i < array.length; i++){
+    for (let i = 0; i < array.length; i++) {
       newArray.push(array[i].toJSON())
     }
     return newArray;
   }
   
-  function getFileType(data){
+  function getFileType(data) {
     let type;
     if (/image/.test(data.type)) type = 3;
     if (/audio/.test(data.type)) type = 1;
@@ -19,11 +19,11 @@ Api.install = function (Vue, options) {
   }
   
   
-  
   function Api() {
     this.appId = Vue.prototype.$config.APP_ID;
     this.appKey = Vue.prototype.$config.APP_KEY;
   }
+  
   //登录
   Api.prototype.login = function (data, sucFuc, errFuc) {
     AV.User.logInWithMobilePhoneSmsCode(data.mobilePhoneNumber, data.smsCode).then(function (success) {
@@ -40,10 +40,10 @@ Api.install = function (Vue, options) {
       errFuc()
     });
   };
-  Api.prototype.checkUser =  function(cb){
+  Api.prototype.checkUser = function (cb) {
     let currentUser = AV.User.current();
-    if(!currentUser) return cb(false);
-    currentUser.isAuthenticated().then(function(authenticated){
+    if (!currentUser) return cb(false);
+    currentUser.isAuthenticated().then(function (authenticated) {
       cb(authenticated)
     });
   };
@@ -52,27 +52,27 @@ Api.install = function (Vue, options) {
   //素材
   
   
-  Api.prototype.changeMaterialName = function(material, newName, sucFuc, errFuc){
+  Api.prototype.changeMaterialName = function (material, newName, sucFuc, errFuc) {
     let nameInfo = material.name.split('.'); //todo
-    let name ;
+    let name;
     let fileType = nameInfo.pop();
-    if(material.type ===0){
-       name = newName
-    }else{
-      name =  newName + '.'+fileType;
+    if (material.type === 0) {
+      name = newName
+    } else {
+      name = newName + '.' + fileType;
     }
     
-   let materialWithdata = AV.Object.createWithoutData('Material', material.objectId);
+    let materialWithdata = AV.Object.createWithoutData('Material', material.objectId);
     materialWithdata.set('name', name);
-    materialWithdata.save().then(function(material){
+    materialWithdata.save().then(function (material) {
       sucFuc(material.toJSON())
-    }).catch(function(){
+    }).catch(function () {
       errFuc();
     })
   };
   
-  Api.prototype.createMaterial = function (lessonId, index ,name, data, sucFuc, errFuc) {
-    let type =  getFileType(data);
+  Api.prototype.createMaterial = function (lessonId, index, name, data, sucFuc, errFuc) {
+    let type = getFileType(data);
     let file = new AV.File(name, data);
     let material = new AV.Object('Material');
     material.set('name', name);
@@ -80,19 +80,19 @@ Api.install = function (Vue, options) {
     material.set('file', file);
     
     let lesson = AV.Object.createWithoutData('Lesson', lessonId);
-  
-    let newLessonMaterial = new AV.Object('LessonMaterial');
-  
-    newLessonMaterial.set('material', material);
-  
-    newLessonMaterial.set('lesson', lesson);
-  
-    newLessonMaterial.set('index',index);
     
-    newLessonMaterial.save().then(function(lessonMaterial){
+    let newLessonMaterial = new AV.Object('LessonMaterial');
+    
+    newLessonMaterial.set('material', material);
+    
+    newLessonMaterial.set('lesson', lesson);
+    
+    newLessonMaterial.set('index', index);
+    
+    newLessonMaterial.save().then(function (lessonMaterial) {
       lessonMaterial = lessonMaterial.toJSON();
       sucFuc(lessonMaterial);
-    }).catch(function(){
+    }).catch(function () {
       errFuc()
     });
     
@@ -104,50 +104,74 @@ Api.install = function (Vue, options) {
     newMaterial.set('type', 0);
     let lesson = AV.Object.createWithoutData('Lesson', lessonId);
     let newLessonMaterial = new AV.Object('LessonMaterial');
-    newLessonMaterial.set('material',newMaterial);
+    newLessonMaterial.set('material', newMaterial);
     newLessonMaterial.set('lesson', lesson);
-    newLessonMaterial.set('index',index);
-    newLessonMaterial.save().then(function(lessonMaterial){
+    newLessonMaterial.set('index', index);
+    newLessonMaterial.save().then(function (lessonMaterial) {
       sucFuc(lessonMaterial.toJSON())
-    }).catch(function(error){
+    }).catch(function (error) {
       errFuc()
     });
   };
   
-  Api.prototype.deleteMaterial = function(lessonId, materialId, sucFuc, errFuc){
-    let material = AV.Object.createWithoutData('Material', materialId);
-    let lesson = AV.Object.createWithoutData('Lesson', lessonId);
-    let materialLessonQuery = new AV.Query('LessonMaterial');
-    materialLessonQuery.equalTo('lesson', lesson);
-    materialLessonQuery.equalTo('material', material);
-    materialLessonQuery.destroyAll().then(function(result){
-      sucFuc()
-    }).catch(function(error){
+  Api.prototype.deleteMaterial = function (materials, index, sucFuc, errFuc) {
+    let deleteMaterial = materials.splice(index, 1)[0];
+    let updateMaterialList = [];
+    for (let i = 0; i < materials.length; i++) {
+      let lessonMaterial = AV.Object.createWithoutData('LessonMaterial', materials[i].lessonMaterialId);
+      lessonMaterial.set('index', i + 1);
+      updateMaterialList.push(lessonMaterial)
+    }
+    AV.Object.saveAll(updateMaterialList).then(function () {
+      let materialLesson = AV.Object.createWithoutData("LessonMaterial", deleteMaterial.lessonMaterialId);
+      materialLesson.destroy().then(function () {
+        sucFuc()
+      }).catch(function () {
+        errFuc()
+      })
+    }).catch(function () {
       errFuc()
-    })
+    });
+    
   };
   
-  Api.prototype.deleteAtlasMaterial = function(materialId, sucFuc, errFuc){
-    let material = AV.Object.createWithoutData('Material', materialId);
-    material.set('parent',null);
-    material.save().then(function(){
+  Api.prototype.deleteAtlasMaterial = function (materials, index, sucFuc, errFuc) {
+    let deleteMaterial =  materials.splice(index, 1)[0];
+    deleteMaterial = AV.Object.createWithoutData('Material', deleteMaterial.objectId);
+    deleteMaterial.set('parent', null);
+    deleteMaterial.set('index',null);
+    let updateMaterialList = [deleteMaterial];
+    for(let i =0;i<materials.length; i++){
+      let material = AV.Object.createWithoutData('Material', materials[i].objectId);
+      material.set('index', i + 1);
+      updateMaterialList.push(material)
+    }
+    AV.Object.saveAll(updateMaterialList).then(function(){
       sucFuc()
     }).catch(function(){
       errFuc()
     })
     
+    // let material = AV.Object.createWithoutData('Material', materialId);
+    // material.set('parent', null);
+    // material.save().then(function () {
+    //   sucFuc()
+    // }).catch(function () {
+    //   errFuc()
+    // })
+    
   };
   
-  Api.prototype.createAtlasMaterial = function(atlasId, index ,name, data, sucFuc, errFuc){
-    let type =  getFileType(data);
-    let atlas =  AV.Object.createWithoutData('Material',atlasId);
+  Api.prototype.createAtlasMaterial = function (atlasId, index, name, data, sucFuc, errFuc) {
+    let type = getFileType(data);
+    let atlas = AV.Object.createWithoutData('Material', atlasId);
     let file = new AV.File(name, data);
     let material = new AV.Object('Material');
     material.set('name', name);
     material.set('type', type);
     material.set('file', file);
-    material.set('parent',atlas);
-    material.set('index',index);
+    material.set('parent', atlas);
+    material.set('index', index);
     material.save().then(function (material) {
       sucFuc(material.toJSON())
     }).catch(function () {
@@ -156,9 +180,8 @@ Api.install = function (Vue, options) {
   };
   
   
-  
   //获取信息
-  Api.prototype.getLesson = function (cb,errFuc) {
+  Api.prototype.getLesson = function (cb, errFuc) {
     let query = new AV.Query('Lesson');
     query.include('subject');
     query.descending('createdAt');
@@ -184,12 +207,12 @@ Api.install = function (Vue, options) {
     query.include('subject');
     query.include('plan');
     query.get(lessonId).then(function (lessonInfo) {
-      let newLessonInfo =  lessonInfo.toJSON();
+      let newLessonInfo = lessonInfo.toJSON();
       let materials = [];
       let lesson = AV.Object.createWithoutData('Lesson', lessonId);
       let LessonMaterialQuery = new AV.Query('LessonMaterial');
       LessonMaterialQuery.equalTo('lesson', lesson);
-      LessonMaterialQuery.descending("index");
+      LessonMaterialQuery.ascending("index");
       LessonMaterialQuery.include('material');
       LessonMaterialQuery.find().then(function (lessonMaterial) {
         for (let i = 0; i < lessonMaterial.length; i++) {
@@ -198,7 +221,8 @@ Api.install = function (Vue, options) {
             name: lessonMaterialInfo.material.name,
             type: lessonMaterialInfo.material.type,
             index: lessonMaterialInfo.index,
-            objectId: lessonMaterialInfo.material.objectId
+            objectId: lessonMaterialInfo.material.objectId,
+            lessonMaterialId: lessonMaterialInfo.objectId
           };
           
           if (material.type !== 0) {
@@ -257,13 +281,13 @@ Api.install = function (Vue, options) {
   
   // 更新课程
   
-  Api.prototype.publishLesson =  function(lessonId, sucFuc, errFuc){
+  Api.prototype.publishLesson = function (lessonId, sucFuc, errFuc) {
     let paramsJson = {
       lesson_id: lessonId
     };
-    AV.Cloud.run('pack', paramsJson).then(function(data) {
+    AV.Cloud.run('pack', paramsJson).then(function (data) {
       sucFuc(data)
-    }, function(err) {
+    }, function (err) {
       errFuc(data)
     });
   };
@@ -291,21 +315,21 @@ Api.install = function (Vue, options) {
     
   };
   
-  Api.prototype.updateLesson =  function(lessonInfo, sucFuc, errFuc){
-    let plan = AV.Object.createWithoutData('LessonPlan',lessonInfo.plan.objectId);
-    plan.set('content',lessonInfo.plan.content);
-    plan.set('author',lessonInfo.plan.author);
+  Api.prototype.updateLesson = function (lessonInfo, sucFuc, errFuc) {
+    let plan = AV.Object.createWithoutData('LessonPlan', lessonInfo.plan.objectId);
+    plan.set('content', lessonInfo.plan.content);
+    plan.set('author', lessonInfo.plan.author);
     let subject = AV.Object.createWithoutData('Subject', lessonInfo.subject.objectId);
-    let lesson = AV.Object.createWithoutData('Lesson',lessonInfo.objectId);
-    lesson.set('name',lessonInfo.name);
-    lesson.set('tags',lessonInfo.tags);
+    let lesson = AV.Object.createWithoutData('Lesson', lessonInfo.objectId);
+    lesson.set('name', lessonInfo.name);
+    lesson.set('tags', lessonInfo.tags);
     lesson.set('subject', subject);
     lesson.set('draft_version_code', lessonInfo.draft_version_code + 1);
     
-    AV.Object.saveAll([plan, lesson]).then(function(result){
+    AV.Object.saveAll([plan, lesson]).then(function (result) {
       sucFuc()
       
-    }).catch(function(error){
+    }).catch(function (error) {
       errFuc()
     })
     
@@ -313,13 +337,13 @@ Api.install = function (Vue, options) {
   
   Api.prototype.deleteLesson = function (id, sucFuc, errFuc) {
     
-    let lessonQuery = new  AV.Query('Lesson');
+    let lessonQuery = new AV.Query('Lesson');
     lessonQuery.get(id).then(function (result) {
-      let lessonInfo =  result.toJSON();
+      let lessonInfo = result.toJSON();
       let deleteList = [];
       let lesson = AV.Object.createWithoutData('Lesson', lessonInfo.objectId);
       deleteList.push(lesson);
-      if(lessonInfo.plan){
+      if (lessonInfo.plan) {
         let plan = AV.Object.createWithoutData('LessonPlan', lessonInfo.plan.objectId);
         deleteList.push(plan);
       }
@@ -339,8 +363,6 @@ Api.install = function (Vue, options) {
     });
   };
   
-  
- 
   
   Api.prototype.init = function () {
     window.AV.init({

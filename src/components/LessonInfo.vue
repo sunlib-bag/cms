@@ -208,7 +208,7 @@
         let lessonInfo = this.handleLessonInfo();
         this.$API.updateLesson(lessonInfo, function () {
           self.initLessonInfo(function(){
-            self.$API.publishLesson(lessonInfo.id, function () {
+            self.$API.publishLesson(lessonInfo.objectId, function () {
               self.sendSuccessMessage("成功发布")
             }, function () {
               self.sendErrorMessage('发布失败!');

@@ -121,7 +121,8 @@
       },
       deleteMaterialFile(index, material) {
         let self = this;
-        this.$API.deleteMaterial(this.$route.params.id, material.objectId, function () {
+        let materials = JSON.parse(JSON.stringify(this.materials));
+        this.$API.deleteMaterial(materials, index, function () {
           self.materials.splice(index, 1)
         }, function () {
           self.$message({
@@ -138,11 +139,12 @@
           let localFile = fileUploadControl.files[0];
           this.$API.createMaterial(this.$route.params.id, this.materials.length + 1, localFile.name, localFile, function (result) {
             self.materials.push({
-              objectId: result.id,
-              name: result.attributes.name,
-              type: result.attributes.type,
-              url: result.attributes.file.attributes.url
-            })
+              objectId: result.material.objectId,
+              name: result.material.name,
+              type: result.material.type,
+              url: result.material.file.url,
+              lessonMaterialId: result.objectId
+            });
             $("#materialInput").val('')
           }, function () {
             self.$message({
@@ -186,7 +188,8 @@
       },
       deleteAtlasImage(index, material) {
         let self = this;
-        this.$API.deleteAtlasMaterial(material.objectId, function () {
+        let atlasImage = JSON.parse(JSON.stringify(self.materials[self.currentAtlasIndex].files));
+        this.$API.deleteAtlasMaterial(atlasImage, index, function () {
           self.materials[self.currentAtlasIndex].files.splice(index, 1)
         }, function () {
           self.$message({
@@ -200,7 +203,6 @@
         this.isMaterialsShow = true;
         this.images = [];
       },
-
       changeImageInput(value) {
         if (!value) return;
         let fileUploadControl = $('#imageInput')[0];
