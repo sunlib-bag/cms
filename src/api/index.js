@@ -243,7 +243,6 @@ Api.install = function (Vue, options) {
       LessonMaterialQuery.find().then(function (lessonMaterial) {
         for (let i = 0; i < lessonMaterial.length; i++) {
           let lessonMaterialInfo = lessonMaterial[i].toJSON();
-          console.log(lessonMaterialInfo.objectId)
           let material = {
             name: lessonMaterialInfo.material.name,
             type: lessonMaterialInfo.material.type,
