@@ -140,6 +140,7 @@ Api.install = function (Vue, options) {
   Api.prototype.deleteMaterial = function (materials, index, sucFuc, errFuc) {
     let deleteMaterial = materials.splice(index, 1)[0];
     let updateMaterialList = [];
+    
     for (let i = 0; i < materials.length; i++) {
       let lessonMaterial = AV.Object.createWithoutData('LessonMaterial', materials[i].lessonMaterialId);
       lessonMaterial.set('index', i + 1);
@@ -149,10 +150,12 @@ Api.install = function (Vue, options) {
       let materialLesson = AV.Object.createWithoutData("LessonMaterial", deleteMaterial.lessonMaterialId);
       materialLesson.destroy().then(function () {
         sucFuc()
-      }).catch(function () {
+      }).catch(function (error) {
+        console.log(error)
         errFuc()
       })
-    }).catch(function () {
+    }).catch(function (error) {
+      console.log(error)
       errFuc()
     });
     
@@ -240,6 +243,7 @@ Api.install = function (Vue, options) {
       LessonMaterialQuery.find().then(function (lessonMaterial) {
         for (let i = 0; i < lessonMaterial.length; i++) {
           let lessonMaterialInfo = lessonMaterial[i].toJSON();
+          console.log(lessonMaterialInfo.objectId)
           let material = {
             name: lessonMaterialInfo.material.name,
             type: lessonMaterialInfo.material.type,
@@ -318,7 +322,8 @@ Api.install = function (Vue, options) {
     let self = this;
     query.find().then(function (products) {
       if (products.length <= 0) return errFuc();
-      let subject = AV.Object.createWithoutData('Subject', products[0].toJSON.objectId);
+      
+      let subject = AV.Object.createWithoutData('Subject', products[0].toJSON().objectId);
       let LessonPlan = new AV.Object('LessonPlan');
       let newLesson = new AV.Object('Lesson');
       newLesson.set('isPublished', false);
@@ -327,7 +332,8 @@ Api.install = function (Vue, options) {
       newLesson.set('plan', LessonPlan);
       newLesson.save().then(function (lesson) {
         sucFuc(lesson.toJSON())
-      }).catch(function () {
+      }).catch(function (error) {
+        
         errFuc()
       })
     }).catch(function (error) {

@@ -219,7 +219,8 @@
             name: lessonMaterial.material.name,
             files: [],
             type: lessonMaterial.material.type,
-            index: lessonMaterial.index
+            index: lessonMaterial.index,
+            lessonMaterialId: lessonMaterial.objectId
           })
         }, function () {
           self.$message({
