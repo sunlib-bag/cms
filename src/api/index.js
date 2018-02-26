@@ -26,8 +26,15 @@ Api.install = function (Vue, options) {
   
   //登录
   Api.prototype.login = function (data, sucFuc, errFuc) {
+    let self = this;
     AV.User.logInWithMobilePhoneSmsCode(data.mobilePhoneNumber, data.smsCode).then(function (success) {
-      sucFuc(success)
+      self.checkUser(function(isAdmin){
+        if(isAdmin){
+          return sucFuc(success)
+        }
+        errFuc()
+      })
+      
     }, function (error) {
       errFuc(error)
     });
@@ -44,6 +51,7 @@ Api.install = function (Vue, options) {
     let currentUser = AV.User.current();
     if (!currentUser) return cb(false);
     currentUser.getRoles().then(function(roles){
+      
       let isAdmin  = false;
       for(let i = 0; i< roles.length; i++){
         if(roles[i].toJSON().name === 'admin'){
@@ -51,6 +59,7 @@ Api.install = function (Vue, options) {
           break
         }
       }
+      
       if(!isAdmin) return cb(false);
       currentUser.isAuthenticated().then(function (authenticated) {
         cb(authenticated)

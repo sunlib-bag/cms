@@ -50,7 +50,7 @@
         let self = this;
         let userInfo = {mobilePhoneNumber: this.phone, smsCode: this.verificationCode};
         this.$API.login(userInfo, function (result) {
-          console.log(result)
+
           self.$message({
             type: 'success',
             message: '登录成功'
