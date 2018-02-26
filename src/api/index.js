@@ -136,19 +136,19 @@ Api.install = function (Vue, options) {
   };
   
   Api.prototype.deleteAtlasMaterial = function (materials, index, sucFuc, errFuc) {
-    let deleteMaterial =  materials.splice(index, 1)[0];
+    let deleteMaterial = materials.splice(index, 1)[0];
     deleteMaterial = AV.Object.createWithoutData('Material', deleteMaterial.objectId);
     deleteMaterial.set('parent', null);
-    deleteMaterial.set('index',null);
+    deleteMaterial.set('index', null);
     let updateMaterialList = [deleteMaterial];
-    for(let i =0;i<materials.length; i++){
+    for (let i = 0; i < materials.length; i++) {
       let material = AV.Object.createWithoutData('Material', materials[i].objectId);
       material.set('index', i + 1);
       updateMaterialList.push(material)
     }
-    AV.Object.saveAll(updateMaterialList).then(function(){
+    AV.Object.saveAll(updateMaterialList).then(function () {
       sucFuc()
-    }).catch(function(){
+    }).catch(function () {
       errFuc()
     })
     
@@ -296,7 +296,8 @@ Api.install = function (Vue, options) {
     let query = new AV.Query('Subject');
     let self = this;
     query.find().then(function (products) {
-      let subject = AV.Object.createWithoutData('Subject', products[0].id);
+      if (products.length <= 0) return errFuc();
+      let subject = AV.Object.createWithoutData('Subject', products[0].toJSON.objectId);
       let LessonPlan = new AV.Object('LessonPlan');
       let newLesson = new AV.Object('Lesson');
       newLesson.set('isPublished', false);
@@ -304,9 +305,9 @@ Api.install = function (Vue, options) {
       newLesson.set('subject', subject);
       newLesson.set('plan', LessonPlan);
       newLesson.save().then(function (lesson) {
-        sucFuc(lesson)
+        sucFuc(lesson.toJSON())
       }).catch(function () {
-      
+        errFuc()
       })
     }).catch(function (error) {
       errFuc()

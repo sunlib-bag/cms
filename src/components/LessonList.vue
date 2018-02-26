@@ -51,7 +51,7 @@
       initLesson() {
         let self = this;
         this.$API.initLesson(function (lesson) {
-          self.$router.push('/lessonInfo/' + lesson.id)
+          self.$router.push('/lessonInfo/' + lesson.objectId)
         }, function () {
           self.$message({
             type: 'error',
