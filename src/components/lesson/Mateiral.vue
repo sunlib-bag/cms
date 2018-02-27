@@ -83,7 +83,8 @@
         isMaterialsShow: true,
         currentAtlasName: '',
         currentAtlasIndex: '',
-        images: []
+        images: [],
+        loading:''
       }
     },
     watch: {
@@ -109,9 +110,12 @@
           confirmButtonText: '确定',
           cancelButtonText: '取消'
         }).then(({value}) => {
+          self.openLoading('正在上传');
           self.$API.changeMaterialName(material, value, function (newMaterial) {
             self.materials[index].name = newMaterial.name
+            self.closeLoading();
           }, function () {
+            self.closeLoading();
             self.$message({
               type: 'error',
               message: '修改失败!'
@@ -122,9 +126,12 @@
       deleteMaterialFile(index, material) {
         let self = this;
         let materials = JSON.parse(JSON.stringify(this.materials));
+        self.openLoading('正在上传');
         this.$API.deleteMaterial(materials, index, function () {
-          self.materials.splice(index, 1)
+          self.materials.splice(index, 1);
+          self.closeLoading();
         }, function () {
+          self.closeLoading();
           self.$message({
             type: 'error',
             message: '删除失败!'
@@ -137,6 +144,7 @@
         let fileUploadControl = $('#materialInput')[0];
         if (fileUploadControl.files.length > 0) {
           let localFile = fileUploadControl.files[0];
+          self.openLoading('正在上传');
           this.$API.createMaterial(this.$route.params.id, this.materials.length + 1, localFile.name, localFile, function (result) {
             self.materials.push({
               objectId: result.material.objectId,
@@ -145,8 +153,10 @@
               url: result.material.file.url,
               lessonMaterialId: result.objectId
             });
+            self.closeLoading();
             $("#materialInput").val('')
           }, function () {
+            self.closeLoading();
             self.$message({
               type: 'error',
               message: '添加素材失败!'
@@ -162,10 +172,12 @@
           cancelButtonText: '取消'
 
         }).then(({value}) => {
+          self.openLoading('正在上传');
           self.$API.changeMaterialName(material, value, function (newMaterial) {
             self.materials[self.currentAtlasIndex].files[index].name = newMaterial.name
-
+            self.closeLoading();
           }, function () {
+            self.closeLoading();
             self.$message({
               type: 'error',
               message: '修改失败!'
@@ -179,9 +191,12 @@
       deleteAtlasImage(index, material) {
         let self = this;
         let atlasImage = JSON.parse(JSON.stringify(self.materials[self.currentAtlasIndex].files));
+        self.openLoading('正在上传');
         this.$API.deleteAtlasMaterial(atlasImage, index, function () {
           self.materials[self.currentAtlasIndex].files.splice(index, 1)
+          self.closeLoading();
         }, function () {
+          self.closeLoading();
           self.$message({
             type: 'error',
             message: '删除素材失败!'
@@ -199,11 +214,14 @@
         let self = this;
         if (fileUploadControl.files.length > 0) {
           let localFile = fileUploadControl.files[0];
+          self.openLoading('正在上传');
           this.$API.createAtlasMaterial(this.materials[this.currentAtlasIndex].objectId, (this.images.length + 1), localFile.name, localFile, function (result) {
             self.materials[self.currentAtlasIndex].files.push(result);
             self.images = self.materials[self.currentAtlasIndex].files;
-            $("#imageInput").val('')
+            $("#imageInput").val('');
+            self.closeLoading();
           }, function () {
+            self.closeLoading();
             self.$message({
               type: 'error',
               message: '添加素材失败!'
@@ -213,6 +231,7 @@
       },
       addAtlas() {
         let self = this;
+        self.openLoading('正在上传');
         this.$API.addAtlas(this.$route.params.id, (this.materials.length + 1), function (lessonMaterial) {
           self.materials.push({
             objectId: lessonMaterial.material.objectId,
@@ -222,16 +241,28 @@
             index: lessonMaterial.index,
             lessonMaterialId: lessonMaterial.objectId
           })
+          self.closeLoading();
         }, function () {
+          self.closeLoading();
           self.$message({
             type: 'error',
             message: '添加素材失败!'
           });
         })
-
       },
       change(id) {
         $("#" + id).click()
+      },
+      openLoading(message) {
+        this.loading = this.$loading({
+          lock: true,
+          text: message,
+          spinner: 'el-icon-loading',
+          background: 'rgba(0, 0, 0, 0.7)'
+        });
+      },
+      closeLoading(){
+        this.loading.close();
       }
 
     }

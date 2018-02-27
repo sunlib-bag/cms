@@ -2,11 +2,8 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import 'element-ui/lib/theme-chalk/index.css'
 import LessonList from '@/components/LessonList'
-import NewLesson from '@/components/NewLesson'
 import LessonInfo from '@/components/LessonInfo'
-import Plan from '@/components/lesson/Plan.vue'
 import Login from '@/components/Login.vue'
-import test from '@/components/test'
 import VueBus from 'vue-bus'
 
 
@@ -42,11 +39,6 @@ export default new Router({
       path:'/lessonInfo/:id',
       name: 'lessonInfo',
       component: LessonInfo
-    },
-    {
-      path: '/test',
-      name: 'test',
-      component: test
     },
     {
       path: '*',

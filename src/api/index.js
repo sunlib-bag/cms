@@ -96,6 +96,7 @@ Api.install = function (Vue, options) {
   
   Api.prototype.createMaterial = function (lessonId, index, name, data, sucFuc, errFuc) {
     let type = getFileType(data);
+    
     let file = new AV.File(name, data);
     let material = new AV.Object('Material');
     material.set('name', name);
@@ -115,7 +116,7 @@ Api.install = function (Vue, options) {
     newLessonMaterial.save().then(function (lessonMaterial) {
       lessonMaterial = lessonMaterial.toJSON();
       sucFuc(lessonMaterial);
-    }).catch(function () {
+    }).catch(function (error) {
       errFuc()
     });
     

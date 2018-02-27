@@ -123,8 +123,9 @@
           return self.$router.push('/')
         }
         self.initPage();
+        self.openLoading('正在加载数据');
         self.getSubjectList(function () {
-          self.initLessonInfo()
+          self.initLessonInfo(function(){self.closeLoading()},function(){self.closeLoading()})
         });
       });
       this.$bus.on('changeMaterial', function (value) {
@@ -133,21 +134,23 @@
 
     },
     methods: {
-      initLessonInfo(cb){
+      initLessonInfo(sucFuc, errFuc){
         let self = this;
         self.$API.getLessonInfo(self.$route.params.id, function (lesson) {
           let newLessonInfo = JSON.parse(JSON.stringify(lesson));
-
           let tagsInfo = self.handleTags(newLessonInfo.tags);
           newLessonInfo.domain = tagsInfo.domain;
           newLessonInfo.source = tagsInfo.source;
           newLessonInfo.misc = tagsInfo.misc;
           self.oldLeesonInfo = JSON.stringify(newLessonInfo);
           self.lessonInfo = newLessonInfo;
-          if(cb){
-            cb()
+          if(sucFuc){
+            sucFuc()
           }
         }, function () {
+          if(errFuc){
+            errFuc()
+          }
           self.sendErrorMessage('该课程不存在!');
           self.$router.push({path: '/lessonList'})
         })
@@ -194,11 +197,14 @@
       updateLesson() {
         let self = this;
         let lessonInfo = this.handleLessonInfo();
+        this.openLoading('正在更新');
         this.$API.updateLesson(lessonInfo, function () {
           self.initLessonInfo(function(){
+            self.closeLoading();
             self.sendSuccessMessage("成功保存草稿")
           })
         }, function () {
+          self.closeLoading();
           self.sendErrorMessage('保存草稿失败!');
         })
 
@@ -206,16 +212,20 @@
       publicLesson() {
         let self = this;
         let lessonInfo = this.handleLessonInfo();
+        this.openLoading('正在发布');
         this.$API.updateLesson(lessonInfo, function () {
           self.initLessonInfo(function(){
             self.$API.publishLesson(lessonInfo.objectId, function () {
+              self.closeLoading();
               self.sendSuccessMessage("成功发布")
-            }, function () {
+            }, function (error) {
+              self.closeLoading();
               self.sendErrorMessage('发布失败!');
             })
           })
 
         }, function () {
+          self.closeLoading();
           self.sendErrorMessage('发布失败!');
         })
       },
@@ -246,6 +256,17 @@
           type: 'success',
           message: message
         });
+      },
+      openLoading(message) {
+        this.loading = this.$loading({
+          lock: true,
+          text: message,
+          spinner: 'el-icon-loading',
+          background: 'rgba(0, 0, 0, 0.7)'
+        });
+      },
+      closeLoading(){
+        this.loading.close();
       }
 
     }
