@@ -32,11 +32,10 @@ Api.install = function (Vue, options) {
         if(isAdmin){
           return sucFuc(success)
         }
-        errFuc()
+        errFuc(323)
       })
-      
     }, function (error) {
-      errFuc(error)
+      errFuc(error.code||-1)
     });
   };
   Api.prototype.sendSMSCode = function (phone, sucFuc, errFuc) {
@@ -44,7 +43,7 @@ Api.install = function (Vue, options) {
     AV.User.requestLoginSmsCode(phone).then(function (success) {
       sucFuc(success)
     }, function (error) {
-      errFuc()
+      errFuc(error.code||-1)
     });
   };
   Api.prototype.checkUser = function (cb) {

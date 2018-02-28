@@ -38,29 +38,34 @@
       }
     },
     mounted() {
-      let self = this;
-      this.$API.checkUser(function(authenticated){
-        if(authenticated){
-          self.$router.push({path: '/lessonList'})
-        }
-      })
+//      let self = this;
+//      this.$API.checkUser(function(authenticated){
+//        if(authenticated){
+//          self.$router.push({path: '/lessonList'})
+//        }
+//      })
     },
     methods: {
       login: function () {
         let self = this;
         let userInfo = {mobilePhoneNumber: this.phone, smsCode: this.verificationCode};
         this.$API.login(userInfo, function (result) {
-
-          self.$message({
-            type: 'success',
-            message: '登录成功'
-          });
+          self.sendSuccessMessage("登录成功");
           self.$router.push({path: '/lessonList'})
-        }, function () {
-          self.$message({
-            type: 'error',
-            message: '登录失败'
-          });
+        }, function (code) {
+          let message;
+          if (code === 603){
+            message = '登录失败，无效验证码'
+          }else if(code === 219){
+            message = '登录失败频繁，15分钟后再试'
+          }else if(code === 211){
+            message = '登录失败，未发现用户'
+          }else if(code === 323){
+            message = '非管理员用户，无法登录'
+          } else{
+            message = '网络错误，请稍候再试'
+          }
+          self.sendErrorMessage(message)
         })
       },
       sendSMSCode: function () {
@@ -82,17 +87,33 @@
 
 
         this.$API.sendSMSCode(this.phone, function (result) {
-          self.$message({
-            type: 'info',
-            message: '发送成功'
-          });
-        }, function () {
-          self.$message({
-            type: 'info',
-            message: '发送失败,检查手机号'
-          });
+          self.sendSuccessMessage('发送成功');
+        }, function (code) {
+          let message ;
+          if(code === 213){
+            message = '发送信息频繁，请稍后再试';
+          }else if(code === 601){
+            message = '发送失败,检查手机号是否为用户认证手机号';
+          }else{
+            message = '网络错误，请稍候再试'
+          }
+          self.sendErrorMessage(message)
+
+        })
+      },
+      sendErrorMessage(message){
+        this.$message({
+          type: 'error',
+          message: message
+        })
+      },
+      sendSuccessMessage(message){
+        this.$message({
+          type: 'success',
+          message: message
         })
       }
+
     }
 
   }
