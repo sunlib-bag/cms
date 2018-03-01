@@ -44,11 +44,25 @@
     <el-table-column
       prop="version_code"
       :formatter="handleStatus"
+      label="发布版本">
 
-      label="发布版本"
-    >
+
 
     </el-table-column>
+
+    <el-table-column
+      prop="package"
+      label="课程包">
+
+      <template slot-scope="scope">
+
+        <el-button type="text" v-if='scope.row.package' @click="downPackage(scope.row.package.url)">下载</el-button>
+        <span v-if="!scope.row.package">N/A</span>
+
+      </template>
+
+    </el-table-column>
+
     <el-table-column
       width="200px"
       label="操作"
@@ -63,8 +77,11 @@
   </el-table>
 </template>
 <script>
+  import ElButton from "../../../node_modules/element-ui/packages/button/src/button.vue";
+
   export default {
 
+    components: {ElButton},
     data() {
       return {
         lessonList: [],
@@ -90,7 +107,6 @@
 
       let self = this;
       this.$API.getLesson(function (lessons) {
-
         self.lessonList = lessons
       }, function () {
         self.$message({
@@ -202,6 +218,9 @@
 
         return fmt;
       },
+      downPackage(url){
+        window.open(url)
+      }
 
 
     }
