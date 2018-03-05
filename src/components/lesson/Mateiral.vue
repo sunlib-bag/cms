@@ -150,7 +150,7 @@
               objectId: result.material.objectId,
               name: result.material.name,
               type: result.material.type,
-              url: result.material.file.url,
+              file: result.material.file,
               lessonMaterialId: result.objectId
             });
             self.closeLoading();
