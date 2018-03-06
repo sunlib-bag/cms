@@ -182,10 +182,11 @@
               message: '删除成功!'
             });
             lessonList.splice(scope.$index, 1)
-          },function(){
+          },function(code){
+            let message = (code == 403) ? '权限异常，删除课程失败!' : '删除课程失败!'
             self.$message({
               type: 'error',
-              message: '删除课程失败!'
+              message: message
             });
           });
 

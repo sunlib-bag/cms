@@ -43,7 +43,7 @@
         <div class="left">{{currentAtlasName}}</div>
         <div class="left">
           <el-button @click="change('imageInput')">上传图片</el-button>
-          <input v-on:change="changeImageInput" id="imageInput" type='file' class="hide"/>
+          <input v-on:change="changeImageInput" id="imageInput" type='file' accept="image/*" class="hide"/>
         </div>
       </div>
       <div>
@@ -84,7 +84,7 @@
         currentAtlasName: '',
         currentAtlasIndex: '',
         images: [],
-        loading:''
+        loading: ''
       }
     },
     watch: {
@@ -112,7 +112,7 @@
         }).then(({value}) => {
           self.openLoading('正在上传');
           self.$API.changeMaterialName(material, value, function (newMaterial) {
-            self.materials[index].name = newMaterial.name
+            self.materials[index].name = newMaterial.name;
             self.closeLoading();
           }, function () {
             self.closeLoading();
@@ -121,7 +121,8 @@
               message: '修改失败!'
             });
           })
-        }).catch(() => {});
+        }).catch(() => {
+        });
       },
       deleteMaterialFile(index, material) {
         let self = this;
@@ -130,11 +131,12 @@
         this.$API.deleteMaterial(materials, index, function () {
           self.materials.splice(index, 1);
           self.closeLoading();
-        }, function () {
+        }, function (code) {
+          let message = (code == 403) ? '权限异常，删除失败' : '删除失败!';
           self.closeLoading();
           self.$message({
             type: 'error',
-            message: '删除失败!'
+            message: message
           });
         });
       },
@@ -195,11 +197,12 @@
         this.$API.deleteAtlasMaterial(atlasImage, index, function () {
           self.materials[self.currentAtlasIndex].files.splice(index, 1)
           self.closeLoading();
-        }, function () {
+        }, function (code) {
+          let message = (code == 403) ? '权限异常,删除素材失败!' : '删除素材失败!';
           self.closeLoading();
           self.$message({
             type: 'error',
-            message: '删除素材失败!'
+            message: message
           });
         })
 
@@ -261,7 +264,7 @@
           background: 'rgba(0, 0, 0, 0.7)'
         });
       },
-      closeLoading(){
+      closeLoading() {
         this.loading.close();
       }
 
@@ -335,11 +338,13 @@
   .materialList img {
     height: 12px;
   }
-  .warn{
-    color:#909399
+
+  .warn {
+    color: #909399
   }
-  .hide{
-    display:none
+
+  .hide {
+    display: none
   }
 
   .materialContainer {
@@ -347,7 +352,8 @@
     border: solid 1px #e6e6e6;
     margin-top: 10px
   }
-  .image-contain img{
+
+  .image-contain img {
     width: 200px
   }
 </style>

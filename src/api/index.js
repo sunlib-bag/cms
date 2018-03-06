@@ -156,7 +156,7 @@ Api.install = function (Vue, options) {
       })
     }).catch(function (error) {
       console.log(error)
-      errFuc()
+      errFuc(error.code)
     });
     
   };
@@ -174,8 +174,8 @@ Api.install = function (Vue, options) {
     }
     AV.Object.saveAll(updateMaterialList).then(function () {
       sucFuc()
-    }).catch(function () {
-      errFuc()
+    }).catch(function (err) {
+      errFuc(err.code)
     })
     
     // let material = AV.Object.createWithoutData('Material', materialId);
@@ -287,16 +287,16 @@ Api.install = function (Vue, options) {
           newLessonInfo.materials = materials;
           sucFuc(newLessonInfo)
         }).catch(function (error) {
-          errFuc()
+          errFuc(error.code)
         });
         
       }).catch(function (error) {
-        errFuc()
+        errFuc(error.code)
       });
       
       
     }).catch(function (error) {
-      errFuc()
+      errFuc(error.code)
     });
     
     
@@ -312,7 +312,7 @@ Api.install = function (Vue, options) {
     AV.Cloud.run('pack', paramsJson).then(function (data) {
       sucFuc(data)
     }, function (err) {
-      errFuc(data)
+      errFuc(err)
     });
   };
   
@@ -380,13 +380,13 @@ Api.install = function (Vue, options) {
         AV.Object.destroyAll(deleteList).then(function (data) {
           sucFuc()
         }).catch(function (error) {
-          errFuc()
+          errFuc(error.code)
         })
       }).catch(function (error) {
-        errFuc()
+        errFuc(error.code)
       });
     }, function (error) {
-      errFuc()
+      errFuc(error.code)
     });
   };
   
