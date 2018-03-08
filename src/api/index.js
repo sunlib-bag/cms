@@ -390,6 +390,16 @@ Api.install = function (Vue, options) {
     });
   };
   
+  Api.prototype.callbackLesson = function(lessonId, sucFuc, errFuc){
+    let lesson = AV.Object.createWithoutData('Lesson', lessonId);
+    lesson.set('isPublished',false);
+    lesson.save().then(function(data){
+      sucFuc()
+    }).catch(function(){
+      errFuc()
+    })
+  };
+  
   
   Api.prototype.init = function () {
     window.AV.init({

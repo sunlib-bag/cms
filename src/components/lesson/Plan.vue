@@ -21,7 +21,7 @@
 
       <div class="markdown-title">预览</div>
       <div class="markdown-preview-container">
-        <vue-markdown :source="plan"></vue-markdown>
+        <vue-markdown :breaks = 'false' :source="plan"></vue-markdown>
       </div>
     </el-col>
   </el-row>

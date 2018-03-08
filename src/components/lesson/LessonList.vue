@@ -64,12 +64,13 @@
     </el-table-column>
 
     <el-table-column
-      width="200px"
+      width="250px"
       label="操作"
     >
       <template slot-scope="scope">
         <el-button type="success" size="small" @click="goToUpdateLesson(scope)">编辑</el-button>
         <el-button type="danger" size="small" @click="deleteLesson(scope, lessonList)">删除</el-button>
+        <el-button type="danger" size="small" :disabled="!scope.row.isPublished" @click="callbackLesson(scope, lessonList)">下架</el-button>
 
       </template>
 
@@ -221,6 +222,34 @@
       },
       downPackage(url){
         window.open(url)
+      },
+      callbackLesson(scope, lessonList){
+        let self = this;
+        this.$confirm('此操作下架' + scope.row.name + '课程, 是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          self.$API.callbackLesson(scope.row.objectId,function(){
+            self.$message({
+              type: 'success',
+              message: '下架成功!'
+            });
+            lessonList[scope.$index].isPublished = false;
+          },function(code){
+            let message = (code == 403) ? '权限异常，下架课程失败!' : '下架课程失败!';
+            self.$message({
+              type: 'error',
+              message: message
+            });
+          });
+
+        }).catch(() => {
+          self.$message({
+            type: 'info',
+            message: '已取消下架'
+          });
+        });
       }
 
 
