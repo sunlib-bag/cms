@@ -207,12 +207,20 @@ Api.install = function (Vue, options) {
   
   
   //获取信息
-  Api.prototype.getLesson = function (cb, errFuc) {
+  Api.prototype.getLesson = function (limit , page, cb, errFuc) {
+    let skipNumber = (page-1)*limit;
+    let limitNumber = limit;
     let query = new AV.Query('Lesson');
     query.include('subject');
     query.descending('createdAt');
+    query.limit(limitNumber);// 最多返回 10 条结果
+    query.skip(skipNumber);// 跳过 20 条结果
     query.find().then(function (products) {
-      cb(handleArrayData(products))
+      let countLesson =  new AV.Query('Lesson');
+      countLesson.count().then(function(count){
+        cb({result:handleArrayData(products), count: count})
+      })
+      
     }).catch(function (error) {
       errFuc(error)
     });

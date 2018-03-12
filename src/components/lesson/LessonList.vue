@@ -1,82 +1,101 @@
 <template>
+  <div>
+    <el-table
+      :data="lessonList"
+      style="width: 100%; text-align: left">
+      <el-table-column
+        prop="name"
+        label="课程名称"
+        width="100">
+      </el-table-column>
+      <el-table-column
+        :filters="subjectFilter"
+        :filter-method="filterTag"
+        filter-placement="bottom-start"
+        prop="subject.title"
+        label="科目"
+      >
+      </el-table-column>
+      <el-table-column
+        prop="tages"
+        label="来源"
 
-  <el-table
-    :data="lessonList"
-    style="width: 100%; text-align: left">
-    <el-table-column
-      prop="name"
-      label="课程名称"
-      width="100">
-    </el-table-column>
-    <el-table-column
-      :filters="subjectFilter"
-      :filter-method="filterTag"
-      filter-placement="bottom-start"
-      prop="subject.title"
-      label="科目"
-    >
-    </el-table-column>
-    <el-table-column
-      prop="tages"
-      label="来源"
+        :formatter="handleSource"
+        filter-placement="bottom-start"
+        :filters="sourceList"
+        :filter-method="filterSource"
+      >
+      </el-table-column>
+      <el-table-column
+        prop="updatedAt"
 
-      :formatter="handleSource"
-      filter-placement="bottom-start"
-      :filters="sourceList"
-      :filter-method="filterSource"
-    >
-    </el-table-column>
-    <el-table-column
-      prop="updatedAt"
+        :formatter="handleDate"
+        label="创建时间"
+      >
+      </el-table-column>
+      <el-table-column
+        prop="draft_version_code"
+        label="最新草稿版本"
 
-      :formatter="handleDate"
-      label="创建时间"
-    >
-    </el-table-column>
-    <el-table-column
-      prop="draft_version_code"
-      label="最新草稿版本"
+      >
 
-    >
+      </el-table-column>
 
-    </el-table-column>
-
-    <el-table-column
-      prop="version_code"
-      :formatter="handleStatus"
-      label="发布版本">
+      <el-table-column
+        prop="version_code"
+        :formatter="handleStatus"
+        label="发布版本">
 
 
 
-    </el-table-column>
+      </el-table-column>
 
-    <el-table-column
-      prop="package"
-      label="课程包">
+      <el-table-column
+        prop="package"
+        label="课程包">
 
-      <template slot-scope="scope">
+        <template slot-scope="scope">
 
-        <el-button type="text" v-if='scope.row.package' @click="downPackage(scope.row.package.url)">下载</el-button>
-        <span v-if="!scope.row.package">N/A</span>
+          <el-button type="text" v-if='scope.row.package' @click="downPackage(scope.row.package.url)">下载</el-button>
+          <span v-if="!scope.row.package">N/A</span>
 
-      </template>
+        </template>
 
-    </el-table-column>
+      </el-table-column>
 
-    <el-table-column
-      width="250px"
-      label="操作"
-    >
-      <template slot-scope="scope">
-        <el-button type="success" size="small" @click="goToUpdateLesson(scope)">编辑</el-button>
-        <el-button type="danger" size="small" @click="deleteLesson(scope, lessonList)">删除</el-button>
-        <el-button type="danger" size="small" :disabled="!scope.row.isPublished" @click="callbackLesson(scope, lessonList)">下架</el-button>
+      <el-table-column
+        width="250px"
+        label="操作"
+      >
+        <template slot-scope="scope">
+          <el-button type="success" size="small" @click="goToUpdateLesson(scope)">编辑</el-button>
+          <el-button type="danger" size="small" @click="deleteLesson(scope, lessonList)">删除</el-button>
+          <el-button type="danger" size="small" :disabled="!scope.row.isPublished" @click="callbackLesson(scope, lessonList)">下架</el-button>
 
-      </template>
+        </template>
 
-    </el-table-column>
-  </el-table>
+      </el-table-column>
+    </el-table>
+    <div class="pagination">
+      <el-pagination
+        background
+        layout="prev, pager, next"
+        :total="total"
+        :page-size="limit"
+        @current-change="changePage">
+      </el-pagination>
+    </div>
+
+  </div>
+
+
 </template>
+<style scoped="">
+  .pagination{
+    padding: 20px;
+    text-align: center;
+  }
+</style>
 <script>
   import ElButton from "../../../node_modules/element-ui/packages/button/src/button.vue";
 
@@ -87,6 +106,8 @@
       return {
         lessonList: [],
         subjectFilter: [],
+        total: 1,
+        limit: 20,
         sourceList: [
           {"value": "千千树", text: "千千树"},
           {"value": "儿童乐益会", text: "儿童乐益会"},
@@ -107,15 +128,7 @@
     mounted() {
 
       let self = this;
-      this.$API.getLesson(function (lessons) {
-        self.lessonList = lessons
-      }, function () {
-        self.$message({
-          type: 'error',
-          message: '获取课程列表失败!'
-        });
-      });
-
+      this.getLesson(1);
       this.$API.getSubjectList(function (subjectList) {
 
         for (let i = 0; i < subjectList.length; i++) {
@@ -130,6 +143,23 @@
       })
     },
     methods: {
+      changePage(currentPage){
+        console.log(currentPage)
+        this.getLesson(currentPage);
+      },
+      getLesson(page){
+        let self = this;
+        this.$API.getLesson(this.limit, page ,function (lessons) {
+          self.lessonList = lessons.result;
+          self.total = lessons.count;
+          console.log(lessons.count)
+        }, function () {
+          self.$message({
+            type: 'error',
+            message: '获取课程列表失败!'
+          });
+        });
+      },
       filterSource(value, row){
 
         let tags = row.tags;
