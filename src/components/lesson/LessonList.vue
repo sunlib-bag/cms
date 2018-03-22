@@ -43,21 +43,35 @@
 
       <el-table-column
         prop="version_code"
-        :formatter="handleStatus"
         label="发布版本">
+        <template slot-scope="scope">
+          <span>{{scope.row.isPublished ? scope.row.version_code : '未发布'}}</span>
+          <el-button type="text" v-if='scope.row.isPublished' @click="downPackage(scope.row.package.url)">下载</el-button>
 
+
+        </template>
 
 
       </el-table-column>
 
       <el-table-column
         prop="package"
-        label="课程包">
+        label="状态">
 
         <template slot-scope="scope">
+          <span v-if="scope.row.hadNeedExamine">草稿</span>
+          <div v-if="!scope.row.hadNeedExamine" class="warn">
 
-          <el-button type="text" v-if='scope.row.package' @click="downPackage(scope.row.package.url)">下载</el-button>
-          <span v-if="!scope.row.package">N/A</span>
+            <el-dropdown @command="showNeedExamine(scope.row.objectId)">
+              <span class="el-dropdown-link">
+                待审核<i class="el-icon-arrow-down el-icon--right"></i>
+              </span>
+              <el-dropdown-menu slot="dropdown">
+                <el-dropdown-item>{{scope.row.isPublished}}</el-dropdown-item>
+              </el-dropdown-menu>
+            </el-dropdown>
+
+          </div>
 
         </template>
 
@@ -70,7 +84,9 @@
         <template slot-scope="scope">
           <el-button type="success" size="small" @click="goToUpdateLesson(scope)">编辑</el-button>
           <el-button type="danger" size="small" @click="deleteLesson(scope, lessonList)">删除</el-button>
-          <el-button type="danger" size="small" :disabled="!scope.row.isPublished" @click="callbackLesson(scope, lessonList)">下架</el-button>
+          <el-button type="danger" size="small" :disabled="!scope.row.isPublished"
+                     @click="callbackLesson(scope, lessonList)">下架
+          </el-button>
 
         </template>
 
@@ -86,15 +102,29 @@
       </el-pagination>
     </div>
 
+
+    <el-dialog title="审核详细" :visible.sync="dialogNeedExamineListVisible">
+      <el-table :data="needExamineList" @row-click="goToExamine">
+        <el-table-column property="editor" label="编辑人" width="150"></el-table-column>
+        <el-table-column property="version_code" label="版本" width="200"></el-table-column>
+        <el-table-column property="date" label="日期" width="200"></el-table-column>
+        <el-table-column property="state" label="状态"></el-table-column>
+      </el-table>
+    </el-dialog>
+
+
+
   </div>
 
 
 </template>
 <style scoped="">
-  .pagination{
+  .pagination {
     padding: 20px;
     text-align: center;
   }
+
+
 </style>
 <script>
   import ElButton from "../../../node_modules/element-ui/packages/button/src/button.vue";
@@ -106,8 +136,10 @@
       return {
         lessonList: [],
         subjectFilter: [],
+        needExamineList:[],
         total: 1,
         limit: 20,
+        dialogNeedExamineListVisible: false,
         sourceList: [
           {"value": "千千树", text: "千千树"},
           {"value": "儿童乐益会", text: "儿童乐益会"},
@@ -143,13 +175,24 @@
       })
     },
     methods: {
-      changePage(currentPage){
-        console.log(currentPage)
+      showNeedExamine(id){
+        this.$API.getNeedExamineList(()=>{
+          this.needExamineList = [{editor:'1'},{editor:'2'}];
+          this.dialogNeedExamineListVisible = true;
+        })
+
+
+      },
+      goToExamine(row){
+        console.log(row)
+      },
+      changePage(currentPage) {
+        console.log(currentPage);
         this.getLesson(currentPage);
       },
-      getLesson(page){
+      getLesson(page) {
         let self = this;
-        this.$API.getLesson(this.limit, page ,function (lessons) {
+        this.$API.getLesson(this.limit, page, function (lessons) {
           self.lessonList = lessons.result;
           self.total = lessons.count;
           console.log(lessons.count)
@@ -160,7 +203,7 @@
           });
         });
       },
-      filterSource(value, row){
+      filterSource(value, row) {
 
         let tags = row.tags;
         let source;
@@ -207,13 +250,13 @@
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
-          self.$API.deleteLesson(scope.row.objectId,function(){
+          self.$API.deleteLesson(scope.row.objectId, function () {
             self.$message({
               type: 'success',
               message: '删除成功!'
             });
             lessonList.splice(scope.$index, 1)
-          },function(code){
+          }, function (code) {
             let message = (code == 403) ? '权限异常，删除课程失败!' : '删除课程失败!'
             self.$message({
               type: 'error',
@@ -250,23 +293,23 @@
 
         return fmt;
       },
-      downPackage(url){
+      downPackage(url) {
         window.open(url)
       },
-      callbackLesson(scope, lessonList){
+      callbackLesson(scope, lessonList) {
         let self = this;
         this.$confirm('此操作下架' + scope.row.name + '课程, 是否继续?', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
-          self.$API.callbackLesson(scope.row.objectId,function(){
+          self.$API.callbackLesson(scope.row.objectId, function () {
             self.$message({
               type: 'success',
               message: '下架成功!'
             });
             lessonList[scope.$index].isPublished = false;
-          },function(code){
+          }, function (code) {
             let message = (code == 403) ? '权限异常，下架课程失败!' : '下架课程失败!';
             self.$message({
               type: 'error',
@@ -280,6 +323,9 @@
             message: '已取消下架'
           });
         });
+      },
+      showNeedExamineList() {
+
       }
 
 

@@ -407,6 +407,9 @@ Api.install = function (Vue, options) {
       errFuc()
     })
   };
+  Api.prototype.getNeedExamineList =  function(cb){
+    cb()
+  };
   
   
   Api.prototype.init = function () {
