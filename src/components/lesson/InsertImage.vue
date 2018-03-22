@@ -1,6 +1,6 @@
 <template>
   <div>
-    <el-button type="text" @click="dialogTableVisible = true">添加图片</el-button>
+    <el-button type="text" @click="dialogTableVisible = true" :disabled="canEdit">添加图片</el-button>
     <el-dialog :visible.sync="dialogTableVisible">
       <el-table
         ref="singleTable"
@@ -14,7 +14,7 @@
         </el-table-column>
       </el-table>
       <div style="margin-top: 15px;text-align: center">
-        <el-button type="primary" @click="insertImage"> 插入图片 </el-button>
+        <el-button type="primary" @click="insertImage" > 插入图片 </el-button>
       </div>
 
     </el-dialog>
@@ -25,6 +25,9 @@
     props:{
       lessonMaterials:{
         default:[]
+      },
+      canEdit:{
+        default: false
       }
     },
     data() {

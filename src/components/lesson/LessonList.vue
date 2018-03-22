@@ -177,14 +177,14 @@
     methods: {
       showNeedExamine(id){
         this.$API.getNeedExamineList(()=>{
-          this.needExamineList = [{editor:'1'},{editor:'2'}];
+          this.needExamineList = [{editor:id},{editor:id}];
           this.dialogNeedExamineListVisible = true;
         })
 
 
       },
       goToExamine(row){
-        console.log(row)
+        this.$router.push('/examineLessonInfo/' + row.editor)
       },
       changePage(currentPage) {
         console.log(currentPage);

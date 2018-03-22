@@ -2,12 +2,12 @@
   <div>
     <div v-show="isMaterialsShow">
       <div>
-        <el-button @click="change('materialInput')">
+        <el-button @click="change('materialInput')" :disabled="canEdit">
           上传文件
         </el-button>
 
         <input v-on:change="createMaterial" id="materialInput" type='file' class="hide"/>
-        <el-button @click="addAtlas">
+        <el-button @click="addAtlas" :disabled="canEdit">
           添加图集
         </el-button>
         <span class="color-dark-light warn">操作会实时保存，不要乱搞哦</span>
@@ -29,8 +29,8 @@
             </el-col>
 
             <el-col :span="5">
-              <el-button type="text" icon="el-icon-edit" @click="editMaterialFile(index,material)"></el-button>
-              <el-button type="text" icon="el-icon-delete" @click="deleteMaterialFile(index,material)"></el-button>
+              <el-button type="text" icon="el-icon-edit" @click="editMaterialFile(index,material)" :disabled="canEdit"></el-button>
+              <el-button type="text" icon="el-icon-delete" @click="deleteMaterialFile(index,material)" :disabled="canEdit"></el-button>
             </el-col>
           </el-row>
         </div>
@@ -42,7 +42,7 @@
         <div class="left" @click="back"> 文件》 </div>
         <div class="left">{{currentAtlasName}}</div>
         <div class="left">
-          <el-button @click="change('imageInput')">上传图片</el-button>
+          <el-button @click="change('imageInput')" :disabled="canEdit">上传图片</el-button>
           <input v-on:change="changeImageInput" id="imageInput" type='file' accept="image/*" class="hide"/>
         </div>
       </div>
@@ -51,14 +51,14 @@
           <div v-for="(image, imageIndex) in images" class="mid-container">
             <div class="image-container">
               <div class="extra-button-container">
-                <el-button type="text" icon="el-icon-delete" @click="deleteAtlasImage(imageIndex, image)"></el-button>
+                <el-button type="text" icon="el-icon-delete" @click="deleteAtlasImage(imageIndex, image)" :disabled="canEdit"></el-button>
               </div>
               <div class="image-contain">
                 <img :src="image.file.url">
               </div>
               <div>
                 <div class="atlasName">{{image.name}}</div>
-                <el-button type="text" icon="el-icon-edit" @click="editAtlasImage(imageIndex,image)"></el-button>
+                <el-button type="text" icon="el-icon-edit" @click="editAtlasImage(imageIndex,image)" :disabled="canEdit"></el-button>
               </div>
             </div>
           </div>
@@ -76,6 +76,9 @@
       materials: {
         type: Array,
         default: []
+      },
+      canEdit:{
+        default: false
       }
     },
     data() {

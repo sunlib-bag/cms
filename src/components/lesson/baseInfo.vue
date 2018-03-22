@@ -2,10 +2,10 @@
 
   <el-form :model="lessonInfo" ref="lessonInfo" label-width="100px" class="demo-ruleForm">
     <el-form-item label="标题" prop="name">
-      <el-input v-model="lessonInfo.name"></el-input>
+      <el-input v-model="lessonInfo.name" :disabled="canEdit"></el-input>
     </el-form-item>
     <el-form-item label="所属科目" prop="region">
-      <el-select v-model="lessonInfo.subject.objectId" placeholder="请选择所属科目">
+      <el-select v-model="lessonInfo.subject.objectId" placeholder="请选择所属科目" :disabled="canEdit">
         <el-option
           v-for="item in subjectFilter"
           :key="item.objectId"
@@ -16,7 +16,7 @@
     </el-form-item>
 
     <el-form-item label="所属领域" >
-      <el-select v-model="lessonInfo.domain" multiple placeholder="请选择所属领域">
+      <el-select v-model="lessonInfo.domain" multiple placeholder="请选择所属领域" :disabled="canEdit">
         <el-option
           v-for="item in domain"
           :key="item.value"
@@ -27,7 +27,7 @@
     </el-form-item>
 
     <el-form-item label="来源">
-      <el-select v-model="lessonInfo.source" placeholder="请选择来源">
+      <el-select v-model="lessonInfo.source" placeholder="请选择来源" :disabled="canEdit">
         <el-option
           v-for="item in sources"
           :key="item.value"
@@ -37,10 +37,10 @@
       </el-select>
     </el-form-item>
     <el-form-item label="作者">
-      <el-input v-model="lessonInfo.plan.author"></el-input>
+      <el-input v-model="lessonInfo.plan.author" :disabled="canEdit"></el-input>
     </el-form-item>
     <el-form-item label="其他标签">
-      <el-input v-model="lessonInfo.misc"></el-input>
+      <el-input v-model="lessonInfo.misc" :disabled="canEdit"></el-input>
     </el-form-item>
   </el-form>
 
@@ -58,10 +58,11 @@
           plan: '',
           materials: []
         },
-      }
-      ,
+      },
       subjectFilter:{
         default:[]
+      },canEdit:{
+        default: false
       }
     }
     ,

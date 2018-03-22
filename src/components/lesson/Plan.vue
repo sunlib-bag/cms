@@ -4,7 +4,7 @@
       <el-row class="markdown-title">
         <el-col :span="4">编辑</el-col>
         <el-col :span="20">
-          <insert-image :lessonMaterials="lessonInfo.materials"></insert-image>
+          <insert-image :lessonMaterials="lessonInfo.materials" :canEdit = 'canEdit'></insert-image>
         </el-col>
       </el-row>
 
@@ -13,7 +13,8 @@
                 type="textarea"
                 placeholder="请输入内容"
                 :rows="30"
-                v-model="lessonInfo.plan.content">
+                v-model="lessonInfo.plan.content"
+                :disabled="canEdit">
       </el-input>
 
     </el-col>
@@ -35,6 +36,9 @@
 
       lessonInfo: {
         materials: []
+      },
+      canEdit:{
+        default: false
       }
     },
     data() {
