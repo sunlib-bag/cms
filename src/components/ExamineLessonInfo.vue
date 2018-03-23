@@ -23,12 +23,30 @@
         </el-tab-pane>
       </el-tabs>
 
-      <el-dropdown split-button type="primary" class="save_btn" @command="publicLesson" @click="updateLesson">
-        更新草稿
-        <el-dropdown-menu slot="dropdown">
-          <el-dropdown-item>发布</el-dropdown-item>
-        </el-dropdown-menu>
-      </el-dropdown>
+      <!--<el-dropdown split-button type="primary" class="save_btn" @command="publicLesson" @click="updateLesson">-->
+        <!--更新草稿-->
+        <!--<el-dropdown-menu slot="dropdown">-->
+          <!--<el-dropdown-item>发布</el-dropdown-item>-->
+        <!--</el-dropdown-menu>-->
+      <!--</el-dropdown>-->
+      <div class="save_btn">
+        <span>版本3</span>
+        <span v-if="hadExamine">已审核</span><el-button v-if="!hadExamine" type="danger" @click="showExamineDialog">审核</el-button>
+        <span v-if="hadPublic">已发布</span><el-button v-if="!hadPublic"  type="danger">发布</el-button>
+      </div>
+
+      <el-dialog
+        title="请选择审核结果"
+        :visible.sync="examineDialogVisible"
+        width="30%">
+        <el-radio v-model="examineResult" label='false'>通过</el-radio>
+        <el-radio v-model="examineResult" label='true'>未通过</el-radio>
+
+       <span slot="footer" class="dialog-footer">
+            <el-button @click="examineDialogVisible = false">取 消</el-button>
+            <el-button type="primary" @click="examineDialogVisible = false">提交审核</el-button>
+        </span>
+      </el-dialog>
 
     </el-main>
   </el-container>
@@ -41,6 +59,7 @@
   import Plan from './lesson/Plan.vue';
   import Mateiral from './lesson/Mateiral.vue'
   import baseInfo from "./lesson/baseInfo.vue"
+  import ElButton from "../../node_modules/element-ui/packages/button/src/button.vue";
 
   export default {
     data() {
@@ -56,6 +75,11 @@
           plan: '',
           materials: []
         },
+        hadExamine:true,
+        hadPublic: true,
+
+        examineResult: null,
+        examineDialogVisible: false,
         subjectFilter: [],
         activeName: 'baseInfo',
         oldLeesonInfo: JSON.stringify({subject: {}, domain: [], source: '', author: '', misc: '', plan: '', materials: []}),
@@ -63,6 +87,7 @@
       }
     },
     components: {
+      ElButton,
       "side_bar": SideBar,
       'vue-markdown': VueMarkdown,
       "mateiral": Mateiral,
@@ -134,6 +159,9 @@
 
     },
     methods: {
+      showExamineDialog(){
+        this.examineDialogVisible =  true
+      },
       initLessonInfo(sucFuc, errFuc){
         let self = this;
         self.$API.getLessonInfo(self.$route.params.id, function (lesson) {
@@ -273,8 +301,8 @@
   }
 </script>
 <style scoped>
-  input{
-
+  .save_btn span{
+    padding-right: 12px ;
   }
 
   .big-container {

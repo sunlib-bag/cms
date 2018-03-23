@@ -11,7 +11,7 @@
         </el-col>
       </el-row>
       <div class="lesson-list">
-        <course_list>
+        <course_list :isManagingEditor="true">
         </course_list>
       </div>
     </el-main>

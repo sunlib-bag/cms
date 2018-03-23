@@ -23,12 +23,45 @@
           </el-tab-pane>
         </el-tabs>
 
-      <el-dropdown split-button type="primary" class="save_btn" @command="publicLesson" @click="updateLesson">
+      <el-dropdown split-button type="primary" class="save_btn" @command="publicLesson" @click="updateLesson" v-if="canPublic">
         更新草稿
         <el-dropdown-menu slot="dropdown">
           <el-dropdown-item>发布</el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
+
+      <el-dropdown split-button type="primary" class="save_btn" @command="sendToExamine" @click="updateLesson" v-if="!canPublic">
+        更新草稿
+        <el-dropdown-menu slot="dropdown">
+          <el-dropdown-item>提交审核 剩余次数</el-dropdown-item>
+        </el-dropdown-menu>
+      </el-dropdown>
+
+
+
+      <el-dialog
+        title="确认提交审核？"
+        :visible.sync="comfirmExamineDialogVisible"
+        width="30%"
+        :before-close="handleClose">
+        <span>{{lessonInfo.plan.name}}今日审核次数剩余次数2/2(统一课程每天可提交2次审核)</span>
+        <span slot="footer" class="dialog-footer">
+            <el-button @click="comfirmExamineDialogVisible = false">取 消</el-button>
+            <el-button type="primary" @click="comfirmExamineDialogVisible = false">提交审核</el-button>
+        </span>
+      </el-dialog>
+
+      <el-dialog
+        title="今天提交审核次数已用完"
+        :visible.sync="warnExamineDialogVisible"
+        width="30%"
+        :before-close="handleClose">
+        <span>同一个课程每天可提交 2 次审核，明天可继续提交。</span>
+        <span slot="footer" class="dialog-footer">
+
+            <el-button type="primary" @click="warnExamineDialogVisible = false">好的</el-button>
+        </span>
+      </el-dialog>
 
     </el-main>
   </el-container>
@@ -56,6 +89,9 @@
           plan: '',
           materials: []
         },
+        comfirmExamineDialogVisible: false,
+        warnExamineDialogVisible: false,
+        canPublic: false,
         subjectFilter: [],
         activeName: 'baseInfo',
         oldLeesonInfo: JSON.stringify({subject: {}, domain: [], source: '', author: '', misc: '', plan: '', materials: []}),
@@ -134,6 +170,9 @@
 
     },
     methods: {
+      sendToExamine(){
+          this.comfirmExamineDialogVisible = true;
+      },
       initLessonInfo(sucFuc, errFuc){
         let self = this;
         self.$API.getLessonInfo(self.$route.params.id, function (lesson) {

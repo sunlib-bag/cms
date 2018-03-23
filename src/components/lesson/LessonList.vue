@@ -83,8 +83,8 @@
       >
         <template slot-scope="scope">
           <el-button type="success" size="small" @click="goToUpdateLesson(scope)">编辑</el-button>
-          <el-button type="danger" size="small" @click="deleteLesson(scope, lessonList)">删除</el-button>
-          <el-button type="danger" size="small" :disabled="!scope.row.isPublished"
+          <el-button v-if="isManagingEditor" type="danger" size="small"  @click="deleteLesson(scope, lessonList)">删除</el-button>
+          <el-button v-if="isManagingEditor"  type="danger" size="small" :disabled="!scope.row.isPublished"
                      @click="callbackLesson(scope, lessonList)">下架
           </el-button>
 
@@ -104,11 +104,16 @@
 
 
     <el-dialog title="审核详细" :visible.sync="dialogNeedExamineListVisible">
-      <el-table :data="needExamineList" @row-click="goToExamine">
-        <el-table-column property="editor" label="编辑人" width="150"></el-table-column>
-        <el-table-column property="version_code" label="版本" width="200"></el-table-column>
-        <el-table-column property="date" label="日期" width="200"></el-table-column>
+      <el-table :data="needExamineList" >
+        <el-table-column property="editor" label="编辑人" ></el-table-column>
+        <el-table-column property="version_code" label="版本" ></el-table-column>
+        <el-table-column property="date" label="日期" ></el-table-column>
         <el-table-column property="state" label="状态"></el-table-column>
+        <el-table-column v-if="isManagingEditor" label="操作" >
+          <template slot-scope="scope">
+            <el-button type="success" size="small" @click="goToExamine(scope)">查看</el-button>
+          </template>
+        </el-table-column>
       </el-table>
     </el-dialog>
 
@@ -130,6 +135,11 @@
   import ElButton from "../../../node_modules/element-ui/packages/button/src/button.vue";
 
   export default {
+    props: {
+      isManagingEditor: {
+        default: false
+      }
+    },
 
     components: {ElButton},
     data() {
@@ -140,6 +150,7 @@
         total: 1,
         limit: 20,
         dialogNeedExamineListVisible: false,
+
         sourceList: [
           {"value": "千千树", text: "千千树"},
           {"value": "儿童乐益会", text: "儿童乐益会"},
@@ -183,8 +194,8 @@
 
 
       },
-      goToExamine(row){
-        this.$router.push('/examineLessonInfo/' + row.editor)
+      goToExamine(scope){
+        this.$router.push('/examineLessonInfo/' + scope.row.editor)
       },
       changePage(currentPage) {
         console.log(currentPage);
