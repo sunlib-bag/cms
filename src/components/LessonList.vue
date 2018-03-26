@@ -11,7 +11,7 @@
         </el-col>
       </el-row>
       <div class="lesson-list">
-        <course_list :isManagingEditor="true">
+        <course_list :isManagingEditor="isManagingEditor">
         </course_list>
       </div>
     </el-main>
@@ -29,7 +29,8 @@
       return {
         lessonList: [],
         subjectFilter: [],
-        actionPage: 'lessonList'
+        actionPage: 'lessonList',
+        isManagingEditor: false
       }
     },
     components: {
@@ -39,8 +40,9 @@
 
     mounted() {
       let self = this;
-      this.$API.checkUser(function (authenticated) {
-        if (!authenticated) {
+      this.$API.checkUserRole((roles) =>{
+        this.isManagingEditor =  (roles.indexOf('manager')>=0)
+        if(roles.length === 0){
           self.$router.push('/')
         }
       });

@@ -39,8 +39,8 @@
     },
     mounted() {
       let self = this;
-      this.$API.checkUser(function(authenticated){
-        if(authenticated){
+      this.$API.checkUserRole(function(roles){
+        if(roles.length > 0){
           self.$router.push({path: '/lessonList'})
         }
       })

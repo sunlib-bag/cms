@@ -143,8 +143,8 @@
     },
     mounted() {
       let self = this;
-      this.$API.checkUser(function (authenticated) {
-        if (!authenticated) {
+      this.$API.checkUserRole(function (roles) {
+        if (roles.indexOf('manager') === -1) {
           return self.$router.push('/')
         }
         self.initPage();
@@ -164,7 +164,8 @@
       },
       initLessonInfo(sucFuc, errFuc){
         let self = this;
-        self.$API.getLessonInfo(self.$route.params.id, function (lesson) {
+        self.$API.getNeedExamineLessonInfo(self.$route.params.id, function (lesson) {
+          console.log(lesson)
           let newLessonInfo = JSON.parse(JSON.stringify(lesson));
           let tagsInfo = self.handleTags(newLessonInfo.tags);
           newLessonInfo.domain = tagsInfo.domain;
