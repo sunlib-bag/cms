@@ -59,20 +59,9 @@
         label="状态">
 
         <template slot-scope="scope">
-          <span v-if="scope.row.hadNeedExamine">草稿</span>
-          <div v-if="!scope.row.hadNeedExamine" class="warn">
 
-            <el-dropdown @command="showNeedExamine(scope.row.objectId)">
-              <span class="el-dropdown-link">
-                待审核<i class="el-icon-arrow-down el-icon--right"></i>
-              </span>
-              <el-dropdown-menu slot="dropdown">
-                <el-dropdown-item>{{scope.row.isPublished}}</el-dropdown-item>
-              </el-dropdown-menu>
-            </el-dropdown>
-
-          </div>
-
+          <span >{{formatStatue(scope.row)}}</span>
+          <el-button type="success" size="small" @click="showNeedExamine(scope.row.objectId)">查看</el-button>
         </template>
 
       </el-table-column>
@@ -105,10 +94,10 @@
 
     <el-dialog title="审核详细" :visible.sync="dialogNeedExamineListVisible">
       <el-table :data="needExamineList" >
-        <el-table-column property="editor" label="编辑人" ></el-table-column>
-        <el-table-column property="version_code" label="版本" ></el-table-column>
-        <el-table-column property="date" label="日期" ></el-table-column>
-        <el-table-column property="state" label="状态"></el-table-column>
+        <el-table-column property="complier" label="编辑人" ></el-table-column>
+        <el-table-column property="draft_version_code" label="版本" ></el-table-column>
+        <el-table-column property="createdAt" label="日期" :formatter="formatDate"></el-table-column>
+        <el-table-column property="isChecked" label="状态" :formatter="formatStatue"></el-table-column>
         <el-table-column v-if="isManagingEditor" label="操作" >
           <template slot-scope="scope">
             <el-button type="success" size="small" @click="goToExamine(scope)">查看</el-button>
@@ -132,8 +121,8 @@
 
 </style>
 <script>
-  import ElButton from "../../../node_modules/element-ui/packages/button/src/button.vue";
-
+  
+  import {formatTime, formatState} from '../filters/filters.js';
   export default {
     props: {
       isManagingEditor: {
@@ -141,7 +130,6 @@
       }
     },
 
-    components: {ElButton},
     data() {
       return {
         lessonList: [],
@@ -186,16 +174,25 @@
       })
     },
     methods: {
+      formatDate(row) {
+        var date = new Date(row.createdAt);
+        return formatTime(date, "yyyy-MM-dd");
+      },
+      formatStatue(row){
+        return formatState(row.isChecked);
+      },
       showNeedExamine(id){
-        this.$API.getNeedExamineList(()=>{
-          this.needExamineList = [{editor:id},{editor:id}];
-          this.dialogNeedExamineListVisible = true;
+        var self = this;
+        this.$API.getNeedExamineList(id, function(lessonSnapshotList){
+
+          self.needExamineList = lessonSnapshotList;
+          self.dialogNeedExamineListVisible = true;
+        },function(){
+
         })
-
-
       },
       goToExamine(scope){
-        this.$router.push('/examineLessonInfo/' + scope.row.editor)
+        this.$router.push('/examineLessonInfo/' + scope.row.objectId)
       },
       changePage(currentPage) {
         console.log(currentPage);
@@ -215,7 +212,6 @@
         });
       },
       filterSource(value, row) {
-
         let tags = row.tags;
         let source;
         if (!tags) return false;

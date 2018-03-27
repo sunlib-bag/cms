@@ -30,9 +30,9 @@
         <!--</el-dropdown-menu>-->
       <!--</el-dropdown>-->
       <div class="save_btn">
-        <span>版本3</span>
-        <span v-if="hadExamine">已审核</span><el-button v-if="!hadExamine" type="danger" @click="showExamineDialog">审核</el-button>
-        <span v-if="hadPublic">已发布</span><el-button v-if="!hadPublic"  type="danger">发布</el-button>
+        <span>版本{{examineLessonInfo.draft_version_code}}</span>
+        <span v-if="examineLessonInfo.isChecked !== 1">审核结果：{{examineLessonInfo.isChecked | formatState}}</span><el-button v-if="examineLessonInfo.isChecked === 1" type="danger" @click="showExamineDialog">审核</el-button>
+        <span v-if="examineLessonInfo.isPublished">已发布</span><el-button v-if="!examineLessonInfo.isPublished"  type="danger">发布</el-button>
       </div>
 
       <el-dialog
@@ -59,7 +59,8 @@
   import Plan from './lesson/Plan.vue';
   import Mateiral from './lesson/Mateiral.vue'
   import baseInfo from "./lesson/baseInfo.vue"
-  import ElButton from "../../node_modules/element-ui/packages/button/src/button.vue";
+  import {formatState} from './filters/filters.js';
+
 
   export default {
     data() {
@@ -77,17 +78,21 @@
         },
         hadExamine:true,
         hadPublic: true,
-
         examineResult: null,
         examineDialogVisible: false,
         subjectFilter: [],
         activeName: 'baseInfo',
-        oldLeesonInfo: JSON.stringify({subject: {}, domain: [], source: '', author: '', misc: '', plan: '', materials: []}),
-        isUpdate: -1
+        isUpdate: -1,
+        examineLessonInfo:{}
+      }
+    },
+    filters:{
+      formatState(state){
+        return formatState(state)
       }
     },
     components: {
-      ElButton,
+
       "side_bar": SideBar,
       'vue-markdown': VueMarkdown,
       "mateiral": Mateiral,
@@ -109,38 +114,7 @@
         deep: true
       }
     },
-    beforeDestroy(){
-      this.$bus.$off("changeMaterial");
-    },
-    beforeRouteLeave(to, from, next) {
-      let self = this;
-      let isUpdate = this.isUpdateLesson();
-      if (isUpdate === true) {
-        this.$confirm('你正在编辑课程，离开将丢失为保存的部分', '确定离开本页', {
-          confirmButtonText: '离开并保存',
-          cancelButtonText: '留下',
-          type: 'warning'
-        }).then(() => {
 
-          let lessonInfo = self.handleLessonInfo();
-          self.$API.updateLesson(lessonInfo, function () {
-            self.sendSuccessMessage("成功保存草稿");
-            next(true)
-
-          }, function () {
-            self.sendErrorMessage('保存草稿失败!');
-            next(false)
-
-          })
-        }).catch(() => {
-          next(false)
-        });
-      } else {
-        next(true)
-      }
-
-
-    },
     mounted() {
       let self = this;
       this.$API.checkUserRole(function (roles) {
@@ -153,25 +127,25 @@
           self.initLessonInfo(function(){self.closeLoading()},function(){self.closeLoading()})
         });
       });
-      this.$bus.on('changeMaterial', function (value) {
-        self.materials = value
-      })
+
 
     },
     methods: {
       showExamineDialog(){
         this.examineDialogVisible =  true
       },
+
       initLessonInfo(sucFuc, errFuc){
         let self = this;
-        self.$API.getNeedExamineLessonInfo(self.$route.params.id, function (lesson) {
-          console.log(lesson)
+        self.$API.getNeedExamineLessonInfo(self.$route.params.id, function (examineLessonInfo) {
+          self.examineLessonInfo =  JSON.parse(JSON.stringify(examineLessonInfo));
+          let lesson = examineLessonInfo.lessonInfo;
+
           let newLessonInfo = JSON.parse(JSON.stringify(lesson));
           let tagsInfo = self.handleTags(newLessonInfo.tags);
           newLessonInfo.domain = tagsInfo.domain;
           newLessonInfo.source = tagsInfo.source;
           newLessonInfo.misc = tagsInfo.misc;
-          self.oldLeesonInfo = JSON.stringify(newLessonInfo);
           self.lessonInfo = newLessonInfo;
           if(sucFuc){
             sucFuc()
@@ -224,54 +198,54 @@
         })
       },
       updateLesson() {
-        let self = this;
-        let lessonInfo = this.handleLessonInfo();
-        this.openLoading('正在更新');
-        this.$API.updateLesson(lessonInfo, function () {
-          self.initLessonInfo(function(){
-            self.closeLoading();
-            self.sendSuccessMessage("成功保存草稿")
-          })
-        }, function () {
-          self.closeLoading();
-          self.sendErrorMessage('保存草稿失败!');
-        })
+//        let self = this;
+//        let lessonInfo = this.handleLessonInfo();
+//        this.openLoading('正在更新');
+//        this.$API.updateLesson(lessonInfo, function () {
+//          self.initLessonInfo(function(){
+//            self.closeLoading();
+//            self.sendSuccessMessage("成功保存草稿")
+//          })
+//        }, function () {
+//          self.closeLoading();
+//          self.sendErrorMessage('保存草稿失败!');
+//        })
 
       },
       publicLesson() {
-        let self = this;
-        let lessonInfo = this.handleLessonInfo();
-        this.openLoading('正在发布');
-        this.$API.updateLesson(lessonInfo, function () {
-          self.initLessonInfo(function(){
-            self.$API.publishLesson(lessonInfo.objectId, function () {
-              self.closeLoading();
-              self.sendSuccessMessage("成功发布")
-            }, function (error) {
-              self.closeLoading();
-              self.sendErrorMessage('发布失败!');
-            })
-          })
-
-        }, function () {
-          self.closeLoading();
-          self.sendErrorMessage('发布失败!');
-        })
+//        let self = this;
+//        let lessonInfo = this.handleLessonInfo();
+//        this.openLoading('正在发布');
+//        this.$API.updateLesson(lessonInfo, function () {
+//          self.initLessonInfo(function(){
+//            self.$API.publishLesson(lessonInfo.objectId, function () {
+//              self.closeLoading();
+//              self.sendSuccessMessage("成功发布")
+//            }, function (error) {
+//              self.closeLoading();
+//              self.sendErrorMessage('发布失败!');
+//            })
+//          })
+//
+//        }, function () {
+//          self.closeLoading();
+//          self.sendErrorMessage('发布失败!');
+//        })
       },
       handleLessonInfo() {
-        let newLessonInfo = JSON.parse(JSON.stringify(this.lessonInfo));
-        let tags = [];
-        for (let i = 0; i < newLessonInfo.domain.length; i++) {
-          tags.push('domain.' + newLessonInfo.domain[i])
-        }
-        if (newLessonInfo.source) {
-          tags.push('source.' + newLessonInfo.source);
-        }
-        if (newLessonInfo.misc) {
-          tags.push('misc.' + newLessonInfo.misc)
-        }
-        newLessonInfo.tags = tags;
-        return newLessonInfo
+//        let newLessonInfo = JSON.parse(JSON.stringify(this.lessonInfo));
+//        let tags = [];
+//        for (let i = 0; i < newLessonInfo.domain.length; i++) {
+//          tags.push('domain.' + newLessonInfo.domain[i])
+//        }
+//        if (newLessonInfo.source) {
+//          tags.push('source.' + newLessonInfo.source);
+//        }
+//        if (newLessonInfo.misc) {
+//          tags.push('misc.' + newLessonInfo.misc)
+//        }
+//        newLessonInfo.tags = tags;
+//        return newLessonInfo
 
       },
       sendErrorMessage(message){

@@ -176,6 +176,7 @@
       initLessonInfo(sucFuc, errFuc){
         let self = this;
         self.$API.getLessonInfo(self.$route.params.id, function (lesson) {
+
           let newLessonInfo = JSON.parse(JSON.stringify(lesson));
           let tagsInfo = self.handleTags(newLessonInfo.tags);
           newLessonInfo.domain = tagsInfo.domain;

@@ -413,15 +413,42 @@ Api.install = function (Vue, options) {
       errFuc()
     })
   };
-  Api.prototype.getNeedExamineList = function (cb) {
-    cb()
+  Api.prototype.getNeedExamineList = function (id, sucFuc, errFuc) {
+    var query = new AV.Query('LessonSnapshot');
+    query.equalTo('lessonId', id);
+    query.greaterThan('isChecked', 0);
+    query.find().then(function (lessonSnapshotList) {
+      sucFuc(handleArrayData(lessonSnapshotList))
+    }, function () {
+      errFuc()
+    })
+    
   };
   
   
   Api.prototype.getNeedExamineLessonInfo = function (id, sucFuc, errFuc) {
-    sucFuc(this.handleData())
+    // sucFuc(handleData())
+    let query = new AV.Query('LessonSnapshot');
+    query.get(id).then(function (lessonSnapshot) {
+      var lessonSnapshotInfo = lessonSnapshot.toJSON();
+      $.ajax({
+        url: lessonSnapshotInfo.manifest_json.url,
+        method: 'get',
+        success: function (result) {
+          let examineLessonInfo = handleData(result);
+          lessonSnapshotInfo.lessonInfo = examineLessonInfo;
+          sucFuc(lessonSnapshotInfo)
+        }
+      })
+      
+      
+    }, function () {
+      errFuc()
+    })
   };
-  function sortByIndex(a,b){
+  
+  
+  function sortByIndex(a, b) {
     return a.index > b.index
   }
   
@@ -431,70 +458,73 @@ Api.install = function (Vue, options) {
       appId: this.appId,
       appKey: this.appKey
     });
+    
+    
   };
-  Api.prototype.handleData = function () {
-    var data = {
-      "id": "5ab8a09144d90418a236d282",
-      "name": "历史版本重现测试",
-      "version_code": 2,
-      "tags": [
-        "domain.语言",
-        "source.千千树",
-        "misc.暗示法"
-      ],
-      "source": "千千树",
-      "planId": "5ab8a0919f545419e4ecdf64",
-      "subjectId": "5a701c82d50eee00444134b2",
-      "content": "# 历史版本重新测试",
-      "author": "w",
-      "materials": [
-        {
-          "url": "http://lc-CQBviH8f.cn-n1.lcfile.com/0851e7b0c8d6fac65a80.jpg",
-          "id": "5ab8a0e62f301e1c2c48ab45",
-          "filename": "5ab8a0e62f301e1c2c48ab45",
-          "parent": "5ab8a0c7a22b9d0045fa83ee",
-          "album_index": 1,
-          "album_name": "测试图片1.jpg",
-          "mime_type": "image/jpeg",
-          "type": 3
-        },
-        {
-          "url": "http://lc-CQBviH8f.cn-n1.lcfile.com/6edb25ae4fe7574429ca.jpg",
-          "id": "5ab8a0ed9f54541cd847c54a",
-          "filename": "5ab8a0ed9f54541cd847c54a",
-          "parent": "5ab8a0c7a22b9d0045fa83ee",
-          "album_index": 2,
-          "album_name": "测试图片2.jpg",
-          "mime_type": "image/jpeg",
-          "type": 3
-        },
-        {
-          "id": "5ab8a0bf17d009688786ee75",
-          "file_index": 1,
-          "url": "http://lc-CQBviH8f.cn-n1.lcfile.com/82c62c4258f459760328.mp3",
-          "filename": "5ab8a0bf17d009688786ee75",
-          "name": "历史版本测试.mp3",
-          "mime_type": "audio/mpeg3",
-          "type": 1
-        },
-        {
-          "id": "5ab8a0c7a22b9d0045fa83ee",
-          "file_index": 3,
-          "name": "测试",
-          "type": 0,
-          "mime_type": "album"
-        },
-        {
-          "id": "5ab8a0c617d009688786ee9b",
-          "file_index": 2,
-          "url": "http://lc-CQBviH8f.cn-n1.lcfile.com/c9bec0efc32e006688c4.mp4",
-          "filename": "5ab8a0c617d009688786ee9b",
-          "name": "历史版本测试.mp4",
-          "mime_type": "application/octet-stream",
-          "type": 2
-        }
-      ]
-    }
+  
+  function handleData(data) {
+    // var data = {
+    //   "id": "5ab8a09144d90418a236d282",
+    //   "name": "历史版本重现测试",
+    //   "version_code": 2,
+    //   "tags": [
+    //     "domain.语言",
+    //     "source.千千树",
+    //     "misc.暗示法"
+    //   ],
+    //   "source": "千千树",
+    //   "planId": "5ab8a0919f545419e4ecdf64",
+    //   "subjectId": "5a701c82d50eee00444134b2",
+    //   "content": "# 历史版本重新测试",
+    //   "author": "w",
+    //   "materials": [
+    //     {
+    //       "url": "http://lc-CQBviH8f.cn-n1.lcfile.com/0851e7b0c8d6fac65a80.jpg",
+    //       "id": "5ab8a0e62f301e1c2c48ab45",
+    //       "filename": "5ab8a0e62f301e1c2c48ab45",
+    //       "parent": "5ab8a0c7a22b9d0045fa83ee",
+    //       "album_index": 1,
+    //       "album_name": "测试图片1.jpg",
+    //       "mime_type": "image/jpeg",
+    //       "type": 3
+    //     },
+    //     {
+    //       "url": "http://lc-CQBviH8f.cn-n1.lcfile.com/6edb25ae4fe7574429ca.jpg",
+    //       "id": "5ab8a0ed9f54541cd847c54a",
+    //       "filename": "5ab8a0ed9f54541cd847c54a",
+    //       "parent": "5ab8a0c7a22b9d0045fa83ee",
+    //       "album_index": 2,
+    //       "album_name": "测试图片2.jpg",
+    //       "mime_type": "image/jpeg",
+    //       "type": 3
+    //     },
+    //     {
+    //       "id": "5ab8a0bf17d009688786ee75",
+    //       "file_index": 1,
+    //       "url": "http://lc-CQBviH8f.cn-n1.lcfile.com/82c62c4258f459760328.mp3",
+    //       "filename": "5ab8a0bf17d009688786ee75",
+    //       "name": "历史版本测试.mp3",
+    //       "mime_type": "audio/mpeg3",
+    //       "type": 1
+    //     },
+    //     {
+    //       "id": "5ab8a0c7a22b9d0045fa83ee",
+    //       "file_index": 3,
+    //       "name": "测试",
+    //       "type": 0,
+    //       "mime_type": "album"
+    //     },
+    //     {
+    //       "id": "5ab8a0c617d009688786ee9b",
+    //       "file_index": 2,
+    //       "url": "http://lc-CQBviH8f.cn-n1.lcfile.com/c9bec0efc32e006688c4.mp4",
+    //       "filename": "5ab8a0c617d009688786ee9b",
+    //       "name": "历史版本测试.mp4",
+    //       "mime_type": "application/octet-stream",
+    //       "type": 2
+    //     }
+    //   ]
+    // }
     
     
     var newData = {};
@@ -514,7 +544,7 @@ Api.install = function (Vue, options) {
       if (!allMaterials[i].hasOwnProperty('parent')) {
         let materailInfo = {};
         materailInfo.objectId = allMaterials[i].id;
-        materailInfo.type =  allMaterials[i].type;
+        materailInfo.type = allMaterials[i].type;
         if (materailInfo.type !== 0) {
           materailInfo.file = {};
           materailInfo.file.url = allMaterials[i].url;
@@ -547,8 +577,8 @@ Api.install = function (Vue, options) {
             materials[j].files.sort(sortByIndex)
           }
         }
-       
-  
+        
+        
       }
     }
     
@@ -557,8 +587,6 @@ Api.install = function (Vue, options) {
     return newData
     
   }
-  
-  
   
   
   let api = new Api();
