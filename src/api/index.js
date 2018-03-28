@@ -53,15 +53,11 @@ Api.install = function (Vue, options) {
       
       let roles = [];
       for (let i = 0; i < resultRoles.length; i++) {
-        
-        if (resultRoles[i].toJSON().objectId === '5a76ad890b61601d10938457') {
-          roles.push('manager');
-          
-        }
         if (resultRoles[i].toJSON().objectId === '5ab6001dac502e57c949a142') {
           roles.push('editor');
         }
-        if (resultRoles[i].toJSON().objectId = '5ab6000d17d0096887783cd6') {
+        if (resultRoles[i].toJSON().objectId === '5ab6000d17d0096887783cd6') {
+          roles.push('manager');
         
         }
       }
@@ -157,11 +153,10 @@ Api.install = function (Vue, options) {
       materialLesson.destroy().then(function () {
         sucFuc()
       }).catch(function (error) {
-        console.log(error)
+        
         errFuc()
       })
     }).catch(function (error) {
-      console.log(error)
       errFuc(error.code)
     });
     
@@ -319,15 +314,24 @@ Api.install = function (Vue, options) {
   
   // 更新课程
   
-  Api.prototype.publishLesson = function (lessonId, sucFuc, errFuc) {
-    let paramsJson = {
-      lesson_id: lessonId
+  Api.prototype.publishLesson = function (lessonId, draft_version_code, sucFuc, errFuc) {
+  
+    let lessonInfo = {
+      lesson_id: lessonId,
+      draft_version_code: draft_version_code
     };
-    AV.Cloud.run('pack', paramsJson).then(function (data) {
-      sucFuc(data)
-    }, function (err) {
-      errFuc(err)
-    });
+    AV.Cloud.run('publish', lessonInfo).then(
+      function (publishResult) {
+        if(publishResult.result ===  200){
+          sucFuc(publishResult.data)
+        }else{
+          errFuc()
+        }
+        
+      }, function (error) {
+        errFuc(error);
+      }
+    );
   };
   
   Api.prototype.initLesson = function (sucFuc, errFuc) {
@@ -365,12 +369,19 @@ Api.install = function (Vue, options) {
     lesson.set('name', lessonInfo.name);
     lesson.set('tags', lessonInfo.tags);
     lesson.set('subject', subject);
-    lesson.set('draft_version_code', lessonInfo.draft_version_code + 1);
-    
     AV.Object.saveAll([plan, lesson]).then(function (result) {
-      sucFuc()
-      
-    }).catch(function (error) {
+      AV.Cloud.run('draftSave', {lesson_id: lessonInfo.objectId}).then(
+        function (draftSaveResult) {
+          if(draftSaveResult.result === 200){
+            sucFuc()
+          }else{
+            errFuc()
+          }
+        }, function (error) {
+          errFuc(error)
+        }
+      )
+    },function (error) {
       errFuc()
     })
     
@@ -405,13 +416,13 @@ Api.install = function (Vue, options) {
   };
   
   Api.prototype.callbackLesson = function (lessonId, sucFuc, errFuc) {
-    let lesson = AV.Object.createWithoutData('Lesson', lessonId);
-    lesson.set('isPublished', false);
-    lesson.save().then(function (data) {
-      sucFuc()
-    }).catch(function () {
-      errFuc()
-    })
+    AV.Cloud.run('cancelRelease', {lesson_id: lessonId}).then(
+      function (value) {
+        sucFuc(value)
+      }, function (error) {
+        errFuc(error);
+      }
+    );
   };
   Api.prototype.getNeedExamineList = function (id, sucFuc, errFuc) {
     var query = new AV.Query('LessonSnapshot');
@@ -431,6 +442,8 @@ Api.install = function (Vue, options) {
     let query = new AV.Query('LessonSnapshot');
     query.get(id).then(function (lessonSnapshot) {
       var lessonSnapshotInfo = lessonSnapshot.toJSON();
+      // lessonSnapshotInfo.isChecked = 1;
+      // lessonSnapshotInfo.isPublished =  false;
       $.ajax({
         url: lessonSnapshotInfo.manifest_json.url,
         method: 'get',
@@ -446,6 +459,60 @@ Api.install = function (Vue, options) {
       errFuc()
     })
   };
+  
+  Api.prototype.examineLesson =  function(id, sucFuc, errFuc){
+   let lessonInfo = {
+      'lesson_id': id
+  };
+    AV.Cloud.run('submitAudit', lessonInfo).then(
+      function (submitAuditResult) {
+        if(submitAuditResult.result === 200){
+          sucFuc(submitAuditResult.data)
+        }else{
+          errFuc();
+        }
+      }, function (error) {
+        errFuc(error);
+      }
+    )
+  
+  };
+  
+  
+  Api.prototype.sendExamineResult =  function(id, examineResult, sucFuc, errFuc){
+    let obj = {
+      'snapshot_id': id
+    };
+    let actionName = examineResult ? 'isApproved' : 'notThrough';
+    AV.Cloud.run(actionName, obj).then(
+      function (examineResult) {
+        if(examineResult.result === 200){
+          sucFuc(examineResult.data)
+        }else{
+          errFuc()
+        }
+        
+      }, function (error) {
+        errFuc(error)
+      }
+    )
+  }
+  Api.prototype.getTodayExamineCount = function(id , userName, sucFuc , errFuc){
+    let today = new Date();
+    today.setHours(0,0,0);
+    console.log(today);
+    let query = new AV.Query('LessonSnapshot');
+    query.equalTo('lessonId', id);
+    query.equalTo('complier', userName);
+    query.greaterThan('isChecked', 0);
+    query.greaterThan('createdAt', today);
+    query.count().then(function (count) {
+      console.log(count)
+      sucFuc(count)
+    }, function () {
+      errFuc()
+    })
+  }
   
   
   function sortByIndex(a, b) {
@@ -463,72 +530,7 @@ Api.install = function (Vue, options) {
   };
   
   function handleData(data) {
-    // var data = {
-    //   "id": "5ab8a09144d90418a236d282",
-    //   "name": "历史版本重现测试",
-    //   "version_code": 2,
-    //   "tags": [
-    //     "domain.语言",
-    //     "source.千千树",
-    //     "misc.暗示法"
-    //   ],
-    //   "source": "千千树",
-    //   "planId": "5ab8a0919f545419e4ecdf64",
-    //   "subjectId": "5a701c82d50eee00444134b2",
-    //   "content": "# 历史版本重新测试",
-    //   "author": "w",
-    //   "materials": [
-    //     {
-    //       "url": "http://lc-CQBviH8f.cn-n1.lcfile.com/0851e7b0c8d6fac65a80.jpg",
-    //       "id": "5ab8a0e62f301e1c2c48ab45",
-    //       "filename": "5ab8a0e62f301e1c2c48ab45",
-    //       "parent": "5ab8a0c7a22b9d0045fa83ee",
-    //       "album_index": 1,
-    //       "album_name": "测试图片1.jpg",
-    //       "mime_type": "image/jpeg",
-    //       "type": 3
-    //     },
-    //     {
-    //       "url": "http://lc-CQBviH8f.cn-n1.lcfile.com/6edb25ae4fe7574429ca.jpg",
-    //       "id": "5ab8a0ed9f54541cd847c54a",
-    //       "filename": "5ab8a0ed9f54541cd847c54a",
-    //       "parent": "5ab8a0c7a22b9d0045fa83ee",
-    //       "album_index": 2,
-    //       "album_name": "测试图片2.jpg",
-    //       "mime_type": "image/jpeg",
-    //       "type": 3
-    //     },
-    //     {
-    //       "id": "5ab8a0bf17d009688786ee75",
-    //       "file_index": 1,
-    //       "url": "http://lc-CQBviH8f.cn-n1.lcfile.com/82c62c4258f459760328.mp3",
-    //       "filename": "5ab8a0bf17d009688786ee75",
-    //       "name": "历史版本测试.mp3",
-    //       "mime_type": "audio/mpeg3",
-    //       "type": 1
-    //     },
-    //     {
-    //       "id": "5ab8a0c7a22b9d0045fa83ee",
-    //       "file_index": 3,
-    //       "name": "测试",
-    //       "type": 0,
-    //       "mime_type": "album"
-    //     },
-    //     {
-    //       "id": "5ab8a0c617d009688786ee9b",
-    //       "file_index": 2,
-    //       "url": "http://lc-CQBviH8f.cn-n1.lcfile.com/c9bec0efc32e006688c4.mp4",
-    //       "filename": "5ab8a0c617d009688786ee9b",
-    //       "name": "历史版本测试.mp4",
-    //       "mime_type": "application/octet-stream",
-    //       "type": 2
-    //     }
-    //   ]
-    // }
-    
-    
-    var newData = {};
-    
+    let newData = {};
     newData.plan = {};
     newData.tags = data.tags;
     newData.name = data.name;

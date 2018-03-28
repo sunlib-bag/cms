@@ -60,7 +60,7 @@
 
         <template slot-scope="scope">
 
-          <span >{{formatStatue(scope.row)}}</span>
+          <span class="state">{{formatStatue(scope.row)}}</span>
           <el-button type="success" size="small" @click="showNeedExamine(scope.row.objectId)">查看</el-button>
         </template>
 
@@ -97,7 +97,9 @@
         <el-table-column property="complier" label="编辑人" ></el-table-column>
         <el-table-column property="draft_version_code" label="版本" ></el-table-column>
         <el-table-column property="createdAt" label="日期" :formatter="formatDate"></el-table-column>
-        <el-table-column property="isChecked" label="状态" :formatter="formatStatue"></el-table-column>
+        <el-table-column property="isChecked" label="状态" :formatter="formatStatue">
+
+        </el-table-column>
         <el-table-column v-if="isManagingEditor" label="操作" >
           <template slot-scope="scope">
             <el-button type="success" size="small" @click="goToExamine(scope)">查看</el-button>
@@ -117,11 +119,15 @@
     padding: 20px;
     text-align: center;
   }
+  .state{
+    width: 50px;
+    display: inline-block;
+  }
 
 
 </style>
 <script>
-  
+
   import {formatTime, formatState} from '../filters/filters.js';
   export default {
     props: {

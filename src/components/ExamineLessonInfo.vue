@@ -22,29 +22,22 @@
           <mateiral :materials="lessonInfo.materials" :canEdit="true"></mateiral>
         </el-tab-pane>
       </el-tabs>
-
-      <!--<el-dropdown split-button type="primary" class="save_btn" @command="publicLesson" @click="updateLesson">-->
-        <!--更新草稿-->
-        <!--<el-dropdown-menu slot="dropdown">-->
-          <!--<el-dropdown-item>发布</el-dropdown-item>-->
-        <!--</el-dropdown-menu>-->
-      <!--</el-dropdown>-->
       <div class="save_btn">
         <span>版本{{examineLessonInfo.draft_version_code}}</span>
         <span v-if="examineLessonInfo.isChecked !== 1">审核结果：{{examineLessonInfo.isChecked | formatState}}</span><el-button v-if="examineLessonInfo.isChecked === 1" type="danger" @click="showExamineDialog">审核</el-button>
-        <span v-if="examineLessonInfo.isPublished">已发布</span><el-button v-if="!examineLessonInfo.isPublished"  type="danger">发布</el-button>
+        <span v-if="examineLessonInfo.isPublished">已发布</span><el-button v-if="!examineLessonInfo.isPublished"  :disabled="examineLessonInfo.isChecked!==3" type="danger" @click="publishLesson">发布</el-button>
       </div>
 
       <el-dialog
         title="请选择审核结果"
         :visible.sync="examineDialogVisible"
         width="30%">
-        <el-radio v-model="examineResult" label='false'>通过</el-radio>
-        <el-radio v-model="examineResult" label='true'>未通过</el-radio>
+        <el-radio v-model="examineResult" :label="true">通过</el-radio>
+        <el-radio v-model="examineResult" :label= "false">未通过</el-radio>
 
        <span slot="footer" class="dialog-footer">
             <el-button @click="examineDialogVisible = false">取 消</el-button>
-            <el-button type="primary" @click="examineDialogVisible = false">提交审核</el-button>
+            <el-button type="primary" @click="examineLesson">提交审核</el-button>
         </span>
       </el-dialog>
 
@@ -82,7 +75,6 @@
         examineDialogVisible: false,
         subjectFilter: [],
         activeName: 'baseInfo',
-        isUpdate: -1,
         examineLessonInfo:{}
       }
     },
@@ -98,21 +90,6 @@
       "mateiral": Mateiral,
       "base-info": baseInfo,
       "plan": Plan
-    },
-    watch: {
-
-      lessonInfo: {
-        handler: function (value) {
-          if (this.isUpdate === -1) {
-            this.isUpdate = false;
-          }
-          if (this.isUpdate === false) {
-            this.isUpdate = true
-          }
-
-        },
-        deep: true
-      }
     },
 
     mounted() {
@@ -158,10 +135,6 @@
           self.$router.push({path: '/lessonList'})
         })
       },
-      isUpdateLesson() {
-        return JSON.stringify(this.lessonInfo) !== this.oldLeesonInfo
-      },
-
 
       handleTags(tags) {
         let domain = [];
@@ -197,57 +170,36 @@
           self.sendErrorMessage('获取科目列表失败!');
         })
       },
-      updateLesson() {
-//        let self = this;
-//        let lessonInfo = this.handleLessonInfo();
-//        this.openLoading('正在更新');
-//        this.$API.updateLesson(lessonInfo, function () {
-//          self.initLessonInfo(function(){
-//            self.closeLoading();
-//            self.sendSuccessMessage("成功保存草稿")
-//          })
-//        }, function () {
-//          self.closeLoading();
-//          self.sendErrorMessage('保存草稿失败!');
-//        })
+      examineLesson() {
+        let self = this;
+        if(this.examineResult === null) return this.sendErrorMessage('请选择审核结果！');
+        this.$API.sendExamineResult(this.examineLessonInfo.objectId, this.examineResult ,function(result){
+
+            self.examineLessonInfo.isChecked=  result.isChecked;
+            self.examineDialogVisible =  false;
+            self.sendSuccessMessage("审核结果提交成功")
+
+        },function(){
+          self.examineDialogVisible =  false;
+          self.sendErrorMessage("审核结果提交失败")
+        })
+
 
       },
-      publicLesson() {
-//        let self = this;
-//        let lessonInfo = this.handleLessonInfo();
-//        this.openLoading('正在发布');
-//        this.$API.updateLesson(lessonInfo, function () {
-//          self.initLessonInfo(function(){
-//            self.$API.publishLesson(lessonInfo.objectId, function () {
-//              self.closeLoading();
-//              self.sendSuccessMessage("成功发布")
-//            }, function (error) {
-//              self.closeLoading();
-//              self.sendErrorMessage('发布失败!');
-//            })
-//          })
-//
-//        }, function () {
-//          self.closeLoading();
-//          self.sendErrorMessage('发布失败!');
-//        })
+      publishLesson() {
+        let self = this;
+        if(this.examineLessonInfo.isChecked !== 3) return this.sendErrorMessage('请先通过审核!');
+        this.openLoading('正在发布');
+        this.$API.publishLesson(this.examineLessonInfo.lessonId, this.examineLessonInfo.draft_version_code, function(result){
+            self.closeLoading();
+            self.examineLessonInfo.isPublished=  true;
+            self.sendSuccessMessage("成功发布")
+        },function(error){
+          self.closeLoading();
+          self.sendErrorMessage('发布失败!');
+        })
       },
-      handleLessonInfo() {
-//        let newLessonInfo = JSON.parse(JSON.stringify(this.lessonInfo));
-//        let tags = [];
-//        for (let i = 0; i < newLessonInfo.domain.length; i++) {
-//          tags.push('domain.' + newLessonInfo.domain[i])
-//        }
-//        if (newLessonInfo.source) {
-//          tags.push('source.' + newLessonInfo.source);
-//        }
-//        if (newLessonInfo.misc) {
-//          tags.push('misc.' + newLessonInfo.misc)
-//        }
-//        newLessonInfo.tags = tags;
-//        return newLessonInfo
 
-      },
       sendErrorMessage(message){
         this.$message({
           type: 'error',

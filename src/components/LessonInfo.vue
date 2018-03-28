@@ -23,17 +23,17 @@
           </el-tab-pane>
         </el-tabs>
 
-      <el-dropdown split-button type="primary" class="save_btn" @command="publicLesson" @click="updateLesson" v-if="canPublic">
+      <el-dropdown split-button type="primary" class="save_btn" @command="publishLesson" @click="updateLesson" v-if="isManager">
         更新草稿
         <el-dropdown-menu slot="dropdown">
           <el-dropdown-item>发布</el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
 
-      <el-dropdown split-button type="primary" class="save_btn" @command="sendToExamine" @click="updateLesson" v-if="!canPublic">
+      <el-dropdown split-button type="primary" class="save_btn" @command="showSendToExamine" @click="updateLesson" v-if="!isManager">
         更新草稿
         <el-dropdown-menu slot="dropdown">
-          <el-dropdown-item>提交审核 剩余次数</el-dropdown-item>
+          <el-dropdown-item>提交审核(剩余{{maxExamineCount-todayExamineCount}}次数)</el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
 
@@ -43,11 +43,11 @@
         title="确认提交审核？"
         :visible.sync="comfirmExamineDialogVisible"
         width="30%"
-        :before-close="handleClose">
-        <span>{{lessonInfo.plan.name}}今日审核次数剩余次数2/2(统一课程每天可提交2次审核)</span>
+        >
+        <span>{{lessonInfo.plan.name}}今日审核次数剩余次数{{maxExamineCount-todayExamineCount}}/{{maxExamineCount}}(统一课程每天可提交2次审核)</span>
         <span slot="footer" class="dialog-footer">
             <el-button @click="comfirmExamineDialogVisible = false">取 消</el-button>
-            <el-button type="primary" @click="comfirmExamineDialogVisible = false">提交审核</el-button>
+            <el-button type="primary" @click="sendToExamine">提交审核</el-button>
         </span>
       </el-dialog>
 
@@ -55,7 +55,7 @@
         title="今天提交审核次数已用完"
         :visible.sync="warnExamineDialogVisible"
         width="30%"
-        :before-close="handleClose">
+        >
         <span>同一个课程每天可提交 2 次审核，明天可继续提交。</span>
         <span slot="footer" class="dialog-footer">
 
@@ -89,9 +89,11 @@
           plan: '',
           materials: []
         },
+        todayExamineCount: 2,
+        maxExamineCount: 100,
         comfirmExamineDialogVisible: false,
         warnExamineDialogVisible: false,
-        canPublic: false,
+        isManager: false,
         subjectFilter: [],
         activeName: 'baseInfo',
         oldLeesonInfo: JSON.stringify({subject: {}, domain: [], source: '', author: '', misc: '', plan: '', materials: []}),
@@ -158,20 +160,71 @@
         if (roles.length ===0) {
           return self.$router.push('/')
         }
+        self.isManager =  roles.indexOf('manager')>-1;
+
         self.initPage();
         self.openLoading('正在加载数据');
         self.getSubjectList(function () {
-          self.initLessonInfo(function(){self.closeLoading()},function(){self.closeLoading()})
+          self.initLessonInfo(function(){
+            self.getTodayExamineCount(function(){
+              self.closeLoading()
+            });
+          },function(){
+            self.closeLoading()
+          })
         });
       });
+
       this.$bus.on('changeMaterial', function (value) {
         self.materials = value
       })
 
     },
     methods: {
+      getTodayExamineCount(cb){
+        let self = this;
+        let currentUser = AV.User.current().toJSON();
+        this.$API.getTodayExamineCount(this.lessonInfo.objectId, currentUser.username, function(count){
+          self.todayExamineCount =  count;
+          typeof cb === 'function' ? cb(count) : ''
+
+        }, function(){
+          typeof cb === 'function' ? cb() : '';
+          self.sendErrorMessage('获取当日提交次数失败！请刷新稍后再试！');
+        })
+      },
+      showSendToExamine(){
+        if(this.maxExamineCount > this.todayExamineCount){
+         return this.comfirmExamineDialogVisible = true;
+        }
+          this.warnExamineDialogVisible = true;
+      },
       sendToExamine(){
-          this.comfirmExamineDialogVisible = true;
+        let self = this;
+        let lessonInfo = this.handleLessonInfo();
+        this.openLoading("正在提交审核...");
+        this.$API.updateLesson(lessonInfo, function () {
+          self.initLessonInfo(function(){
+            self.$API.examineLesson(self.lessonInfo.objectId, function(){
+              self.sendSuccessMessage('草稿已提交审核！');
+              self.comfirmExamineDialogVisible = false;
+              self.getTodayExamineCount(function(count){
+                self.todayExamineCount =  count;
+                self.closeLoading()
+              });
+            },function(){
+              self.comfirmExamineDialogVisible = false;
+              self.sendErrorMessage('草稿提交审核失败！');
+              self.closeLoading()
+            })
+          })
+
+        },function(){
+          self.sendErrorMessage('草稿提交审核失败！');
+          self.closeLoading()
+        });
+
+
       },
       initLessonInfo(sucFuc, errFuc){
         let self = this;
@@ -198,8 +251,6 @@
       isUpdateLesson() {
         return JSON.stringify(this.lessonInfo) !== this.oldLeesonInfo
       },
-
-
       handleTags(tags) {
         let domain = [];
         let source;
@@ -249,13 +300,13 @@
         })
 
       },
-      publicLesson() {
+      publishLesson() {
         let self = this;
         let lessonInfo = this.handleLessonInfo();
         this.openLoading('正在发布');
         this.$API.updateLesson(lessonInfo, function () {
           self.initLessonInfo(function(){
-            self.$API.publishLesson(lessonInfo.objectId, function () {
+            self.$API.publishLesson(lessonInfo.objectId, self.lessonInfo.draft_version_code, function () {
               self.closeLoading();
               self.sendSuccessMessage("成功发布")
             }, function (error) {
