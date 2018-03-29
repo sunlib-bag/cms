@@ -39,11 +39,11 @@
     },
     mounted() {
       let self = this;
-//      this.$API.checkUserRole(function(roles){
-//        if(roles.length > 0){
-//          self.$router.push({path: '/lessonList'})
-//        }
-//      })
+      this.$API.checkUserRole(function(roles){
+        if(roles.length > 0){
+          self.$router.push({path: '/lessonList'})
+        }
+      })
     },
     methods: {
       login: function () {
