@@ -541,7 +541,8 @@ Api.install = function (Vue, options) {
     newData.subject = {};
     newData.subject.objectId = data.subjectId;
     let materials = [];
-    let allMaterials = data.materials;
+    let allMaterials = data.materials || [];
+    
     for (let i = 0; i < allMaterials.length; i++) {
       if (!allMaterials[i].hasOwnProperty('parent')) {
         let materailInfo = {};

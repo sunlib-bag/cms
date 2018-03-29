@@ -1,6 +1,7 @@
 <template>
   <div>
     <el-table
+      ref = "lessonListTable"
       :data="lessonList"
       style="width: 100%; text-align: left">
       <el-table-column
@@ -60,7 +61,7 @@
 
         <template slot-scope="scope">
 
-          <span class="state">{{formatStatue(scope.row)}}</span>
+          <span class="state" v-bind:class="{color: handleColor(scope.row.isChecked)}">{{formatStatue(scope.row.isChecked)}}</span>
           <el-button type="success" size="small" @click="showNeedExamine(scope.row.objectId)">查看</el-button>
         </template>
 
@@ -97,8 +98,10 @@
         <el-table-column property="complier" label="编辑人" ></el-table-column>
         <el-table-column property="draft_version_code" label="版本" ></el-table-column>
         <el-table-column property="createdAt" label="日期" :formatter="formatDate"></el-table-column>
-        <el-table-column property="isChecked" label="状态" :formatter="formatStatue">
-
+        <el-table-column property="isChecked" label="状态" >
+          <template slot-scope="scope">
+            <span v-bind:style="{color: handleColor(scope.row.isChecked)}">{{formatStatue(scope.row.isChecked)}}</span>
+          </template>
         </el-table-column>
         <el-table-column v-if="isManagingEditor" label="操作" >
           <template slot-scope="scope">
@@ -128,7 +131,7 @@
 </style>
 <script>
 
-  import {formatTime, formatState} from '../filters/filters.js';
+  import {formatTime, formatState, formatColor} from '../filters/filters.js';
   export default {
     props: {
       isManagingEditor: {
@@ -144,6 +147,7 @@
         total: 1,
         limit: 20,
         dialogNeedExamineListVisible: false,
+        stateColor: '',
 
         sourceList: [
           {"value": "千千树", text: "千千树"},
@@ -179,16 +183,22 @@
         });
       })
     },
+
     methods: {
-      formatDate(row) {
-        var date = new Date(row.createdAt);
-        return formatTime(date, "yyyy-MM-dd");
+      handleColor(isChecked){
+        return formatColor(isChecked);
       },
-      formatStatue(row){
-        return formatState(row.isChecked);
+      formatDate(row) {
+        return formatTime(row.createdAt, "yyyy-MM-dd");
+      },
+      formatStatue(isChecked){
+        return formatState(isChecked);
+      },
+      clearFilter(){
+        this.$refs.lessonListTable.clearFilter();
       },
       showNeedExamine(id){
-        var self = this;
+        let self = this;
         this.$API.getNeedExamineList(id, function(lessonSnapshotList){
 
           self.needExamineList = lessonSnapshotList;
@@ -207,9 +217,9 @@
       getLesson(page) {
         let self = this;
         this.$API.getLesson(this.limit, page, function (lessons) {
+          self.clearFilter();
           self.lessonList = lessons.result;
           self.total = lessons.count;
-          console.log(lessons.count)
         }, function () {
           self.$message({
             type: 'error',
@@ -242,13 +252,13 @@
       },
       handleSource(row) {
         let tags = row.tags;
-        if (!tags) return ''
+        if (!tags) return '';
 
         for (let i = 0; i < tags.length; i++) {
           let tagInfo = tags[i].split('.'); //todo
           if (tagInfo[0] === 'source') {
-            tagInfo.shift()
-            let source = tagInfo.join('.')
+            tagInfo.shift();
+            let source = tagInfo.join('.');
             return source
           }
         }

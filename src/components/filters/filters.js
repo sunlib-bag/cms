@@ -1,4 +1,5 @@
-export function formatTime(date, fmt) {
+export function formatTime(time, fmt) {
+  var date = new Date(time)
   if (/(y+)/.test(fmt)) {
     fmt = fmt.replace(RegExp.$1, (date.getFullYear() + '').substr(4 - RegExp.$1.length));
   }
@@ -21,6 +22,10 @@ export function formatTime(date, fmt) {
 export function formatState(index) {
   return ['草稿','待审核','未通过','通过'][index]
 };
+
+export  function formatColor(index){
+  return ['blank','#E6A23C','#F56C6C','blank'][index]
+}
 
 
 function padLeftZero(str) {
