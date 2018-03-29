@@ -90,7 +90,7 @@
           materials: []
         },
         todayExamineCount: 2,
-        maxExamineCount: 100,
+        maxExamineCount: 10,
         comfirmExamineDialogVisible: false,
         warnExamineDialogVisible: false,
         isManager: false,
@@ -205,13 +205,12 @@
         this.openLoading("正在提交审核...");
         this.$API.updateLesson(lessonInfo, function () {
           self.initLessonInfo(function(){
-            self.$API.examineLesson(self.lessonInfo.objectId, function(){
+            self.$API.examineLesson(self.lessonInfo.objectId, function(examineLessonResult){
+              self.todayExamineCount = examineLessonResult.submitNumber
               self.sendSuccessMessage('草稿已提交审核！');
               self.comfirmExamineDialogVisible = false;
-              self.getTodayExamineCount(function(count){
-                self.todayExamineCount =  count;
-                self.closeLoading()
-              });
+              self.closeLoading()
+
             },function(){
               self.comfirmExamineDialogVisible = false;
               self.sendErrorMessage('草稿提交审核失败！');

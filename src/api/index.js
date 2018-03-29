@@ -428,6 +428,7 @@ Api.install = function (Vue, options) {
     var query = new AV.Query('LessonSnapshot');
     query.equalTo('lessonId', id);
     query.greaterThan('isChecked', 0);
+    query.descending('draft_version_code');
     query.find().then(function (lessonSnapshotList) {
       sucFuc(handleArrayData(lessonSnapshotList))
     }, function () {
@@ -496,18 +497,18 @@ Api.install = function (Vue, options) {
         errFuc(error)
       }
     )
-  }
+  };
   Api.prototype.getTodayExamineCount = function(id , userName, sucFuc , errFuc){
     let today = new Date();
     today.setHours(0,0,0);
-    console.log(today);
+    
     let query = new AV.Query('LessonSnapshot');
     query.equalTo('lessonId', id);
     query.equalTo('complier', userName);
     query.greaterThan('isChecked', 0);
     query.greaterThan('createdAt', today);
     query.count().then(function (count) {
-      console.log(count)
+      
       sucFuc(count)
     }, function () {
       errFuc()
