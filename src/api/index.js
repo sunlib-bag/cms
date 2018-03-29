@@ -48,7 +48,7 @@ Api.install = function (Vue, options) {
   };
   Api.prototype.checkUserRole = function (cb) {
     let currentUser = AV.User.current();
-    if (!currentUser) return cb(false);
+    if (!currentUser) return cb([]);
     currentUser.getRoles().then(function (resultRoles) {
       
       let roles = [];
