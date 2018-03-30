@@ -24,7 +24,7 @@ export function formatState(index) {
 };
 
 export  function formatColor(index){
-  return ['blank','#E6A23C','#F56C6C','blank'][index]
+  return ['#606266','#E6A23C','#F56C6C','#606266'][index]
 }
 
 

@@ -3,11 +3,11 @@
     <el-table
       ref = "lessonListTable"
       :data="lessonList"
-      style="width: 100%; text-align: left">
+      class="table">
       <el-table-column
         prop="name"
-        label="课程名称"
-        width="100">
+        :width="tableWidth*0.16"
+        label="课程名称">
       </el-table-column>
       <el-table-column
         :filters="subjectFilter"
@@ -15,12 +15,13 @@
         filter-placement="bottom-start"
         prop="subject.title"
         label="科目"
+        :width="tableWidth*0.08"
       >
       </el-table-column>
       <el-table-column
         prop="tages"
         label="来源"
-
+        :width="tableWidth*0.1"
         :formatter="handleSource"
         filter-placement="bottom-start"
         :filters="sourceList"
@@ -29,12 +30,13 @@
       </el-table-column>
       <el-table-column
         prop="updatedAt"
-
+        :width="tableWidth*0.1"
         :formatter="handleDate"
         label="创建时间"
       >
       </el-table-column>
       <el-table-column
+        :width="tableWidth*0.1"
         prop="draft_version_code"
         label="最新草稿版本"
 
@@ -44,10 +46,11 @@
 
       <el-table-column
         prop="version_code"
-        label="发布版本">
+        label="发布版本"
+        :width="tableWidth*0.1">
         <template slot-scope="scope">
           <span>{{scope.row.isPublished ? scope.row.version_code : '未发布'}}</span>
-          <el-button type="text" v-if='scope.row.isPublished' @click="downPackage(scope.row.package.url)">下载</el-button>
+          <el-button type="text"   v-if='scope.row.isPublished' @click="downPackage(scope.row.package.url)">下载</el-button>
 
 
         </template>
@@ -57,24 +60,25 @@
 
       <el-table-column
         prop="package"
-        label="状态">
+        label="状态"
+        :width="tableWidth*0.16">
 
         <template slot-scope="scope">
 
           <span class="state" v-bind:style="{color: handleColor(scope.row.isChecked)}">{{formatStatue(scope.row.isChecked)}}</span>
-          <el-button type="success" size="small" @click="showNeedExamine(scope.row.objectId)">查看</el-button>
+          <el-button type="text"  @click="showNeedExamine(scope.row.objectId)">查看</el-button>
         </template>
 
       </el-table-column>
 
       <el-table-column
-        width="250px"
         label="操作"
+        :width="tableWidth*0.2"
       >
         <template slot-scope="scope">
           <el-button type="success" size="small" @click="goToUpdateLesson(scope)">编辑</el-button>
-          <el-button v-if="isManagingEditor" type="danger" size="small"  @click="deleteLesson(scope, lessonList)">删除</el-button>
-          <el-button v-if="isManagingEditor"  type="danger" size="small" :disabled="!scope.row.isPublished"
+          <el-button v-if="isManagingEditor" type="text"  class="warn"  @click="deleteLesson(scope, lessonList)">删除</el-button>
+          <el-button v-if="isManagingEditor"  type="text"  class="warn"  :disabled="!scope.row.isPublished"
                      @click="callbackLesson(scope, lessonList)">下架
           </el-button>
 
@@ -100,7 +104,10 @@
         <el-table-column property="createdAt" label="日期" :formatter="formatDate"></el-table-column>
         <el-table-column property="isChecked" label="状态" >
           <template slot-scope="scope">
-            <span v-bind:style="{color: handleColor(scope.row.isChecked)}">{{formatStatue(scope.row.isChecked)}}</span>
+            <span class="black" v-if="scope.row.isChecked===0">{{formatStatue(scope.row.isChecked)}}</span>
+            <span class="orange" v-if="scope.row.isChecked===1">{{formatStatue(scope.row.isChecked)}}</span>
+            <span class="warn" v-if="scope.row.isChecked===2">{{formatStatue(scope.row.isChecked)}}</span>
+            <span class="black" v-if="scope.row.isChecked===3">{{formatStatue(scope.row.isChecked)}}</span>
           </template>
         </el-table-column>
         <el-table-column v-if="isManagingEditor" label="操作" >
@@ -118,6 +125,10 @@
 
 </template>
 <style scoped="">
+  .table{
+    width: 100%;
+    text-align: left;
+  }
   .pagination {
     padding: 20px;
     text-align: center;
@@ -126,6 +137,16 @@
     width: 50px;
     display: inline-block;
   }
+  .warn{
+    color: #F56C6C;
+  }
+  .black{
+    color: #606266;
+  }
+  .orange{
+    color: #E6A23C;
+  }
+
 
 
 </style>
@@ -148,7 +169,7 @@
         limit: 20,
         dialogNeedExamineListVisible: false,
         stateColor: '',
-
+        tableWidth: $(".lesson-list").width(),
         sourceList: [
           {"value": "千千树", text: "千千树"},
           {"value": "儿童乐益会", text: "儿童乐益会"},
@@ -167,8 +188,11 @@
       }
     },
     mounted() {
-
       let self = this;
+      self.tableWidth  = $(".lesson-list").width()
+      $(window).resize(function(){
+        self.tableWidth  = $(".lesson-list").width()
+      });
       this.getLesson(1);
       this.$API.getSubjectList(function (subjectList) {
 
@@ -186,6 +210,8 @@
 
     methods: {
       handleColor(isChecked){
+
+
         return formatColor(isChecked);
       },
       formatDate(row) {
