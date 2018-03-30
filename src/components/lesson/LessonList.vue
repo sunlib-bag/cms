@@ -61,7 +61,7 @@
 
         <template slot-scope="scope">
 
-          <span class="state" v-bind:class="{color: handleColor(scope.row.isChecked)}">{{formatStatue(scope.row.isChecked)}}</span>
+          <span class="state" v-bind:style="{color: handleColor(scope.row.isChecked)}">{{formatStatue(scope.row.isChecked)}}</span>
           <el-button type="success" size="small" @click="showNeedExamine(scope.row.objectId)">查看</el-button>
         </template>
 

@@ -90,7 +90,7 @@
           materials: []
         },
         todayExamineCount: 2,
-        maxExamineCount: 10,
+        maxExamineCount: 2,
         comfirmExamineDialogVisible: false,
         warnExamineDialogVisible: false,
         isManager: false,
