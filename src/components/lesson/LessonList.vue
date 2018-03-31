@@ -112,7 +112,7 @@
         </el-table-column>
         <el-table-column v-if="isManagingEditor" label="操作" >
           <template slot-scope="scope">
-            <el-button type="success" size="small" @click="goToExamine(scope)">查看</el-button>
+            <el-button type="text"  @click="goToExamine(scope)">查看</el-button>
           </template>
         </el-table-column>
       </el-table>

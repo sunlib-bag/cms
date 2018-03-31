@@ -44,7 +44,7 @@
         :visible.sync="comfirmExamineDialogVisible"
         width="30%"
         >
-        <span>{{lessonInfo.plan.name}}今日审核次数剩余次数{{maxExamineCount-todayExamineCount}}/{{maxExamineCount}}(统一课程每天可提交2次审核)</span>
+        <span>《{{lessonInfo.name}}》今日审核剩余次数{{(maxExamineCount-todayExamineCount>0)? (maxExamineCount-todayExamineCount) : 0}}/{{maxExamineCount}}。(同一课程每天可提交{{maxExamineCount}}次审核)</span>
         <span slot="footer" class="dialog-footer">
             <el-button @click="comfirmExamineDialogVisible = false">取 消</el-button>
             <el-button type="primary" @click="sendToExamine">提交审核</el-button>
@@ -56,7 +56,7 @@
         :visible.sync="warnExamineDialogVisible"
         width="30%"
         >
-        <span>同一个课程每天可提交 2 次审核，明天可继续提交。</span>
+        <span>同一个课程每天可提交 {{maxExamineCount}} 次审核，明天可继续提交。</span>
         <span slot="footer" class="dialog-footer">
 
             <el-button type="primary" @click="warnExamineDialogVisible = false">好的</el-button>
