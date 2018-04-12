@@ -22,6 +22,11 @@
           <i class="el-icon-setting"></i>
           <span slot="title">来源设置</span>
         </el-menu-item>
+
+        <el-menu-item index="logout">
+          <i class="el-icon-setting"></i>
+          <span slot="title">退出</span>
+        </el-menu-item>
       </el-menu>
 
   </div>
@@ -41,6 +46,11 @@
     },
     methods:{
       handleOpen(key, keyPath) {
+        if(key ==='logout') {
+          this.$API.logout();
+          this.$router.push('/login');
+          return ;
+        }
         this.$router.push('/'+key )
       },
       handleClose(key, keyPath) {

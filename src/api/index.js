@@ -514,6 +514,9 @@ Api.install = function (Vue, options) {
       errFuc()
     })
   }
+  Api.prototype.logout =  function(){
+    AV.User.logOut();
+  }
   
   
   function sortByIndex(a, b) {
