@@ -1,7 +1,7 @@
 <template>
   <el-container class="big-container">
     <el-aside class="big-side">
-      <side_bar :actionPage="actionPage"></side_bar>
+      <side_bar :actionPage="actionPage" :isAdmin="isAdmin"></side_bar>
     </el-aside>
     <el-main class="big-main">
       <el-row align="middle">
@@ -30,7 +30,8 @@
         lessonList: [],
         subjectFilter: [],
         actionPage: 'lessonList',
-        isManagingEditor: false
+        isManagingEditor: false,
+        isAdmin: false,
       }
     },
     components: {
@@ -41,7 +42,8 @@
     mounted() {
       let self = this;
       this.$API.checkUserRole((roles) =>{
-        this.isManagingEditor =  (roles.indexOf('manager')>=0)
+        this.isManagingEditor =  (roles.indexOf('manager')>=0);
+        this.isAdmin =  (roles.indexOf('admin')>=0);
         if(roles.length === 0){
           self.$router.push('/')
         }

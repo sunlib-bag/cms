@@ -1,7 +1,7 @@
 <template>
   <el-container class="big-container">
     <el-aside class="big-side">
-      <side_bar :actionPage="actionPage"></side_bar>
+      <side_bar :actionPage="actionPage" :isAdmin="isAdmin"></side_bar>
     </el-aside>
     <el-main class="big-main">
 
@@ -65,7 +65,6 @@
 
     </el-main>
   </el-container>
-
 </template>
 
 <script>
@@ -79,6 +78,7 @@
     data() {
       return {
         actionPage: 'lessonList',
+        isAdmin: false,
         materials: [],
         lessonInfo: {
           subject: {},
@@ -161,6 +161,7 @@
           return self.$router.push('/')
         }
         self.isManager =  roles.indexOf('manager')>-1;
+        self.isAdmin =  (roles.indexOf('admin')>=0);
 
         self.initPage();
         self.openLoading('正在加载数据');

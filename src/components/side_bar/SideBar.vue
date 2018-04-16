@@ -23,6 +23,11 @@
           <span slot="title">来源设置</span>
         </el-menu-item>
 
+        <el-menu-item index="classInUserList" v-if="isAdmin">
+          <i class="el-icon-tickets"></i>
+          <span slot="title">导入用户表格</span>
+        </el-menu-item>
+
         <el-menu-item index="logout">
           <i class="el-icon-setting"></i>
           <span slot="title">退出</span>
@@ -37,6 +42,9 @@
     props:{
       actionPage : {
         default: 'lessonList'
+      },
+      isAdmin:{
+        default: false
       }
     },
     data(){

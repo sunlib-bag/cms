@@ -1,7 +1,7 @@
 <template>
   <el-container class="big-container">
     <el-aside class="big-side">
-      <side_bar :actionPage="actionPage"></side_bar>
+      <side_bar :actionPage="actionPage" :isAdmin="isAdmin"></side_bar>
     </el-aside>
     <el-main class="big-main">
 
@@ -59,6 +59,7 @@
     data() {
       return {
         actionPage: 'lessonList',
+        isAdmin: false,
         materials: [],
         lessonInfo: {
           subject: {},
@@ -95,6 +96,7 @@
     mounted() {
       let self = this;
       this.$API.checkUserRole(function (roles) {
+        self.isAdmin =  (roles.indexOf('admin')>=0);
         if (roles.indexOf('manager') === -1) {
           return self.$router.push('/')
         }

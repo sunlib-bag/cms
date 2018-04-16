@@ -4,7 +4,8 @@ import 'element-ui/lib/theme-chalk/index.css'
 import LessonList from '@/components/LessonList'
 import LessonInfo from '@/components/LessonInfo'
 import Login from '@/components/Login.vue'
-import  ExamineLessonInfo from '@/components/ExamineLessonInfo'
+import ExamineLessonInfo from '@/components/ExamineLessonInfo'
+import ClassInUserList from '@/components/ClassInUserList'
 import VueBus from 'vue-bus'
 
 
@@ -22,8 +23,6 @@ Vue.use(config);
 Vue.use(Api);
 
 
-
-
 export default new Router({
   routes: [
     {
@@ -37,14 +36,19 @@ export default new Router({
       component: LessonList
     },
     {
-      path:'/lessonInfo/:id',
+      path: '/lessonInfo/:id',
       name: 'lessonInfo',
       component: LessonInfo
     },
     {
-      path:'/examineLessonInfo/:id',
+      path: '/examineLessonInfo/:id',
       name: 'examineLessonInfo',
       component: ExamineLessonInfo
+    },
+    {
+      path: '/classInUserList',
+      name: 'classInUserList',
+      component: ClassInUserList
     },
     {
       path: '*',

@@ -49,8 +49,8 @@ Api.install = function (Vue, options) {
   Api.prototype.checkUserRole = function (cb) {
     let currentUser = AV.User.current();
     if (!currentUser) return cb([]);
+    
     currentUser.getRoles().then(function (resultRoles) {
-      
       let roles = [];
       for (let i = 0; i < resultRoles.length; i++) {
         if (resultRoles[i].toJSON().objectId === '5ab6001dac502e57c949a142') {
@@ -58,10 +58,9 @@ Api.install = function (Vue, options) {
         }
         if (resultRoles[i].toJSON().objectId === '5ab6000d17d0096887783cd6') {
           roles.push('manager');
-        
         }
       }
-      
+      if(currentUser.id === '5a7161f90b616000444ec3a6' ) roles.push('admin');
       if (!roles.length) return cb([]);
       currentUser.isAuthenticated().then(function (authenticated) {
         cb((authenticated ? roles : []))
@@ -516,7 +515,10 @@ Api.install = function (Vue, options) {
   }
   Api.prototype.logout =  function(){
     AV.User.logOut();
-  }
+  };
+  Api.prototype.uploadUserInfoFile = function(cb){
+    typeof(cb) ==='function' ? cb() : ''
+  };
   
   
   function sortByIndex(a, b) {
