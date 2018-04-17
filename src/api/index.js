@@ -60,7 +60,7 @@ Api.install = function (Vue, options) {
           roles.push('manager');
         }
       }
-      if(currentUser.id === '5a7161f90b616000444ec3a6' ) roles.push('admin');
+      if(currentUser.id === '5a7169d9fe88c200456ed0d7' ) roles.push('admin');
       if (!roles.length) return cb([]);
       currentUser.isAuthenticated().then(function (authenticated) {
         cb((authenticated ? roles : []))
@@ -516,8 +516,16 @@ Api.install = function (Vue, options) {
   Api.prototype.logout =  function(){
     AV.User.logOut();
   };
-  Api.prototype.uploadUserInfoFile = function(cb){
-    typeof(cb) ==='function' ? cb() : ''
+  Api.prototype.uploadUserInfoFile = function(name, data, sucFuc, errFuc){
+    let file = new AV.File(name, data);
+    file.save().then(function(result){
+        console.log(result)
+      sucFuc()
+    },function(){
+      errFuc()
+    });
+    
+    
   };
   
   

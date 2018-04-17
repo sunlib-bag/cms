@@ -45,16 +45,23 @@
       uploadUserInfoFile: function(e){
         let fileUploadControl = $(e.currentTarget)[0];
         let self = this;
-        console.log("===")
 
         if (fileUploadControl.files.length > 0) {
           let localFile = fileUploadControl.files[0];
           self.openLoading('正在上传');
-          this.$API.uploadUserInfoFile(function (result) {
+          this.$API.uploadUserInfoFile(localFile.name, localFile, function (result) {
             self.closeLoading();
+            self.$message({
+              type: 'success',
+              message: 'excel表格上传成功!'
+            });
             $(e.currentTarget).val('')
           }, function () {
             self.closeLoading();
+            self.$message({
+              type: 'error',
+              message: 'excel表格上传失败!'
+            });
             $(e.currentTarget).val('')
           })
         }
