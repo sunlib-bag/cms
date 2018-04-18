@@ -43,6 +43,7 @@
         $(e.currentTarget).parent().find('input').click()
       },
       uploadUserInfoFile: function(e){
+
         let fileUploadControl = $(e.currentTarget)[0];
         let self = this;
 
@@ -50,19 +51,21 @@
           let localFile = fileUploadControl.files[0];
           self.openLoading('正在上传');
           this.$API.uploadUserInfoFile(localFile.name, localFile, function (result) {
+            $(fileUploadControl).val('');
             self.closeLoading();
             self.$message({
               type: 'success',
               message: 'excel表格上传成功!'
             });
-            $(e.currentTarget).val('')
+
           }, function () {
+            $(fileUploadControl).val('');
             self.closeLoading();
             self.$message({
               type: 'error',
               message: 'excel表格上传失败!'
             });
-            $(e.currentTarget).val('')
+
           })
         }
       },
