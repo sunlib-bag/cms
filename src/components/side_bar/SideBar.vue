@@ -28,6 +28,11 @@
           <span slot="title">导入用户表格</span>
         </el-menu-item>
 
+        <el-menu-item index="weChatHistoryList" v-if="isAdmin">
+          <i class="el-icon-tickets"></i>
+          <span slot="title">微信聊天列表</span>
+        </el-menu-item>
+
         <el-menu-item index="logout">
           <i class="el-icon-setting"></i>
           <span slot="title">退出</span>

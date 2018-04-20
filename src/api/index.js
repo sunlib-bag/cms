@@ -512,7 +512,7 @@ Api.install = function (Vue, options) {
     }, function () {
       errFuc()
     })
-  }
+  };
   Api.prototype.logout =  function(){
     AV.User.logOut();
   };
@@ -534,10 +534,39 @@ Api.install = function (Vue, options) {
     function(){
       errFuc()
     });
-    
-    
   };
   
+  Api.prototype.getWeChatGroups = function(sucFuc,errFuc){
+    let groupQuery = new AV.Query('Group');
+    groupQuery.find().then(function(groupList){
+        typeof sucFuc ==='function' ? sucFuc(handleArrayData(groupList)) : ''
+      },
+      function(){
+        typeof errFuc ==='function' ? errFuc() : ''
+      })
+  };
+  
+  Api.prototype.getChatListHistory =  function(group, page, limit ,sucFuc, errFuc){
+    let chatQuery = new AV.Query('Chat');
+    chatQuery.equalTo('group',group);
+    chatQuery.notEqualTo('content', null);
+    chatQuery.skip((page-1)*5);
+    chatQuery.limit(limit);
+    chatQuery.find().then(function(chatList){
+        let chatCountQuery = new AV.Query('Chat');
+        chatCountQuery.equalTo('group',group);
+        chatCountQuery.notEqualTo('content', null);
+        chatCountQuery.count().then(function(count){
+          typeof sucFuc ==='function' ? sucFuc({result:handleArrayData(chatList),  count: count}) : ''
+        },function(){
+          typeof errFuc ==='function' ? errFuc() : ''
+        });
+        
+      },
+      function(){
+        typeof errFuc ==='function' ? errFuc() : ''
+      })
+  };
   
   function sortByIndex(a, b) {
     return a.index > b.index

@@ -6,6 +6,7 @@ import LessonInfo from '@/components/LessonInfo'
 import Login from '@/components/Login.vue'
 import ExamineLessonInfo from '@/components/ExamineLessonInfo'
 import ClassInUserList from '@/components/ClassInUserList'
+import WeChatHistoryList from '@/components/WeChatHistoryList'
 import VueBus from 'vue-bus'
 
 
@@ -49,6 +50,11 @@ export default new Router({
       path: '/classInUserList',
       name: 'classInUserList',
       component: ClassInUserList
+    },
+    {
+      path:'/weChatHistoryList',
+      name:'WeChatHistoryList',
+      component: WeChatHistoryList
     },
     {
       path: '*',
