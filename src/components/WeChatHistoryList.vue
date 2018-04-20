@@ -37,7 +37,7 @@
         </el-table-column>
         <el-table-column
           prop="createdAt"
-
+          :formatter="formatDate"
           label="日期"
         >
         </el-table-column>
@@ -61,6 +61,7 @@
 
 <script>
   import SideBar from './side_bar/SideBar.vue'
+  import {formatTime} from './filters/filters.js';
 
 
 
@@ -100,6 +101,9 @@
           this.group = groupList[0].name;
           this.getChatListHistory(groupList[0].name, 0)
         })
+      },
+      formatDate(row) {
+        return formatTime(row.createdAt, "yyyy-MM-dd hh:mm:ss");
       },
       changePage:function(page){
         this.getChatListHistory(this.group, page)
