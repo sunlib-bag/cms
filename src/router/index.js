@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import Router from 'vue-router'
+
 import 'element-ui/lib/theme-chalk/index.css'
 import LessonList from '@/components/LessonList'
 import LessonInfo from '@/components/LessonInfo'
@@ -7,6 +8,7 @@ import Login from '@/components/Login.vue'
 import ExamineLessonInfo from '@/components/ExamineLessonInfo'
 import ClassInUserList from '@/components/ClassInUserList'
 import WeChatHistoryList from '@/components/WeChatHistoryList'
+import Labels from '@/components/Labels'
 import VueBus from 'vue-bus'
 
 
@@ -55,6 +57,11 @@ export default new Router({
       path:'/weChatHistoryList',
       name:'WeChatHistoryList',
       component: WeChatHistoryList
+    },
+    {
+      path:'/labels',
+      name:'Labels',
+      component: Labels
     },
     {
       path: '*',

@@ -570,6 +570,48 @@ Api.install = function (Vue, options) {
       })
   };
   
+  //标签接口
+  
+  Api.prototype.getLabelList = function(sucFuc, errFuc){
+    let labelQuery = new  AV.Query('Label');
+    labelQuery.descending('createdAT');
+    labelQuery.find().then(function(labelList){
+      sucFuc(handleArrayData(labelList))
+    }, function () {
+      errFuc()
+    })
+  };
+  
+  Api.prototype.updateLabel  = function(label, sucFuc, errFuc){
+    let labelObject =  AV.Object.createWithoutData('Label', label.objectId);
+    labelObject.set('name', label.name);
+    labelObject.set('type', label.type);
+    labelObject.save().then(function(){
+      sucFuc()
+    },function(){
+      errFuc()
+    })
+  };
+  Api.prototype.deleteLabel = function(objectId, sucFuc, errFuc){
+    let labelObject = AV.Object.createWithoutData('Label', objectId);
+    labelObject.destroy().then(function(){
+      sucFuc()
+    },function(){
+      errFuc()
+    })
+  };
+  
+  Api.prototype.createLabel = function(label, sucFuc, errFuc){
+    let labelObject = new AV.Object('Label');
+    labelObject.set('name', label.name);
+    labelObject.set('type', label.type);
+    labelObject.save().then(function(){
+      sucFuc();
+    }, function(){
+      errFuc()
+    })
+  };
+  
   function sortByIndex(a, b) {
     return a.index > b.index
   }
