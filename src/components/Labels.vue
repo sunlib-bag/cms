@@ -1,7 +1,7 @@
 <template>
   <el-container class="big-container">
     <el-aside class="big-side">
-      <side_bar :actionPage="actionPage" :isAdmin="isAdmin"></side_bar>
+      <side_bar :actionPage="actionPage" :isAdmin="isAdmin" :isManager="isManager"></side_bar>
     </el-aside>
     <el-main class="big-main">
       <el-button type="success" @click="showCreateLabel"> 添加标签 </el-button>
@@ -70,7 +70,7 @@
         lessonList: [],
         subjectFilter: [],
         actionPage: 'lessonList',
-        isManagingEditor: false,
+        isManager: false,
         isAdmin: false,
         labelList: [],
         labelInfoFormVisible: false,
@@ -87,7 +87,10 @@
     mounted() {
       let self = this;
       this.$API.checkUserRole((roles) => {
-        this.isManagingEditor = (roles.indexOf('manager') >= 0);
+
+        this.isManager = roles.indexOf('manager') >= 0;
+        console.log(this.isManager);
+
         if (roles.length === 0) {
           self.$router.push('/')
         }
@@ -197,6 +200,9 @@
 
   .red{
     color: red;
+  }
+  el-select{
+    width: 100%;
   }
 
 </style>

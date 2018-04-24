@@ -40,7 +40,15 @@
       <el-input v-model="lessonInfo.plan.author" :disabled="canEdit"></el-input>
     </el-form-item>
     <el-form-item label="其他标签">
-      <el-input v-model="lessonInfo.misc" :disabled="canEdit"></el-input>
+      <!--<el-input v-model="lessonInfo.misc" :disabled="canEdit"></el-input>-->
+      <el-select v-model="lessonInfo.misc" multiple placeholder="请选择所属领域" :disabled="canEdit">
+        <el-option
+          v-for="item in other"
+          :key="item.value"
+          :label="item.label"
+          :value="item.value">
+        </el-option>
+      </el-select>
     </el-form-item>
   </el-form>
 
@@ -54,7 +62,7 @@
           domain: [],
           source: '',
           author: '',
-          misc: '',
+          misc: [],
           plan: '',
           materials: []
         },
@@ -69,26 +77,10 @@
     data() {
       return {
         domain: [
-          {value: '健康', label: '健康'},
-          {value: '语言', label: '语言'},
-          {value: '社会', label: '社会'},
-          {value: '科学', label: '科学'},
-          {value: '艺术', label: '艺术'}
+
         ],
         sources: [
-          {"value": "千千树", label: "千千树"},
-          {"value": "儿童乐益会", label: "儿童乐益会"},
-          {"value": "安利基金会", label: "安利基金会"},
-          {"value": "广西师大出版社", label: "广西师大出版社"},
-          {"value": "救助儿童会", label: "救助儿童会"},
-          {"value": "信谊基金会", label: "信谊基金会"},
-          {"value": "一公斤盒子", label: "一公斤盒子"},
-          {"value": "澳门同济慈善会", label: "澳门同济慈善会"},
-          {"value": "奕阳教育", label: "奕阳教育"},
-          {"value": "通州儿童之家", label: "通州儿童之家"},
-          {"value": "西部阳光基金会", label: "西部阳光基金会"},
-          {"value": "农村小规模学校联盟", label: "农村小规模学校联盟"},
-          {"value": "凉善公益", label: "凉善公益"},
+
         ],
       }
     },
@@ -98,7 +90,28 @@
       }
     },
     mounted(){
+      this.getLabelList()
 
+    },
+    methods:{
+      getLabelList() {
+        this.$API.getLabelList((labelList) => {
+          this.sources = this.handelLabelList(labelList, 1);
+          this.domain = this.handelLabelList(labelList, 0);
+          this.other = this.handelLabelList(labelList,2)
+        }, () => {
+
+        })
+      },
+      handelLabelList(labelList, type) {
+        let sourceList = [];
+        for (let i = 0; i < labelList.length; i++) {
+          if (labelList[i].type === type) {
+            sourceList.push({text: labelList[i].name, value: labelList[i].name})
+          }
+        }
+        return sourceList;
+      },
     }
 
   }

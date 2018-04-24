@@ -1,7 +1,7 @@
 <template>
   <div>
     <el-table
-      ref = "lessonListTable"
+      ref="lessonListTable"
       :data="lessonList"
       class="table">
       <el-table-column
@@ -50,7 +50,7 @@
         :width="tableWidth*0.1">
         <template slot-scope="scope">
           <span>{{scope.row.isPublished ? scope.row.version_code : '未发布'}}</span>
-          <el-button type="text"   v-if='scope.row.isPublished' @click="downPackage(scope.row.package.url)">下载</el-button>
+          <el-button type="text" v-if='scope.row.isPublished' @click="downPackage(scope.row.package.url)">下载</el-button>
 
 
         </template>
@@ -65,8 +65,9 @@
 
         <template slot-scope="scope">
 
-          <span class="state" v-bind:style="{color: handleColor(scope.row.isChecked)}">{{formatStatue(scope.row.isChecked)}}</span>
-          <el-button type="text"  @click="showNeedExamine(scope.row.objectId)">查看</el-button>
+          <span class="state"
+                v-bind:style="{color: handleColor(scope.row.isChecked)}">{{formatStatue(scope.row.isChecked)}}</span>
+          <el-button type="text" @click="showNeedExamine(scope.row.objectId)">查看</el-button>
         </template>
 
       </el-table-column>
@@ -77,8 +78,9 @@
       >
         <template slot-scope="scope">
           <el-button type="success" size="small" @click="goToUpdateLesson(scope)">编辑</el-button>
-          <el-button v-if="isManagingEditor" type="text"  class="warn"  @click="deleteLesson(scope, lessonList)">删除</el-button>
-          <el-button v-if="isManagingEditor"  type="text"  class="warn"  :disabled="!scope.row.isPublished"
+          <el-button v-if="isManagingEditor" type="text" class="warn" @click="deleteLesson(scope, lessonList)">删除
+          </el-button>
+          <el-button v-if="isManagingEditor" type="text" class="warn" :disabled="!scope.row.isPublished"
                      @click="callbackLesson(scope, lessonList)">下架
           </el-button>
 
@@ -98,11 +100,11 @@
 
 
     <el-dialog title="审核详细" :visible.sync="dialogNeedExamineListVisible">
-      <el-table :data="needExamineList" >
-        <el-table-column property="complier" label="编辑人" ></el-table-column>
-        <el-table-column property="draft_version_code" label="版本" ></el-table-column>
+      <el-table :data="needExamineList">
+        <el-table-column property="complier" label="编辑人"></el-table-column>
+        <el-table-column property="draft_version_code" label="版本"></el-table-column>
         <el-table-column property="createdAt" label="日期" :formatter="formatDate"></el-table-column>
-        <el-table-column property="isChecked" label="状态" >
+        <el-table-column property="isChecked" label="状态">
           <template slot-scope="scope">
             <span class="black" v-if="scope.row.isChecked===0">{{formatStatue(scope.row.isChecked)}}</span>
             <span class="orange" v-if="scope.row.isChecked===1">{{formatStatue(scope.row.isChecked)}}</span>
@@ -110,14 +112,13 @@
             <span class="black" v-if="scope.row.isChecked===3">{{formatStatue(scope.row.isChecked)}}</span>
           </template>
         </el-table-column>
-        <el-table-column v-if="isManagingEditor" label="操作" >
+        <el-table-column v-if="isManagingEditor" label="操作">
           <template slot-scope="scope">
-            <el-button type="text"  @click="goToExamine(scope)">查看</el-button>
+            <el-button type="text" @click="goToExamine(scope)">查看</el-button>
           </template>
         </el-table-column>
       </el-table>
     </el-dialog>
-
 
 
   </div>
@@ -125,34 +126,39 @@
 
 </template>
 <style scoped="">
-  .table{
+  .table {
     width: 100%;
     text-align: left;
   }
+
   .pagination {
     padding: 20px;
     text-align: center;
   }
-  .state{
+
+  .state {
     width: 50px;
     display: inline-block;
   }
-  .warn{
+
+  .warn {
     color: #F56C6C;
   }
-  .black{
+
+  .black {
     color: #606266;
   }
-  .orange{
+
+  .orange {
     color: #E6A23C;
   }
-
 
 
 </style>
 <script>
 
   import {formatTime, formatState, formatColor} from '../filters/filters.js';
+
   export default {
     props: {
       isManagingEditor: {
@@ -164,36 +170,25 @@
       return {
         lessonList: [],
         subjectFilter: [],
-        needExamineList:[],
+        needExamineList: [],
         total: 1,
         limit: 20,
         dialogNeedExamineListVisible: false,
         stateColor: '',
         tableWidth: $(".lesson-list").width(),
         sourceList: [
-          {"value": "千千树", text: "千千树"},
-          {"value": "儿童乐益会", text: "儿童乐益会"},
-          {"value": "安利基金会", text: "安利基金会"},
-          {"value": "广西师大出版社", text: "广西师大出版社"},
-          {"value": "救助儿童会", text: "救助儿童会"},
-          {"value": "信谊基金会", text: "信谊基金会"},
-          {"value": "一公斤盒子", text: "一公斤盒子"},
-          {"value": "澳门同济慈善会", text: "澳门同济慈善会"},
-          {"value": "奕阳教育", text: "奕阳教育"},
-          {"value": "通州儿童之家", text: "通州儿童之家"},
-          {"value": "西部阳光基金会", text: "西部阳光基金会"},
-          {"value": "农村小规模学校联盟", text: "农村小规模学校联盟"},
-          {"value": "凉善公益", text: "凉善公益"},
+
         ]
       }
     },
     mounted() {
       let self = this;
-      self.tableWidth  = $(".lesson-list").width()
-      $(window).resize(function(){
-        self.tableWidth  = $(".lesson-list").width()
+      self.tableWidth = $(".lesson-list").width();
+      $(window).resize(function () {
+        self.tableWidth = $(".lesson-list").width()
       });
       this.getLesson(1);
+      this.getSourceList();
       this.$API.getSubjectList(function (subjectList) {
 
         for (let i = 0; i < subjectList.length; i++) {
@@ -209,31 +204,45 @@
     },
 
     methods: {
-      handleColor(isChecked){
+      getSourceList() {
+        this.$API.getLabelList((labelList) => {
+          this.sourceList = this.handelSourceList(labelList)
+        }, () => {
 
-
+        })
+      },
+      handelSourceList(labelList) {
+        let sourceList = [];
+        for (let i = 0; i < labelList.length; i++) {
+          if (labelList[i].type === 1) {
+            sourceList.push({text: labelList[i].name, value: labelList[i].name})
+          }
+        }
+        return sourceList;
+      },
+      handleColor(isChecked) {
         return formatColor(isChecked);
       },
       formatDate(row) {
         return formatTime(row.createdAt, "yyyy-MM-dd");
       },
-      formatStatue(isChecked){
+      formatStatue(isChecked) {
         return formatState(isChecked);
       },
-      clearFilter(){
+      clearFilter() {
         this.$refs.lessonListTable.clearFilter();
       },
-      showNeedExamine(id){
+      showNeedExamine(id) {
         let self = this;
-        this.$API.getNeedExamineList(id, function(lessonSnapshotList){
+        this.$API.getNeedExamineList(id, function (lessonSnapshotList) {
 
           self.needExamineList = lessonSnapshotList;
           self.dialogNeedExamineListVisible = true;
-        },function(){
+        }, function () {
 
         })
       },
-      goToExamine(scope){
+      goToExamine(scope) {
         this.$router.push('/examineLessonInfo/' + scope.row.objectId)
       },
       changePage(currentPage) {

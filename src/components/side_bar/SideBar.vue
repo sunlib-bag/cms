@@ -18,9 +18,14 @@
           <i class="el-icon-menu"></i>
           <span slot="title">科目设置</span>
         </el-menu-item>
-        <el-menu-item index="sourceList">
+        <!--<el-menu-item index="sourceList">-->
+          <!--<i class="el-icon-setting"></i>-->
+          <!--<span slot="title">来源设置</span>-->
+        <!--</el-menu-item>-->
+
+        <el-menu-item index="labels" v-if="isManager">
           <i class="el-icon-setting"></i>
-          <span slot="title">来源设置</span>
+          <span slot="title">标签设置</span>
         </el-menu-item>
 
         <el-menu-item index="classInUserList" v-if="isAdmin">
@@ -49,6 +54,9 @@
         default: 'lessonList'
       },
       isAdmin:{
+        default: false
+      },
+      isManager:{
         default: false
       }
     },

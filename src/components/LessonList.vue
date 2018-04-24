@@ -1,7 +1,7 @@
 <template>
   <el-container class="big-container">
     <el-aside class="big-side">
-      <side_bar :actionPage="actionPage" :isAdmin="isAdmin"></side_bar>
+      <side_bar :actionPage="actionPage" :isAdmin="isAdmin" :isManager="isManagingEditor"></side_bar>
     </el-aside>
     <el-main class="big-main">
       <el-row align="middle">

@@ -1,7 +1,7 @@
 <template>
   <el-container class="big-container">
     <el-aside class="big-side">
-      <side_bar :actionPage="actionPage" :isAdmin="isAdmin"></side_bar>
+      <side_bar :actionPage="actionPage" :isAdmin="isAdmin" :isManager="isManager" ></side_bar>
     </el-aside>
     <el-main class="big-main">
 
@@ -94,6 +94,7 @@
         comfirmExamineDialogVisible: false,
         warnExamineDialogVisible: false,
         isManager: false,
+
         subjectFilter: [],
         activeName: 'baseInfo',
         oldLeesonInfo: JSON.stringify({subject: {}, domain: [], source: '', author: '', misc: '', plan: '', materials: []}),
@@ -254,7 +255,7 @@
       handleTags(tags) {
         let domain = [];
         let source;
-        let misc;
+        let misc=[];
         if (!tags) return {domain: domain, source: source, misc: misc};
         for (let i = 0; i < tags.length; i++) {
           let tagInfo = tags[i].split('.'); //todo
@@ -268,7 +269,7 @@
           }
           if (tagInfo[0] === 'misc') {
             tagInfo.shift();
-            misc = tagInfo.join('.')
+            misc.push(tagInfo.join('.'))
           }
         }
         return {domain: domain, source: source, misc: misc}
@@ -329,9 +330,10 @@
         if (newLessonInfo.source) {
           tags.push('source.' + newLessonInfo.source);
         }
-        if (newLessonInfo.misc) {
-          tags.push('misc.' + newLessonInfo.misc)
+        for (let i = 0; i < newLessonInfo.misc.length; i++) {
+          tags.push('misc.' + newLessonInfo.misc[i])
         }
+
         newLessonInfo.tags = tags;
         return newLessonInfo
 

@@ -1,7 +1,7 @@
 <template>
   <el-container class="big-container">
     <el-aside class="big-side">
-      <side_bar :actionPage="actionPage" :isAdmin="isAdmin"></side_bar>
+      <side_bar :actionPage="actionPage" :isAdmin="isAdmin" :isManager="isManager"></side_bar>
     </el-aside>
     <el-main class="big-main">
       <el-select v-model="group" @change="changeWeChatGroup" placeholder="请选择">
@@ -74,7 +74,8 @@
         weChatHistoryList:[],
         groupList:[],
         limit: 5,
-        weChatCount: 0
+        weChatCount: 0,
+        isManager: false
       }
     },
     components: {
@@ -86,6 +87,7 @@
       let self = this;
       this.$API.checkUserRole((roles) =>{
         this.isAdmin =  (roles.indexOf('admin')>=0);
+        this.isManager =  (roles.indexOf('manager')>=0);
         if(!this.isAdmin){
           self.$router.push('/')
         }

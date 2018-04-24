@@ -1,7 +1,7 @@
 <template>
   <el-container class="big-container">
     <el-aside class="big-side">
-      <side_bar :actionPage="actionPage" :isAdmin="isAdmin"></side_bar>
+      <side_bar :actionPage="actionPage" :isAdmin="isAdmin" :isManager="isManager"></side_bar>
     </el-aside>
     <el-main class="big-main">
 
@@ -60,6 +60,7 @@
       return {
         actionPage: 'lessonList',
         isAdmin: false,
+        isManager:false,
         materials: [],
         lessonInfo: {
           subject: {},
@@ -97,6 +98,7 @@
       let self = this;
       this.$API.checkUserRole(function (roles) {
         self.isAdmin =  (roles.indexOf('admin')>=0);
+        self.isManager = roles.indexOf('manager')>=0;
         if (roles.indexOf('manager') === -1) {
           return self.$router.push('/')
         }
@@ -141,7 +143,7 @@
       handleTags(tags) {
         let domain = [];
         let source;
-        let misc;
+        let misc = [];
         if (!tags) return {domain: domain, source: source, misc: misc};
         for (let i = 0; i < tags.length; i++) {
           let tagInfo = tags[i].split('.'); //todo
@@ -155,7 +157,7 @@
           }
           if (tagInfo[0] === 'misc') {
             tagInfo.shift();
-            misc = tagInfo.join('.')
+            misc.push(tagInfo.join('.'))
           }
         }
         return {domain: domain, source: source, misc: misc}
