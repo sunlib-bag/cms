@@ -574,7 +574,7 @@ Api.install = function (Vue, options) {
   
   Api.prototype.getLabelList = function(sucFuc, errFuc){
     let labelQuery = new  AV.Query('Label');
-    labelQuery.descending('createdAT');
+    labelQuery.descending('createdAt');
     labelQuery.find().then(function(labelList){
       sucFuc(handleArrayData(labelList))
     }, function () {

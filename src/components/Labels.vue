@@ -24,7 +24,7 @@
           label="操作">
           <template slot-scope="scope">
             <!--<el-button type="success" size="small" @click="showEditLabel(scope.row)">编辑</el-button>-->
-            <el-button type="text" size="small"  class="red" @click="deleteLabel(scope.row.objectId)">删除</el-button>
+            <el-button type="danger" size="small"  @click="deleteLabel(scope.row.objectId)">删除</el-button>
           </template>
 
         </el-table-column>
@@ -69,7 +69,7 @@
       return {
         lessonList: [],
         subjectFilter: [],
-        actionPage: 'lessonList',
+        actionPage: 'labels',
         isManager: false,
         isAdmin: false,
         labelList: [],
@@ -201,7 +201,7 @@
   .red{
     color: red;
   }
-  el-select{
+  .el-select{
     width: 100%;
   }
 
