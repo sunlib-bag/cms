@@ -8,8 +8,14 @@ import Login from '@/components/Login.vue'
 import ExamineLessonInfo from '@/components/ExamineLessonInfo'
 import ClassInUserList from '@/components/ClassInUserList'
 import WeChatHistoryList from '@/components/WeChatHistoryList'
+import Topic from '@/components/Topic'
+import NewTopic from '@/components/NewTopic'
+import  UpdateTopic from '@/components/UpdateTopic'
 import Labels from '@/components/Labels'
+
+
 import VueBus from 'vue-bus'
+
 
 
 import md5 from 'js-md5';
@@ -18,6 +24,7 @@ import md5 from 'js-md5';
 import config from "../config"
 import Api from "../api/index"
 import ElementUI from 'element-ui'
+
 
 Vue.use(VueBus);
 Vue.use(ElementUI);
@@ -62,6 +69,19 @@ export default new Router({
       path:'/labels',
       name:'Labels',
       component: Labels
+    },{
+      path:'/topic',
+      name:'topic',
+      component: Topic
+    },{
+      path:'/newTopic',
+      name: 'NewTopic',
+      component: NewTopic
+    },
+    {
+      path:'/updateTopic/:id',
+      name:'UpdateTopic',
+      component:UpdateTopic
     },
     {
       path: '*',

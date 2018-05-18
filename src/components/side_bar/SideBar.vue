@@ -28,6 +28,11 @@
           <span slot="title">标签设置</span>
         </el-menu-item>
 
+        <el-menu-item index="topic" v-if="isManager">
+          <i class="el-icon-setting"></i>
+          <span slot="title">专题管理</span>
+        </el-menu-item>
+
         <el-menu-item index="classInUserList" v-if="isAdmin">
           <i class="el-icon-tickets"></i>
           <span slot="title">导入用户表格</span>

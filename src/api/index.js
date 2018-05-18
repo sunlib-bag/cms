@@ -552,7 +552,7 @@ Api.install = function (Vue, options) {
     let chatQuery = new AV.Query('Chat');
     chatQuery.equalTo('group',group);
     chatQuery.notEqualTo('content', null);
-    chatQuery.skip((page-1)*5);
+    chatQuery.skip((page-1)*limit);
     chatQuery.limit(limit);
     chatQuery.find().then(function(chatList){
         let chatCountQuery = new AV.Query('Chat');
@@ -611,6 +611,121 @@ Api.install = function (Vue, options) {
       errFuc()
     })
   };
+  // 专题管理
+  Api.prototype.getTopicList =  function(page, size, sucFuc ,errFuc){
+    sucFuc  =  (typeof sucFuc === 'function') ?  sucFuc : function(){};
+    errFuc  =  (typeof errFuc === 'function') ?  errFuc : function(){};
+    var  topicQuery = new AV.Query('SpecialSubject');
+    
+    topicQuery.skip((page-1)* size);
+    topicQuery.limit(size);
+    topicQuery.find().then(function(topicList){
+      let countQuery =  new AV.Query('SpecialSubject');
+      countQuery.count().then(function(count){
+        sucFuc({result:handleArrayData(topicList), count: count})
+      })
+     
+    },function(){
+      errFuc()
+    });
+    
+    // sucFuc([{title:'hah',createdAt:'121',isOnline: false, isRecommend:false}])
+    
+    
+  };
+  
+  Api.prototype.getRecommendCount =  function(sucFuc ,errFuc){
+    sucFuc  =  (typeof sucFuc === 'function') ?  sucFuc : function(){};
+    errFuc  =  (typeof errFuc === 'function') ?  errFuc : function(){};
+    let  topicQuery = new AV.Query('SpecialSubject');
+    topicQuery.equalTo('recommendStatus', true);
+    topicQuery.count().then(function(count){
+      sucFuc({count: count})
+    },function(){
+      errFuc()
+    });
+  };
+  
+  Api.prototype.uploadTopicImage = function(name, file, sucFuc, errFuc){
+    let image = new AV.File(name, file);
+    image.save().then(function(file){
+      console.log(file);
+      sucFuc(file)
+    },function(){
+      errFuc()
+    })
+  };
+  
+  
+  Api.prototype.createTopicInfo = function(topic, sucFuc, errFuc){
+    let newTopic =  new AV.Object('SpecialSubject');
+  
+    let picture = new AV.File(topic.updateImage.filename, {base64: topic.updateImage.image});
+    newTopic.set('title', topic.title);
+    newTopic.set('describe', topic.describe);
+    newTopic.set('picture',picture);
+    
+    newTopic.save().then(() => {
+      sucFuc()
+    }, function(err){
+      console.log(err)
+    })
+  };
+  
+  
+  Api.prototype.updateTopic = function(topic, sucFuc, errFuc){
+    sucFuc  =  (typeof sucFuc === 'function') ?  sucFuc : function(){};
+    errFuc  =  (typeof errFuc === 'function') ?  errFuc : function(){};
+    let newTopic =   AV.Object.createWithoutData('SpecialSubject', topic.objectId);
+    newTopic.set('title', topic.title);
+    newTopic.set('describe', topic.describe);
+    if(topic.updateImage){
+      let picture = new AV.File(topic.updateImage.filename, {base64: topic.updateImage.image});
+      newTopic.set('picture',picture)
+    }
+    
+    newTopic.save().then(() => {
+      sucFuc()
+    }, errFuc)
+  };
+  
+  Api.prototype.getTopicInfo = function(id, sucFuc, errFuc){
+    sucFuc  =  (typeof sucFuc === 'function') ?  sucFuc : function(){};
+    errFuc  =  (typeof errFuc === 'function') ?  errFuc : function(){};
+    let topicQ = new AV.Query('SpecialSubject');
+    topicQ.get(id).then(function(topicInfo){
+      sucFuc(topicInfo.toJSON())
+    },errFuc)
+  };
+  
+  Api.prototype.updateTopicStatus = function(topic, sucFuc, errFuc){
+    sucFuc  =  (typeof sucFuc === 'function') ?  sucFuc : function(){};
+    errFuc  =  (typeof errFuc === 'function') ?  errFuc : function(){};
+    let newTopic =   AV.Object.createWithoutData('SpecialSubject', topic.objectId);
+    if(topic.hasOwnProperty('online')){
+      newTopic.set('online', topic.online)
+    }
+    if(topic.hasOwnProperty('recommendStatus')){
+      newTopic.set('recommendStatus', topic.recommendStatus)
+    }
+    newTopic.save().then(function(topicInfo){
+      
+      sucFuc(topicInfo.toJSON())
+    }, errFuc)
+    
+  };
+  Api.prototype.deleteTopic = function(id, sucFuc, errFuc){
+    sucFuc  =  (typeof sucFuc === 'function') ?  sucFuc : function(){};
+    errFuc  =  (typeof errFuc === 'function') ?  errFuc : function(){};
+    let newTopic =   AV.Object.createWithoutData('SpecialSubject', id);
+  
+    newTopic.destroy().then(function(topicInfo){
+      
+      sucFuc()
+    }, errFuc)
+    
+  };
+  
   
   function sortByIndex(a, b) {
     return a.index > b.index
@@ -695,6 +810,9 @@ Api.install = function (Vue, options) {
   
   Vue.prototype.$API = api
 };
+
+
+
 
 
 module.exports = Api;
