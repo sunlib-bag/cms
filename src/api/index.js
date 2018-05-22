@@ -516,7 +516,7 @@ Api.install = function (Vue, options) {
     
     let query = new AV.Query('LessonSnapshot');
     query.equalTo('lessonId', id);
-    query.equalTo('complier', userName);
+    query.equalTo('compiler', userName);
     query.greaterThan('isChecked', 0);
     query.greaterThan('createdAt', today);
     query.count().then(function (count) {

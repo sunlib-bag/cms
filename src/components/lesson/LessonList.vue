@@ -101,7 +101,7 @@
 
     <el-dialog title="审核详细" :visible.sync="dialogNeedExamineListVisible">
       <el-table :data="needExamineList">
-        <el-table-column property="complier" label="编辑人"></el-table-column>
+        <el-table-column property="compiler" label="编辑人"></el-table-column>
         <el-table-column property="draft_version_code" label="版本"></el-table-column>
         <el-table-column property="createdAt" label="日期" :formatter="formatDate"></el-table-column>
         <el-table-column property="isChecked" label="状态">
@@ -237,6 +237,7 @@
         this.$API.getNeedExamineList(id, function (lessonSnapshotList) {
 
           self.needExamineList = lessonSnapshotList;
+          console.log(lessonSnapshotList)
           self.dialogNeedExamineListVisible = true;
         }, function () {
 
