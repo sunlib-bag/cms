@@ -239,75 +239,81 @@ Api.install = function (Vue, options) {
   
   Api.prototype.getLessonInfo = function (lessonId, sucFuc, errFuc) {
     let self = this;
-    let query = new AV.Query('Lesson');
-    query.include('subject');
-    query.include('plan');
-    query.get(lessonId).then(function (lessonInfo) {
-      let newLessonInfo = lessonInfo.toJSON();
-      let materials = [];
-      let lesson = AV.Object.createWithoutData('Lesson', lessonId);
-      let LessonMaterialQuery = new AV.Query('LessonMaterial');
-      LessonMaterialQuery.equalTo('lesson', lesson);
-      LessonMaterialQuery.ascending("index");
-      LessonMaterialQuery.include('material');
-      LessonMaterialQuery.find().then(function (lessonMaterial) {
-        for (let i = 0; i < lessonMaterial.length; i++) {
-          let lessonMaterialInfo = lessonMaterial[i].toJSON();
-          let material = {
-            name: lessonMaterialInfo.material.name,
-            type: lessonMaterialInfo.material.type,
-            index: lessonMaterialInfo.index,
-            objectId: lessonMaterialInfo.material.objectId,
-            lessonMaterialId: lessonMaterialInfo.objectId
-          };
-          
-          if (material.type !== 0) {
-            let type = lessonMaterialInfo.material.file.name.split(".")[1];
-            material.file = lessonMaterialInfo.material.file
-          }
-          materials.push(material)
-          
-        }
+    
+    this.getLessonTopic(lessonId, function(topics){
+      let query = new AV.Query('Lesson');
+      query.include('subject');
+      query.include('plan');
+      query.get(lessonId).then(function (lessonInfo) {
+        let newLessonInfo = lessonInfo.toJSON();
+        let materials = [];
+        let lesson = AV.Object.createWithoutData('Lesson', lessonId);
+        let LessonMaterialQuery = new AV.Query('LessonMaterial');
+        LessonMaterialQuery.equalTo('lesson', lesson);
+        LessonMaterialQuery.ascending("index");
+        LessonMaterialQuery.include('material');
+        LessonMaterialQuery.find().then(function (lessonMaterial) {
+          for (let i = 0; i < lessonMaterial.length; i++) {
+            let lessonMaterialInfo = lessonMaterial[i].toJSON();
+            let material = {
+              name: lessonMaterialInfo.material.name,
+              type: lessonMaterialInfo.material.type,
+              index: lessonMaterialInfo.index,
+              objectId: lessonMaterialInfo.material.objectId,
+              lessonMaterialId: lessonMaterialInfo.objectId
+            };
         
-        let atlas = [];
-        for (let i = 0; i < materials.length; i++) {
-          let material = AV.Object.createWithoutData('Material', materials[i].objectId);
-          atlas.push(material)
-        }
-        
-        let atlasFiles = {};
-        
-        let MaterialQuery = new AV.Query('Material');
-        MaterialQuery.containedIn("parent", atlas);
-        MaterialQuery.find().then(function (atlasImage) {
-          for (let i = 0; i < atlasImage.length; i++) {
-            let atlasImageInfo = atlasImage[i].toJSON();
-            if (atlasFiles.hasOwnProperty(atlasImageInfo.parent.objectId)) {
-              atlasFiles[atlasImageInfo.parent.objectId].push(atlasImageInfo)
-            } else {
-              atlasFiles[atlasImageInfo.parent.objectId] = [atlasImageInfo]
+            if (material.type !== 0) {
+              let type = lessonMaterialInfo.material.file.name.split(".")[1];
+              material.file = lessonMaterialInfo.material.file
             }
+            materials.push(material)
+        
           }
-          
+      
+          let atlas = [];
           for (let i = 0; i < materials.length; i++) {
-            if (materials[i].type === 0) {
-              materials[i].files = atlasFiles[materials[i].objectId] ? atlasFiles[materials[i].objectId] : [];
-            }
+            let material = AV.Object.createWithoutData('Material', materials[i].objectId);
+            atlas.push(material)
           }
-          newLessonInfo.materials = materials;
-          sucFuc(newLessonInfo)
+      
+          let atlasFiles = {};
+      
+          let MaterialQuery = new AV.Query('Material');
+          MaterialQuery.containedIn("parent", atlas);
+          MaterialQuery.find().then(function (atlasImage) {
+            for (let i = 0; i < atlasImage.length; i++) {
+              let atlasImageInfo = atlasImage[i].toJSON();
+              if (atlasFiles.hasOwnProperty(atlasImageInfo.parent.objectId)) {
+                atlasFiles[atlasImageInfo.parent.objectId].push(atlasImageInfo)
+              } else {
+                atlasFiles[atlasImageInfo.parent.objectId] = [atlasImageInfo]
+              }
+            }
+        
+            for (let i = 0; i < materials.length; i++) {
+              if (materials[i].type === 0) {
+                materials[i].files = atlasFiles[materials[i].objectId] ? atlasFiles[materials[i].objectId] : [];
+              }
+            }
+            newLessonInfo.materials = materials;
+            newLessonInfo.topics = topics;
+            console.log(newLessonInfo)
+            sucFuc(newLessonInfo)
+          }).catch(function (error) {
+            errFuc(error.code)
+          });
+      
         }).catch(function (error) {
           errFuc(error.code)
         });
-        
+    
+    
       }).catch(function (error) {
         errFuc(error.code)
       });
-      
-      
-    }).catch(function (error) {
-      errFuc(error.code)
-    });
+    })
+   
     
     
   };
@@ -362,6 +368,7 @@ Api.install = function (Vue, options) {
   };
   
   Api.prototype.updateLesson = function (lessonInfo, sucFuc, errFuc) {
+    var self = this;
     let plan = AV.Object.createWithoutData('LessonPlan', lessonInfo.plan.objectId);
     plan.set('content', lessonInfo.plan.content);
     plan.set('author', lessonInfo.plan.author);
@@ -370,21 +377,24 @@ Api.install = function (Vue, options) {
     lesson.set('name', lessonInfo.name);
     lesson.set('tags', lessonInfo.tags);
     lesson.set('subject', subject);
-    AV.Object.saveAll([plan, lesson]).then(function (result) {
-      AV.Cloud.run('draftSave', {lesson_id: lessonInfo.objectId}).then(
-        function (draftSaveResult) {
-          if(draftSaveResult.result === 200){
-            sucFuc()
-          }else{
-            errFuc()
+    this.updateLessonTopic(lessonInfo.objectId, lessonInfo.topics, function(){
+      AV.Object.saveAll([plan, lesson]).then(function (result) {
+        AV.Cloud.run('draftSave', {lesson_id: lessonInfo.objectId}).then(
+          function (draftSaveResult) {
+            if(draftSaveResult.result === 200){
+              sucFuc()
+            }else{
+              errFuc()
+            }
+          }, function (error) {
+            errFuc(error)
           }
-        }, function (error) {
-          errFuc(error)
-        }
-      )
-    },function (error) {
-      errFuc()
-    })
+        )
+      },function (error) {
+        errFuc()
+      })
+    },errFuc)
+  
     
   };
   
@@ -437,6 +447,7 @@ Api.install = function (Vue, options) {
     })
     
   };
+
   
   
   Api.prototype.getNeedExamineLessonInfo = function (id, sucFuc, errFuc) {
@@ -620,6 +631,7 @@ Api.install = function (Vue, options) {
     topicQuery.skip((page-1)* size);
     topicQuery.limit(size);
     topicQuery.find().then(function(topicList){
+      console.log(topicList)
       let countQuery =  new AV.Query('SpecialSubject');
       countQuery.count().then(function(count){
         sucFuc({result:handleArrayData(topicList), count: count})
@@ -725,6 +737,51 @@ Api.install = function (Vue, options) {
     }, errFuc)
     
   };
+  
+  
+  Api.prototype.getLessonTopic = function(lessonId,  sucFuc, errFuc){
+    sucFuc  =  (typeof sucFuc === 'function') ?  sucFuc : function(){};
+    errFuc  =  (typeof errFuc === 'function') ?  errFuc : function(){};
+    let lessonSpecialQuery = new AV.Query('LessonSpecial');
+    let lesson =  AV.Object.createWithoutData('lesson',lessonId);
+    lessonSpecialQuery.equalTo('lesson', lesson);
+    lessonSpecialQuery.find().then(function(lessonSpecialList){
+      let topicList = [];
+      let info = handleArrayData(lessonSpecialList);
+      info.forEach(function(item){
+        topicList.push(item.special.objectId)
+      });
+      sucFuc(topicList)
+    }, errFuc)
+    
+  };
+  
+  Api.prototype.updateLessonTopic = function(lessonId, topicList, sucFuc, errFuc){
+    sucFuc  =  (typeof sucFuc === 'function') ?  sucFuc : function(){};
+    errFuc  =  (typeof errFuc === 'function') ?  errFuc : function(){};
+  
+  console.log(topicList)
+    let lessonSpecialQuery = new AV.Query('LessonSpecial');
+    let lesson =  AV.Object.createWithoutData('Lesson',lessonId);
+    lessonSpecialQuery.equalTo('lesson', lesson);
+    lessonSpecialQuery.destroyAll().then(function(lessonSpecialList){
+        let newTopicList =  [];
+        topicList.forEach(function(topicId){
+          let newTopic = new AV.Object('LessonSpecial');
+          let lesson =  AV.Object.createWithoutData('Lesson',lessonId);
+          let SpecialSubject =  AV.Object.createWithoutData('SpecialSubject',topicId);
+          newTopic.set('lesson', lesson);
+          newTopic.set('special', SpecialSubject);
+          newTopicList.push(newTopic)
+        });
+  
+      AV.Object.saveAll(newTopicList).then(function(){
+        sucFuc(topicList)
+      },errFuc)
+    }, errFuc)
+    
+    
+  }
   
   
   function sortByIndex(a, b) {

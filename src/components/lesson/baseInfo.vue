@@ -39,6 +39,21 @@
     <el-form-item label="作者">
       <el-input v-model="lessonInfo.plan.author" :disabled="canEdit"></el-input>
     </el-form-item>
+
+    <el-form-item label="专题">
+      <!--<el-input v-model="lessonInfo.misc" :disabled="canEdit"></el-input>-->
+      <el-select v-model="lessonInfo.topics" multiple placeholder="请选择所属专题" :disabled="canEdit">
+        <el-option
+          v-for="item in topicList"
+          :key="item.objectId"
+          :label="item.title"
+          :value="item.objectId">
+        </el-option>
+      </el-select>
+    </el-form-item>
+
+
+
     <el-form-item label="其他标签">
       <!--<el-input v-model="lessonInfo.misc" :disabled="canEdit"></el-input>-->
       <el-select v-model="lessonInfo.misc" multiple placeholder="请选择所属领域" :disabled="canEdit">
@@ -64,14 +79,17 @@
           author: '',
           misc: [],
           plan: '',
-          materials: []
+          materials: [],
+          topics:[]
         },
       },
       subjectFilter:{
         default:[]
-      },canEdit:{
+      },
+      canEdit:{
         default: false
       }
+
     }
     ,
     data() {
@@ -82,6 +100,12 @@
         sources: [
 
         ],
+        other:{
+          default:[]
+        },
+        topicList:{
+          default:[]
+        }
       }
     },
     watch: {
@@ -90,8 +114,8 @@
       }
     },
     mounted(){
-      this.getLabelList()
-
+      this.getLabelList();
+      this.getTopicList()
     },
     methods:{
       getLabelList() {
@@ -101,6 +125,13 @@
           this.other = this.handelLabelList(labelList,2)
         }, () => {
 
+        })
+      },
+      getTopicList(){
+        this.$API.getTopicList(1, 30,(topicList)=>{
+//          console.log(topicList)
+//          console.log(topicList.result)
+            this.topicList =  topicList.result
         })
       },
       handelLabelList(labelList, type) {

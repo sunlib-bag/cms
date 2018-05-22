@@ -238,6 +238,7 @@
           newLessonInfo.misc = tagsInfo.misc;
           self.oldLeesonInfo = JSON.stringify(newLessonInfo);
           self.lessonInfo = newLessonInfo;
+//          console.log(self.lessonInfo)
           if(sucFuc){
             sucFuc()
           }
@@ -323,6 +324,7 @@
       },
       handleLessonInfo() {
         let newLessonInfo = JSON.parse(JSON.stringify(this.lessonInfo));
+        console.log(newLessonInfo)
         let tags = [];
         for (let i = 0; i < newLessonInfo.domain.length; i++) {
           tags.push('domain.' + newLessonInfo.domain[i])

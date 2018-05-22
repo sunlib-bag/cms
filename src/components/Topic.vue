@@ -83,7 +83,7 @@
   export default {
     data() {
       return {
-        actionPage: 'type',
+        actionPage: 'topic',
         isAdmin: false,
         isManager: true,
         recommendCount: 0,
@@ -133,6 +133,11 @@
       updateTopicStatus(topic,type ,index){
         let topicStatus = {objectId: topic.objectId};
         topicStatus[type] =  !topic[type];
+
+        if(type == 'recommendStatus'){
+          var changeCount = topicStatus[type] ? 1 : -1;
+          this.recommendCount = this.recommendCount + changeCount
+        }
         this.$API.updateTopicStatus(topicStatus,(topicInfo)=>{
           this.topicList[index][type] =  !topic[type]
         },()=>{
