@@ -72,8 +72,11 @@
         if(this.topicInfo.title && (this.topicInfo.updateImage || this.topicInfo.picture)){
           this.$API.updateTopic(this.topicInfo, ()=>{
             this.$router.push('/topic');
-          },function(){
-
+          },() => {
+            this.$message({
+              type: 'error',
+              message: '更新专题失败！'
+            })
           })
         }else {
           this.$message({

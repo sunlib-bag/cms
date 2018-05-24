@@ -731,10 +731,19 @@ Api.install = function (Vue, options) {
     errFuc  =  (typeof errFuc === 'function') ?  errFuc : function(){};
     let newTopic =   AV.Object.createWithoutData('SpecialSubject', id);
   
-    newTopic.destroy().then(function(topicInfo){
-      
-      sucFuc()
-    }, errFuc)
+    let lessonSpecialQuery = new AV.Query('LessonSpecial');
+    lessonSpecialQuery.equalTo('special', newTopic);
+    lessonSpecialQuery.destroyAll().then(function(){
+      newTopic.destroy().then(function(topicInfo){
+        sucFuc()
+      }, errFuc)
+    
+    },()=>{
+      errFuc()
+    })
+    
+    
+  
     
   };
   
@@ -759,8 +768,7 @@ Api.install = function (Vue, options) {
   Api.prototype.updateLessonTopic = function(lessonId, topicList, sucFuc, errFuc){
     sucFuc  =  (typeof sucFuc === 'function') ?  sucFuc : function(){};
     errFuc  =  (typeof errFuc === 'function') ?  errFuc : function(){};
-  
-  console.log(topicList)
+    
     let lessonSpecialQuery = new AV.Query('LessonSpecial');
     let lesson =  AV.Object.createWithoutData('Lesson',lessonId);
     lessonSpecialQuery.equalTo('lesson', lesson);

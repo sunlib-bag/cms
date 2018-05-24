@@ -141,7 +141,10 @@
         this.$API.updateTopicStatus(topicStatus,(topicInfo)=>{
           this.topicList[index][type] =  !topic[type]
         },()=>{
-
+          this.$message({
+            type: 'error',
+            message: '更新专题失败！'
+          })
         })
       },
       deleteTopic(id,index){

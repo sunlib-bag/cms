@@ -69,7 +69,11 @@
         if(this.topicInfo.title && this.topicInfo.updateImage){
             this.$API.createTopicInfo(this.topicInfo, ()=>{
               this.$router.push('/topic');
-            },function(){
+            },()=>{
+              this.$message({
+                type: 'error',
+                message: '创建专题失败！'
+              })
 
             })
         }else {
