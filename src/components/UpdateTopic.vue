@@ -24,7 +24,6 @@
 
         <el-form-item size="large">
           <el-button type="primary" @click="updateTopic">立即更新</el-button>
-          <el-button>取消</el-button>
         </el-form-item>
       </el-form>
 
