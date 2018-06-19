@@ -18,10 +18,7 @@
           <i class="el-icon-menu"></i>
           <span slot="title">科目设置</span>
         </el-menu-item>
-        <!--<el-menu-item index="sourceList">-->
-          <!--<i class="el-icon-setting"></i>-->
-          <!--<span slot="title">来源设置</span>-->
-        <!--</el-menu-item>-->
+
 
         <el-menu-item index="labels" v-if="isManager">
           <i class="el-icon-setting"></i>
@@ -36,6 +33,10 @@
         <el-menu-item index="classInUserList" v-if="isAdmin">
           <i class="el-icon-tickets"></i>
           <span slot="title">导入用户表格</span>
+        </el-menu-item>
+        <el-menu-item index="updataTeacherEXL" v-if="isAdmin">
+          <i class="el-icon-tickets"></i>
+          <span slot="title">鲸打卡信息录入</span>
         </el-menu-item>
 
         <el-menu-item index="weChatHistoryList" v-if="isAdmin">

@@ -12,6 +12,8 @@ import Topic from '@/components/Topic'
 import NewTopic from '@/components/NewTopic'
 import  UpdateTopic from '@/components/UpdateTopic'
 import Labels from '@/components/Labels'
+import updataTeacherEXL from '@/components/updataTeacherEXL'
+
 
 
 import VueBus from 'vue-bus'
@@ -82,6 +84,11 @@ export default new Router({
       path:'/updateTopic/:id',
       name:'UpdateTopic',
       component:UpdateTopic
+    },
+    {
+      path:'/updataTeacherEXL',
+      name:'updataTeacherEXL',
+      component:updataTeacherEXL
     },
     {
       path: '*',

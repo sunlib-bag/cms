@@ -741,10 +741,6 @@ Api.install = function (Vue, options) {
     },()=>{
       errFuc()
     })
-    
-    
-  
-    
   };
   
   
@@ -789,6 +785,26 @@ Api.install = function (Vue, options) {
     }, errFuc)
     
     
+  }
+  
+  Api.prototype.updataTeacherEXL = function(name, data, sucFuc, errFuc){
+    let file = new AV.File(name, data);
+    file.save().then(function(result){
+        let file_id = {
+          'excelFileId': result.id
+        };
+        // AV.Cloud.run('registration', file_id).then(
+        //   function (value) {
+        //     sucFuc()
+        //   },
+        //   function (error) {
+        //     errFuc()
+        //   }
+        // );
+      },
+      function(){
+        errFuc()
+      });
   }
   
   
