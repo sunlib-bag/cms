@@ -132,8 +132,10 @@
       },
       updateTopicStatus(topic,type ,index){
         let topicStatus = {objectId: topic.objectId};
+        console.log(type);
+        console.log(topicStatus[type]);
         topicStatus[type] =  !topic[type];
-
+        console.log(topicStatus[type]);
         if(type == 'recommendStatus'){
           var changeCount = topicStatus[type] ? 1 : -1;
           this.recommendCount = this.recommendCount + changeCount

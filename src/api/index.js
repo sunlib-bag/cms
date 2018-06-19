@@ -714,8 +714,8 @@ Api.install = function (Vue, options) {
     sucFuc  =  (typeof sucFuc === 'function') ?  sucFuc : function(){};
     errFuc  =  (typeof errFuc === 'function') ?  errFuc : function(){};
     let newTopic =   AV.Object.createWithoutData('SpecialSubject', topic.objectId);
-    if(topic.hasOwnProperty('online')){
-      newTopic.set('online', topic.online)
+    if(topic.hasOwnProperty('onLine')){
+      newTopic.set('onLine', topic.onLine)
     }
     if(topic.hasOwnProperty('recommendStatus')){
       newTopic.set('recommendStatus', topic.recommendStatus)
