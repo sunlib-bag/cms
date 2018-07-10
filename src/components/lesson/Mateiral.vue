@@ -6,7 +6,7 @@
           上传文件
         </el-button>
 
-        <input v-on:change="createMaterial" id="materialInput" type='file' class="hide"/>
+        <input v-on:change="createMaterial" id="materialInput" multiple="multiple" type='file' class="hide"/>
         <el-button @click="addAtlas" :disabled="canEdit">
           添加图集
         </el-button>
@@ -29,8 +29,10 @@
             </el-col>
 
             <el-col :span="5">
-              <el-button type="text" icon="el-icon-edit" @click="editMaterialFile(index,material)" :disabled="canEdit"></el-button>
-              <el-button type="text" icon="el-icon-delete" @click="deleteMaterialFile(index,material)" :disabled="canEdit"></el-button>
+              <el-button type="text" icon="el-icon-edit" @click="editMaterialFile(index,material)"
+                         :disabled="canEdit"></el-button>
+              <el-button type="text" icon="el-icon-delete" @click="deleteMaterialFile(index,material)"
+                         :disabled="canEdit"></el-button>
             </el-col>
           </el-row>
         </div>
@@ -43,7 +45,7 @@
         <div class="left">{{currentAtlasName}}</div>
         <div class="left">
           <el-button @click="change('imageInput')" :disabled="canEdit">上传图片</el-button>
-          <input v-on:change="changeImageInput" id="imageInput" type='file' accept="image/*" class="hide"/>
+          <input v-on:change="changeImageInput" multiple="multiple" id="imageInput" type='file' accept="image/*" class="hide"/>
         </div>
       </div>
       <div>
@@ -51,14 +53,16 @@
           <div v-for="(image, imageIndex) in images" class="mid-container">
             <div class="image-container">
               <div class="extra-button-container">
-                <el-button type="text" icon="el-icon-delete" @click="deleteAtlasImage(imageIndex, image)" :disabled="canEdit"></el-button>
+                <el-button type="text" icon="el-icon-delete" @click="deleteAtlasImage(imageIndex, image)"
+                           :disabled="canEdit"></el-button>
               </div>
               <div class="image-contain">
                 <img :src="image.file.url">
               </div>
               <div>
                 <div class="atlasName">{{image.name}}</div>
-                <el-button type="text" icon="el-icon-edit" @click="editAtlasImage(imageIndex,image)" :disabled="canEdit"></el-button>
+                <el-button type="text" icon="el-icon-edit" @click="editAtlasImage(imageIndex,image)"
+                           :disabled="canEdit"></el-button>
               </div>
             </div>
           </div>
@@ -77,7 +81,7 @@
         type: Array,
         default: []
       },
-      canEdit:{
+      canEdit: {
         default: false
       }
     },
@@ -144,13 +148,73 @@
         });
       },
       createMaterial(value) {
+
         if (!value) return;
         let self = this;
-        let fileUploadControl = $('#materialInput')[0];
-        if (fileUploadControl.files.length > 0) {
-          let localFile = fileUploadControl.files[0];
+        let fileUpload = $('#materialInput')[0];
+        if (fileUpload.files.length > 0) {
           self.openLoading('正在上传');
-          this.$API.createMaterial(this.$route.params.id, this.materials.length + 1, localFile.name, localFile, function (result) {
+          var allPromise = [];
+          for (let i = 0; i < fileUpload.files.length; i++) {
+            allPromise.push(this.saveOneMaterial(fileUpload.files[i]), i)
+          }
+          Promise.all(allPromise).then(function (result) {
+
+            self.closeLoading();
+            var failFiles = [];
+            var successFiles = [];
+            result.forEach(function (fileUploadResult) {
+              if (!fileUploadResult.status) {
+                failFiles.push(fileUploadResult.fileName)
+              }else{
+                successFiles.push(fileUploadResult.fileName)
+              }
+            });
+            $("#materialInput").val('');
+            if (failFiles.length > 0) {
+              self.$message({
+                type: 'error',
+                message: '素材'+ failFiles.join(',') +'失败!'
+              });
+            }
+            if (successFiles.length > 0) {
+              self.$message({
+                type: 'success',
+                message: + successFiles.length +'个素材'+'成功!'
+              });
+            }
+
+
+          })
+
+//          let localFile = fileUpload.files[0];
+//          self.openLoading('正在上传');
+//          this.$API.createMaterial(this.$route.params.id, this.materials.length + 1, localFile.name, localFile, function (result) {
+//            self.materials.push({
+//              objectId: result.material.objectId,
+//              name: result.material.name,
+//              type: result.material.type,
+//              file: result.material.file,
+//              lessonMaterialId: result.objectId
+//            });
+//            self.closeLoading();
+//            $("#materialInput").val('')
+//          }, function () {
+//            self.closeLoading();
+//            self.$message({
+//              type: 'error',
+//              message: '添加素材失败!'
+//            });
+//          })
+        }
+
+      },
+
+      saveOneMaterial(localFile, index) {
+        let self = this;
+        return new Promise(function (reslove, reject) {
+
+          self.$API.createMaterial(self.$route.params.id, self.materials.length + 1 + index, localFile.name, localFile, function (result) {
             self.materials.push({
               objectId: result.material.objectId,
               name: result.material.name,
@@ -158,18 +222,14 @@
               file: result.material.file,
               lessonMaterialId: result.objectId
             });
-            self.closeLoading();
-            $("#materialInput").val('')
+            reslove({status: true, fileName: localFile.name})
           }, function () {
-            self.closeLoading();
-            self.$message({
-              type: 'error',
-              message: '添加素材失败!'
-            });
+            reslove({status: false, fileName: localFile.name})
           })
-        }
-
+        })
       },
+
+
       editAtlasImage(index, material) {
         let self = this;
         this.$prompt('请输入新文件名', '修改文件名', {
@@ -216,23 +276,56 @@
       },
       changeImageInput(value) {
         if (!value) return;
-        let fileUploadControl = $('#imageInput')[0];
+        let fileUpload = $('#imageInput')[0];
         let self = this;
-        if (fileUploadControl.files.length > 0) {
-          let localFile = fileUploadControl.files[0];
+        if (fileUpload.files.length > 0) {
+          let localFile = fileUpload.files[0];
           self.openLoading('正在上传');
-          this.$API.createAtlasMaterial(this.materials[this.currentAtlasIndex].objectId, (this.images.length + 1), localFile.name, localFile, function (result) {
-            self.materials[self.currentAtlasIndex].files.push(result);
-            self.images = self.materials[self.currentAtlasIndex].files;
-            $("#imageInput").val('');
+          var allPromise = [];
+          for(var i =0; i < fileUpload.files.length; i++){
+            allPromise.push(this.uploadOneImage(fileUpload.files[i], i))
+          }
+          Promise.all(allPromise).then(function(uploadResults){
+
             self.closeLoading();
-          }, function () {
-            self.closeLoading();
-            self.$message({
-              type: 'error',
-              message: '添加素材失败!'
+            var failFiles = [];
+            var successFiles = [];
+            uploadResults.forEach(function (fileUploadResult) {
+              if (!fileUploadResult.status) {
+                failFiles.push(fileUploadResult.fileName)
+              }else{
+                successFiles.push(fileUploadResult.fileName)
+              }
             });
+            $("#imageInput").val('');
+            if (failFiles.length > 0) {
+              self.$message({
+                type: 'error',
+                message: '素材'+ failFiles.join(',') +'失败!'
+              });
+            }
+            if (successFiles.length > 0) {
+              self.$message({
+                type: 'success',
+                message: + successFiles.length +'个素材'+'成功!'
+              });
+            }
+
+
           })
+
+//          this.$API.createAtlasMaterial(this.materials[this.currentAtlasIndex].objectId, (this.images.length + 1), localFile.name, localFile, function (result) {
+//            self.materials[self.currentAtlasIndex].files.push(result);
+//            self.images = self.materials[self.currentAtlasIndex].files;
+//            $("#imageInput").val('');
+//            self.closeLoading();
+//          }, function () {
+//            self.closeLoading();
+//            self.$message({
+//              type: 'error',
+//              message: '添加素材失败!'
+//            });
+//          })
         }
       },
       addAtlas() {
@@ -256,6 +349,26 @@
           });
         })
       },
+
+
+      uploadOneImage(localFile, index){
+        var self = this;
+        return new Promise(function(reslove, reject){
+          self.$API.createAtlasMaterial(self.materials[self.currentAtlasIndex].objectId, (self.images.length + 1 + index), localFile.name, localFile, function (result) {
+            self.materials[self.currentAtlasIndex].files.push(result);
+            self.images = self.materials[self.currentAtlasIndex].files;
+            reslove({status: true, fileName: localFile.name})
+
+          }, function () {
+            reslove({status: false, fileName: localFile.name})
+          })
+        })
+
+
+
+      },
+
+
       change(id) {
         $("#" + id).click()
       },

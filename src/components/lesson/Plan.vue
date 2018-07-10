@@ -57,13 +57,15 @@
         handler: function (value) {
           let self = this;
           let reg = /\!\[[\s\S]*?\]\([\s\S]*?\)/g;
-          if (!value.plan.content) return;
+
+          if (!value.plan.content) return this.plan = '';
           this.plan = value.plan.content.replace(reg, function (imageUrl) {
             let imageInfo = imageUrl.split("(");
             let materialId = imageInfo[1].replace(')', '');
             imageInfo[1] = self.changeUrl(materialId, value)+')';
             return  imageInfo.join('(')
           })
+
           return value
         },
         deep: true

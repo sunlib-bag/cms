@@ -324,7 +324,6 @@
       },
       handleLessonInfo() {
         let newLessonInfo = JSON.parse(JSON.stringify(this.lessonInfo));
-        console.log(newLessonInfo)
         let tags = [];
         for (let i = 0; i < newLessonInfo.domain.length; i++) {
           tags.push('domain.' + newLessonInfo.domain[i])
