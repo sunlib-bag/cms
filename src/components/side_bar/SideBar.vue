@@ -34,10 +34,10 @@
           <i class="el-icon-tickets"></i>
           <span slot="title">导入用户表格</span>
         </el-menu-item>
-        <el-menu-item index="updataTeacherEXL" v-if="isAdmin">
-          <i class="el-icon-tickets"></i>
-          <span slot="title">鲸打卡信息录入</span>
-        </el-menu-item>
+        <!--<el-menu-item index="updataTeacherEXL" v-if="isAdmin">-->
+          <!--<i class="el-icon-tickets"></i>-->
+          <!--<span slot="title">鲸打卡信息录入</span>-->
+        <!--</el-menu-item>-->
 
         <el-menu-item index="weChatHistoryList" v-if="isAdmin">
           <i class="el-icon-tickets"></i>

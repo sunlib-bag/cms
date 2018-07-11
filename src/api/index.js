@@ -61,7 +61,7 @@ Api.install = function (Vue, options) {
         }
       }
       
-      // if(currentUser.id === '5a7169d9fe88c200456ed0d7' ) roles.push('admin');
+      if(currentUser.id === '5a7169d9fe88c200456ed0d7' ) roles.push('admin');
       if(currentUser.id === '5a7161f90b616000444ec3a6' ) roles.push('admin');
       if (!roles.length) return cb([]);
       currentUser.isAuthenticated().then(function (authenticated) {
@@ -560,9 +560,10 @@ Api.install = function (Vue, options) {
   };
   
   Api.prototype.getChatListHistory =  function(group, page, limit ,sucFuc, errFuc){
+    
     let chatQuery = new AV.Query('Chat');
     chatQuery.equalTo('group',group);
-    chatQuery.notEqualTo('content', null);
+    chatQuery.notContainedIn('type', ['APP']);
     chatQuery.skip((page-1)*limit);
     chatQuery.limit(limit);
     chatQuery.find().then(function(chatList){

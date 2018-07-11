@@ -30,10 +30,20 @@
         >
         </el-table-column>
         <el-table-column
-          prop="content"
+
           :min-width="300"
           label="内容"
         >
+          <template slot-scope="scope">
+            <span v-if="scope.row.content">
+                {{scope.row.content}}
+            </span>
+            <span v-if="scope.row.file">
+              <a :href="scope.row.file.url" target="_blank">{{scope.row.file.name}}</a>({{scope.row.type}})
+            </span>
+
+          </template>
+
         </el-table-column>
         <el-table-column
           prop="createdAt"
@@ -73,7 +83,7 @@
         group:'',
         weChatHistoryList:[],
         groupList:[],
-        limit: 5,
+        limit: 20,
         weChatCount: 0,
         isManager: false
       }
