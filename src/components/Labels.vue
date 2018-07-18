@@ -87,7 +87,7 @@
     mounted() {
       let self = this;
       this.$API.checkUserRole((roles) => {
-
+        this.isAdmin =  (roles.indexOf('admin')>=0);
         this.isManager = roles.indexOf('manager') >= 0;
         console.log(this.isManager);
 

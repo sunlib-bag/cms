@@ -20,7 +20,8 @@
     data() {
       return {
         actionPage:'updataTeacherEXL',
-        isAdmin: true
+        isAdmin: false,
+        isManager:false,
       }
     },
     components: {

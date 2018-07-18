@@ -85,7 +85,7 @@
       return {
         actionPage: 'topic',
         isAdmin: false,
-        isManager: true,
+        isManager: false,
         recommendCount: 0,
         topicList: [],
         size: 5,
@@ -97,6 +97,15 @@
 
     },
     mounted() {
+
+      let self = this;
+      this.$API.checkUserRole((roles) =>{
+        this.isAdmin =  (roles.indexOf('admin')>=0);
+        this.isManager =  (roles.indexOf('manager')>=0);
+        if(!this.isAdmin && !this.isManager){
+          self.$router.push('/')
+        }
+      });
       this.getTopicList(1);
       this.getRecommendCount();
     },
