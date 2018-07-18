@@ -59,10 +59,12 @@ Api.install = function (Vue, options) {
         if (resultRoles[i].toJSON().objectId === '5ab6000d17d0096887783cd6') {
           roles.push('manager');
         }
+        if (resultRoles[i].toJSON().objectId === '5a76ad890b61601d10938457') {
+          roles.push('admin');
+        }
+        
       }
       
-      if(currentUser.id === '5a7169d9fe88c200456ed0d7' ) roles.push('admin');
-      if(currentUser.id === '5a7161f90b616000444ec3a6' ) roles.push('admin');
       if (!roles.length) return cb([]);
       currentUser.isAuthenticated().then(function (authenticated) {
         cb((authenticated ? roles : []))
