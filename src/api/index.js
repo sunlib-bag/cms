@@ -568,6 +568,7 @@ Api.install = function (Vue, options) {
     chatQuery.notContainedIn('type', ['APP']);
     chatQuery.skip((page-1)*limit);
     chatQuery.limit(limit);
+    chatQuery.descending('createdAt')
     chatQuery.find().then(function(chatList){
         let chatCountQuery = new AV.Query('Chat');
         chatCountQuery.equalTo('group',group);

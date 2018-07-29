@@ -40,6 +40,8 @@
             </span>
             <span v-if="scope.row.file">
               <a :href="scope.row.file.url" target="_blank">{{scope.row.file.name}}</a>({{scope.row.type}})
+              
+              <a :href="scope.row.file.url" download="w3logo">下载</a>
             </span>
 
           </template>
@@ -72,6 +74,7 @@
 <script>
   import SideBar from './side_bar/SideBar.vue'
   import {formatTime} from './filters/filters.js';
+  import ElButton from "../../node_modules/element-ui/packages/button/src/button.vue";
 
 
 
@@ -90,6 +93,7 @@
     },
     components: {
 
+      ElButton,
       "side_bar": SideBar
     },
 
@@ -107,6 +111,7 @@
 
     },
     methods: {
+
       init:function(){
         this.$API.getWeChatGroups((groupList) => {
           this.groupList = groupList;
@@ -116,6 +121,14 @@
       },
       formatDate(row) {
         return formatTime(row.createdAt, "yyyy-MM-dd hh:mm:ss");
+      },
+      downLoad(imgPathURL){
+
+        var $form = $('<form method="GET"></form>');
+        $form.attr('action', imgPathURL);
+        $form.appendTo($('body'));
+        $form.submit();
+
       },
       changePage:function(page){
         this.getChatListHistory(this.group, page)
@@ -129,6 +142,7 @@
       changeWeChatGroup:function(group){
         this.getChatListHistory(group, 0)
       }
+
 
     }
   }
