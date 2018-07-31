@@ -40,8 +40,7 @@
             </span>
             <span v-if="scope.row.file">
               <a :href="scope.row.file.url" target="_blank">{{scope.row.file.name}}</a>({{scope.row.type}})
-              
-              <a :href="scope.row.file.url" download="w3logo">下载</a>
+              <el-button type="text" @click="downLoad(scope.row.file.url, scope.row.file.name)">下载</el-button>
             </span>
 
           </template>
@@ -122,13 +121,18 @@
       formatDate(row) {
         return formatTime(row.createdAt, "yyyy-MM-dd hh:mm:ss");
       },
-      downLoad(imgPathURL){
-
-        var $form = $('<form method="GET"></form>');
-        $form.attr('action', imgPathURL);
-        $form.appendTo($('body'));
-        $form.submit();
-
+      downLoad(url, name){
+        this.$http.get(url, {
+          responseType: 'arraybuffer'
+        }).then(function (response) {
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', name); //or any other extension
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+          });
       },
       changePage:function(page){
         this.getChatListHistory(this.group, page)
@@ -142,8 +146,6 @@
       changeWeChatGroup:function(group){
         this.getChatListHistory(group, 0)
       }
-
-
     }
   }
 </script>
