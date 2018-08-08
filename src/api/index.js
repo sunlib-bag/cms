@@ -376,6 +376,12 @@ Api.install = function (Vue, options) {
     plan.set('author', lessonInfo.plan.author);
     let subject = AV.Object.createWithoutData('Subject', lessonInfo.subject.objectId);
     let lesson = AV.Object.createWithoutData('Lesson', lessonInfo.objectId);
+    if(lessonInfo.coverImageUpdateInfo){
+      console.log(lessonInfo.coverImageUpdateInfo.filename)
+      console.log(lessonInfo.coverImageUpdateInfo.image)
+      let file = new AV.File(lessonInfo.coverImageUpdateInfo.filename, {base64: lessonInfo.coverImageUpdateInfo.image})
+      lesson.set('coverImage',file)
+    }
     lesson.set('name', lessonInfo.name);
     lesson.set('tags', lessonInfo.tags);
     lesson.set('subject', subject);

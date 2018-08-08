@@ -65,10 +65,19 @@
         </el-option>
       </el-select>
     </el-form-item>
+    <el-form-item label="封面">
+      <div class="l-upload-container l-upload">
+        <picture-input  ref="coverImage" accept="image/jpeg,image/png" size="10" buttonClass="btn" @change="changeCoverImage" :prefill='lessonInfo.coverImage ? lessonInfo.coverImage.url : ""' :customStrings="{drag: '+'}">
+        </picture-input>
+      </div>
+
+    </el-form-item>
+
   </el-form>
 
 </template>
 <script>
+  import PictureInput from 'vue-picture-input'
   export default {
     props: {
       lessonInfo: {
@@ -108,6 +117,9 @@
         }
       }
     },
+    components: {
+      PictureInput,
+    },
     watch: {
       lessonInfo: function (value) {
 
@@ -143,6 +155,9 @@
         }
         return sourceList;
       },
+      changeCoverImage(image){
+        this.lessonInfo.coverImageUpdateInfo =  {filename: this.$refs.coverImage.fileName, image: image}
+      }
     }
 
   }
@@ -150,6 +165,19 @@
 </script>
 <style>
   .el-select {
+    display: block;
+  }
+
+  .l-upload-container {
+    border: 1px dashed #d9d9d9;
+    border-radius: 6px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+  .l-upload{
+    width: 178px;
+    height: 178px;
     display: block;
   }
 </style>

@@ -65,7 +65,7 @@
       },
       changePicture(image){
 
-        this.topicInfo.updateImage =  {filename: this.$refs.topicPicture.fileName, image: image}
+          this.topicInfo.updateImage =  {filename: this.$refs.topicPicture.fileName, image: image}
       },
       updateTopic: function(){
         if(this.topicInfo.title && (this.topicInfo.updateImage || this.topicInfo.picture)){
