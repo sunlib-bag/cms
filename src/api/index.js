@@ -1,7 +1,7 @@
 let Api = {};
 
 Api.install = function (Vue, options) {
-  
+
   function handleArrayData(array) {
     let newArray = [];
     for (let i = 0; i < array.length; i++) {
@@ -9,7 +9,7 @@ Api.install = function (Vue, options) {
     }
     return newArray;
   }
-  
+
   function getFileType(data) {
     let type;
     if (/image/.test(data.type)) type = 3;
@@ -17,13 +17,13 @@ Api.install = function (Vue, options) {
     if (/video/.test(data.type)) type = 2;
     return type;
   }
-  
-  
+
+
   function Api() {
     this.appId = Vue.prototype.$config.APP_ID;
     this.appKey = Vue.prototype.$config.APP_KEY;
   }
-  
+
   //登录
   Api.prototype.login = function (data, sucFuc, errFuc) {
     let self = this;
@@ -39,7 +39,7 @@ Api.install = function (Vue, options) {
     });
   };
   Api.prototype.sendSMSCode = function (phone, sucFuc, errFuc) {
-    
+
     AV.User.requestLoginSmsCode(phone).then(function (success) {
       sucFuc(success)
     }, function (error) {
@@ -49,7 +49,7 @@ Api.install = function (Vue, options) {
   Api.prototype.checkUserRole = function (cb) {
     let currentUser = AV.User.current();
     if (!currentUser) return cb([]);
-    
+
     currentUser.getRoles().then(function (resultRoles) {
       let roles = [];
       for (let i = 0; i < resultRoles.length; i++) {
@@ -62,9 +62,9 @@ Api.install = function (Vue, options) {
         if (resultRoles[i].toJSON().objectId === '5a76ad890b61601d10938457') {
           roles.push('admin');
         }
-        
+
       }
-      
+
       if (!roles.length) return cb([]);
       currentUser.isAuthenticated().then(function (authenticated) {
         cb((authenticated ? roles : []))
@@ -72,13 +72,13 @@ Api.install = function (Vue, options) {
     }).catch(function () {
       cb([])
     })
-    
+
   };
-  
-  
+
+
   //素材
-  
-  
+
+
   Api.prototype.changeMaterialName = function (material, newName, sucFuc, errFuc) {
     let nameInfo = material.name.split('.'); //todo
     let name;
@@ -88,7 +88,7 @@ Api.install = function (Vue, options) {
     } else {
       name = newName + '.' + fileType;
     }
-    
+
     let materialWithdata = AV.Object.createWithoutData('Material', material.objectId);
     materialWithdata.set('name', name);
     materialWithdata.save().then(function (material) {
@@ -97,35 +97,35 @@ Api.install = function (Vue, options) {
       errFuc();
     })
   };
-  
+
   Api.prototype.createMaterial = function (lessonId, index, name, data, sucFuc, errFuc) {
     let type = getFileType(data);
-    
+
     let file = new AV.File(name, data);
     let material = new AV.Object('Material');
     material.set('name', name);
     material.set('type', type);
     material.set('file', file);
-    
+
     let lesson = AV.Object.createWithoutData('Lesson', lessonId);
-    
+
     let newLessonMaterial = new AV.Object('LessonMaterial');
-    
+
     newLessonMaterial.set('material', material);
-    
+
     newLessonMaterial.set('lesson', lesson);
-    
+
     newLessonMaterial.set('index', index);
-    
+
     newLessonMaterial.save().then(function (lessonMaterial) {
       lessonMaterial = lessonMaterial.toJSON();
       sucFuc(lessonMaterial);
     }).catch(function (error) {
       errFuc()
     });
-    
+
   };
-  
+
   Api.prototype.addAtlas = function (lessonId, index, sucFuc, errFuc) {
     let newMaterial = new AV.Object('Material');
     newMaterial.set('name', '图集');
@@ -141,11 +141,11 @@ Api.install = function (Vue, options) {
       errFuc()
     });
   };
-  
+
   Api.prototype.deleteMaterial = function (materials, index, sucFuc, errFuc) {
     let deleteMaterial = materials.splice(index, 1)[0];
     let updateMaterialList = [];
-    
+
     for (let i = 0; i < materials.length; i++) {
       let lessonMaterial = AV.Object.createWithoutData('LessonMaterial', materials[i].lessonMaterialId);
       lessonMaterial.set('index', i + 1);
@@ -156,15 +156,15 @@ Api.install = function (Vue, options) {
       materialLesson.destroy().then(function () {
         sucFuc()
       }).catch(function (error) {
-        
+
         errFuc()
       })
     }).catch(function (error) {
       errFuc(error.code)
     });
-    
+
   };
-  
+
   Api.prototype.deleteAtlasMaterial = function (materials, index, sucFuc, errFuc) {
     let deleteMaterial = materials.splice(index, 1)[0];
     deleteMaterial = AV.Object.createWithoutData('Material', deleteMaterial.objectId);
@@ -181,7 +181,7 @@ Api.install = function (Vue, options) {
     }).catch(function (err) {
       errFuc(err.code)
     })
-    
+
     // let material = AV.Object.createWithoutData('Material', materialId);
     // material.set('parent', null);
     // material.save().then(function () {
@@ -189,9 +189,9 @@ Api.install = function (Vue, options) {
     // }).catch(function () {
     //   errFuc()
     // })
-    
+
   };
-  
+
   Api.prototype.createAtlasMaterial = function (atlasId, index, name, data, sucFuc, errFuc) {
     let type = getFileType(data);
     let atlas = AV.Object.createWithoutData('Material', atlasId);
@@ -208,8 +208,8 @@ Api.install = function (Vue, options) {
       errFuc()
     })
   };
-  
-  
+
+
   //获取信息
   Api.prototype.getLesson = function (limit, page, cb, errFuc) {
     let skipNumber = (page - 1) * limit;
@@ -224,12 +224,12 @@ Api.install = function (Vue, options) {
       countLesson.count().then(function (count) {
         cb({result: handleArrayData(products), count: count})
       })
-      
+
     }).catch(function (error) {
       errFuc(error)
     });
   };
-  
+
   Api.prototype.getSubjectList = function (sucFuc, errFuc) {
     let query = new AV.Query('Subject');
     query.find().then(function (products) {
@@ -238,10 +238,10 @@ Api.install = function (Vue, options) {
       errFuc()
     });
   };
-  
+
   Api.prototype.getLessonInfo = function (lessonId, sucFuc, errFuc) {
     let self = this;
-    
+
     this.getLessonTopic(lessonId, function(topics){
       let query = new AV.Query('Lesson');
       query.include('subject');
@@ -264,23 +264,23 @@ Api.install = function (Vue, options) {
               objectId: lessonMaterialInfo.material.objectId,
               lessonMaterialId: lessonMaterialInfo.objectId
             };
-        
+
             if (material.type !== 0) {
               let type = lessonMaterialInfo.material.file.name.split(".")[1];
               material.file = lessonMaterialInfo.material.file
             }
             materials.push(material)
-        
+
           }
-      
+
           let atlas = [];
           for (let i = 0; i < materials.length; i++) {
             let material = AV.Object.createWithoutData('Material', materials[i].objectId);
             atlas.push(material)
           }
-      
+
           let atlasFiles = {};
-      
+
           let MaterialQuery = new AV.Query('Material');
           MaterialQuery.containedIn("parent", atlas);
           MaterialQuery.find().then(function (atlasImage) {
@@ -292,7 +292,7 @@ Api.install = function (Vue, options) {
                 atlasFiles[atlasImageInfo.parent.objectId] = [atlasImageInfo]
               }
             }
-        
+
             for (let i = 0; i < materials.length; i++) {
               if (materials[i].type === 0) {
                 materials[i].files = atlasFiles[materials[i].objectId] ? atlasFiles[materials[i].objectId] : [];
@@ -305,26 +305,26 @@ Api.install = function (Vue, options) {
           }).catch(function (error) {
             errFuc(error.code)
           });
-      
+
         }).catch(function (error) {
           errFuc(error.code)
         });
-    
-    
+
+
       }).catch(function (error) {
         errFuc(error.code)
       });
     })
-   
-    
-    
+
+
+
   };
-  
-  
+
+
   // 更新课程
-  
+
   Api.prototype.publishLesson = function (lessonId, draft_version_code, sucFuc, errFuc) {
-  
+
     let lessonInfo = {
       lesson_id: lessonId,
       draft_version_code: draft_version_code
@@ -336,19 +336,19 @@ Api.install = function (Vue, options) {
         }else{
           errFuc()
         }
-        
+
       }, function (error) {
         errFuc(error);
       }
     );
   };
-  
+
   Api.prototype.initLesson = function (sucFuc, errFuc) {
     let query = new AV.Query('Subject');
     let self = this;
     query.find().then(function (products) {
       if (products.length <= 0) return errFuc();
-      
+
       let subject = AV.Object.createWithoutData('Subject', products[0].toJSON().objectId);
       let LessonPlan = new AV.Object('LessonPlan');
       let newLesson = new AV.Object('Lesson');
@@ -359,16 +359,16 @@ Api.install = function (Vue, options) {
       newLesson.save().then(function (lesson) {
         sucFuc(lesson.toJSON())
       }).catch(function (error) {
-        
+
         errFuc()
       })
     }).catch(function (error) {
       errFuc()
     });
-    
-    
+
+
   };
-  
+
   Api.prototype.updateLesson = function (lessonInfo, sucFuc, errFuc) {
     var self = this;
     let plan = AV.Object.createWithoutData('LessonPlan', lessonInfo.plan.objectId);
@@ -396,12 +396,12 @@ Api.install = function (Vue, options) {
         errFuc()
       })
     },errFuc)
-  
-    
+
+
   };
-  
+
   Api.prototype.deleteLesson = function (id, sucFuc, errFuc) {
-    
+
     let lessonQuery = new AV.Query('Lesson');
     lessonQuery.get(id).then(function (result) {
       let lessonInfo = result.toJSON();
@@ -412,22 +412,27 @@ Api.install = function (Vue, options) {
         let plan = AV.Object.createWithoutData('LessonPlan', lessonInfo.plan.objectId);
         deleteList.push(plan);
       }
-      let materialLessonQuery = new AV.Query('LessonMaterial');
-      materialLessonQuery.equalTo('lesson', lesson);
-      materialLessonQuery.destroyAll().then(function () {
-        AV.Object.destroyAll(deleteList).then(function (data) {
-          sucFuc()
-        }).catch(function (error) {
-          errFuc(error.code)
+      let lessonSpecialQuery = new AV.Query('LessonSpecial')
+      lessonSpecialQuery.equalTo('lesson', AV.Object.createWithoutData('Lesson',id))
+        lessonSpecialQuery.destroyAll().then(function(){
+          let materialLessonQuery = new AV.Query('LessonMaterial');
+          materialLessonQuery.equalTo('lesson', lesson);
+          materialLessonQuery.destroyAll().then(function () {
+            AV.Object.destroyAll(deleteList).then(function (data) {
+              sucFuc()
+            }).catch(function (error) {
+              errFuc(error.code)
+            })
+          }).catch(function (error) {
+            errFuc(error.code)
+          });
         })
-      }).catch(function (error) {
-        errFuc(error.code)
-      });
+
     }, function (error) {
       errFuc(error.code)
     });
   };
-  
+
   Api.prototype.callbackLesson = function (lessonId, sucFuc, errFuc) {
     AV.Cloud.run('cancelRelease', {lesson_id: lessonId}).then(
       function (value) {
@@ -447,11 +452,11 @@ Api.install = function (Vue, options) {
     }, function () {
       errFuc()
     })
-    
+
   };
 
-  
-  
+
+
   Api.prototype.getNeedExamineLessonInfo = function (id, sucFuc, errFuc) {
     // sucFuc(handleData())
     let query = new AV.Query('LessonSnapshot');
@@ -468,13 +473,13 @@ Api.install = function (Vue, options) {
           sucFuc(lessonSnapshotInfo)
         }
       })
-      
-      
+
+
     }, function () {
       errFuc()
     })
   };
-  
+
   Api.prototype.examineLesson =  function(id, sucFuc, errFuc){
    let lessonInfo = {
       'lesson_id': id
@@ -490,10 +495,10 @@ Api.install = function (Vue, options) {
         errFuc(error);
       }
     )
-  
+
   };
-  
-  
+
+
   Api.prototype.sendExamineResult =  function(id, examineResult, sucFuc, errFuc){
     let obj = {
       'snapshot_id': id
@@ -506,7 +511,7 @@ Api.install = function (Vue, options) {
         }else{
           errFuc()
         }
-        
+
       }, function (error) {
         errFuc(error)
       }
@@ -515,14 +520,14 @@ Api.install = function (Vue, options) {
   Api.prototype.getTodayExamineCount = function(id , userName, sucFuc , errFuc){
     let today = new Date();
     today.setHours(0,0,0);
-    
+
     let query = new AV.Query('LessonSnapshot');
     query.equalTo('lessonId', id);
     query.equalTo('compiler', userName);
     query.greaterThan('isChecked', 0);
     query.greaterThan('createdAt', today);
     query.count().then(function (count) {
-      
+
       sucFuc(count)
     }, function () {
       errFuc()
@@ -550,7 +555,7 @@ Api.install = function (Vue, options) {
       errFuc()
     });
   };
-  
+
   Api.prototype.getWeChatGroups = function(sucFuc,errFuc){
     let groupQuery = new AV.Query('Group');
     groupQuery.find().then(function(groupList){
@@ -560,9 +565,9 @@ Api.install = function (Vue, options) {
         typeof errFuc ==='function' ? errFuc() : ''
       })
   };
-  
+
   Api.prototype.getChatListHistory =  function(group, page, limit ,sucFuc, errFuc){
-    
+
     let chatQuery = new AV.Query('Chat');
     chatQuery.equalTo('group',group);
     chatQuery.notContainedIn('type', ['APP']);
@@ -578,15 +583,15 @@ Api.install = function (Vue, options) {
         },function(){
           typeof errFuc ==='function' ? errFuc() : ''
         });
-        
+
       },
       function(){
         typeof errFuc ==='function' ? errFuc() : ''
       })
   };
-  
+
   //标签接口
-  
+
   Api.prototype.getLabelList = function(sucFuc, errFuc){
     let labelQuery = new  AV.Query('Label');
     labelQuery.descending('createdAt');
@@ -596,7 +601,7 @@ Api.install = function (Vue, options) {
       errFuc()
     })
   };
-  
+
   Api.prototype.updateLabel  = function(label, sucFuc, errFuc){
     let labelObject =  AV.Object.createWithoutData('Label', label.objectId);
     labelObject.set('name', label.name);
@@ -615,7 +620,7 @@ Api.install = function (Vue, options) {
       errFuc()
     })
   };
-  
+
   Api.prototype.createLabel = function(label, sucFuc, errFuc){
     let labelObject = new AV.Object('Label');
     labelObject.set('name', label.name);
@@ -631,7 +636,7 @@ Api.install = function (Vue, options) {
     sucFuc  =  (typeof sucFuc === 'function') ?  sucFuc : function(){};
     errFuc  =  (typeof errFuc === 'function') ?  errFuc : function(){};
     var  topicQuery = new AV.Query('SpecialSubject');
-    
+
     topicQuery.skip((page-1)* size);
     topicQuery.limit(size);
     topicQuery.find().then(function(topicList){
@@ -640,16 +645,16 @@ Api.install = function (Vue, options) {
       countQuery.count().then(function(count){
         sucFuc({result:handleArrayData(topicList), count: count})
       })
-     
+
     },function(){
       errFuc()
     });
-    
+
     // sucFuc([{title:'hah',createdAt:'121',isOnline: false, isRecommend:false}])
-    
-    
+
+
   };
-  
+
   Api.prototype.getRecommendCount =  function(sucFuc ,errFuc){
     sucFuc  =  (typeof sucFuc === 'function') ?  sucFuc : function(){};
     errFuc  =  (typeof errFuc === 'function') ?  errFuc : function(){};
@@ -661,7 +666,7 @@ Api.install = function (Vue, options) {
       errFuc()
     });
   };
-  
+
   Api.prototype.uploadTopicImage = function(name, file, sucFuc, errFuc){
     let image = new AV.File(name, file);
     image.save().then(function(file){
@@ -671,24 +676,24 @@ Api.install = function (Vue, options) {
       errFuc()
     })
   };
-  
-  
+
+
   Api.prototype.createTopicInfo = function(topic, sucFuc, errFuc){
     let newTopic =  new AV.Object('SpecialSubject');
-  
+
     let picture = new AV.File(topic.updateImage.filename, {base64: topic.updateImage.image});
     newTopic.set('title', topic.title);
     newTopic.set('describe', topic.describe);
     newTopic.set('picture',picture);
-    
+
     newTopic.save().then(() => {
       sucFuc()
     }, function(err){
       console.log(err)
     })
   };
-  
-  
+
+
   Api.prototype.updateTopic = function(topic, sucFuc, errFuc){
     sucFuc  =  (typeof sucFuc === 'function') ?  sucFuc : function(){};
     errFuc  =  (typeof errFuc === 'function') ?  errFuc : function(){};
@@ -699,12 +704,12 @@ Api.install = function (Vue, options) {
       let picture = new AV.File(topic.updateImage.filename, {base64: topic.updateImage.image});
       newTopic.set('picture',picture)
     }
-    
+
     newTopic.save().then(() => {
       sucFuc()
     }, errFuc)
   };
-  
+
   Api.prototype.getTopicInfo = function(id, sucFuc, errFuc){
     sucFuc  =  (typeof sucFuc === 'function') ?  sucFuc : function(){};
     errFuc  =  (typeof errFuc === 'function') ?  errFuc : function(){};
@@ -713,9 +718,9 @@ Api.install = function (Vue, options) {
       sucFuc(topicInfo.toJSON())
     },errFuc)
   };
-  
+
   Api.prototype.updateTopicStatus = function(topic, sucFuc, errFuc){
-    sucFuc  =  (typeof sucFuc === 'function') ?  sucFuc : function(){};
+    sucFuc  =  (typeof sucFuc ===  'function') ?  sucFuc : function(){};
     errFuc  =  (typeof errFuc === 'function') ?  errFuc : function(){};
     let newTopic =   AV.Object.createWithoutData('SpecialSubject', topic.objectId);
     if(topic.hasOwnProperty('onLine')){
@@ -725,29 +730,29 @@ Api.install = function (Vue, options) {
       newTopic.set('recommendStatus', topic.recommendStatus)
     }
     newTopic.save().then(function(topicInfo){
-      
+
       sucFuc(topicInfo.toJSON())
     }, errFuc)
-    
+
   };
   Api.prototype.deleteTopic = function(id, sucFuc, errFuc){
     sucFuc  =  (typeof sucFuc === 'function') ?  sucFuc : function(){};
     errFuc  =  (typeof errFuc === 'function') ?  errFuc : function(){};
     let newTopic =   AV.Object.createWithoutData('SpecialSubject', id);
-  
+
     let lessonSpecialQuery = new AV.Query('LessonSpecial');
     lessonSpecialQuery.equalTo('special', newTopic);
     lessonSpecialQuery.destroyAll().then(function(){
       newTopic.destroy().then(function(topicInfo){
         sucFuc()
       }, errFuc)
-    
+
     },()=>{
       errFuc()
     })
   };
-  
-  
+
+
   Api.prototype.getLessonTopic = function(lessonId,  sucFuc, errFuc){
     sucFuc  =  (typeof sucFuc === 'function') ?  sucFuc : function(){};
     errFuc  =  (typeof errFuc === 'function') ?  errFuc : function(){};
@@ -762,13 +767,13 @@ Api.install = function (Vue, options) {
       });
       sucFuc(topicList)
     }, errFuc)
-    
+
   };
-  
+
   Api.prototype.updateLessonTopic = function(lessonId, topicList, sucFuc, errFuc){
     sucFuc  =  (typeof sucFuc === 'function') ?  sucFuc : function(){};
     errFuc  =  (typeof errFuc === 'function') ?  errFuc : function(){};
-    
+
     let lessonSpecialQuery = new AV.Query('LessonSpecial');
     let lesson =  AV.Object.createWithoutData('Lesson',lessonId);
     lessonSpecialQuery.equalTo('lesson', lesson);
@@ -782,15 +787,15 @@ Api.install = function (Vue, options) {
           newTopic.set('special', SpecialSubject);
           newTopicList.push(newTopic)
         });
-  
+
       AV.Object.saveAll(newTopicList).then(function(){
         sucFuc(topicList)
       },errFuc)
     }, errFuc)
-    
-    
+
+
   }
-  
+
   Api.prototype.updataTeacherEXL = function(name, data, sucFuc, errFuc){
     let file = new AV.File(name, data);
     file.save().then(function(result){
@@ -810,22 +815,22 @@ Api.install = function (Vue, options) {
         errFuc()
       });
   }
-  
-  
+
+
   function sortByIndex(a, b) {
     return a.index > b.index
   }
-  
+
   Api.prototype.init = function () {
-    
+
     window.AV.init({
       appId: this.appId,
       appKey: this.appKey
     });
-    
-    
+
+
   };
-  
+
   function handleData(data) {
     let newData = {};
     newData.plan = {};
@@ -839,7 +844,7 @@ Api.install = function (Vue, options) {
     newData.subject.objectId = data.subjectId;
     let materials = [];
     let allMaterials = data.materials || [];
-    
+
     for (let i = 0; i < allMaterials.length; i++) {
       if (!allMaterials[i].hasOwnProperty('parent')) {
         let materailInfo = {};
@@ -852,15 +857,15 @@ Api.install = function (Vue, options) {
         } else {
           materailInfo.files = [];
         }
-        
+
         materailInfo.name = allMaterials[i].name;
         materailInfo.index = allMaterials[i].file_index;
         materials.push(materailInfo);
       }
     }
-    
+
     materials.sort(sortByIndex);
-    
+
     for (let i = 0; i < allMaterials.length; i++) {
       if (allMaterials[i].hasOwnProperty('parent')) {
         let material = {};
@@ -877,22 +882,22 @@ Api.install = function (Vue, options) {
             materials[j].files.sort(sortByIndex)
           }
         }
-        
-        
+
+
       }
     }
-    
+
     newData.materials = materials;
-    
+
     return newData
-    
+
   }
-  
-  
+
+
   let api = new Api();
   api.init();
-  
-  
+
+
   Vue.prototype.$API = api
 };
 
