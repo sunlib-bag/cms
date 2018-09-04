@@ -156,7 +156,7 @@
           self.openLoading('正在上传');
           var allPromise = [];
           for (let i = 0; i < fileUpload.files.length; i++) {
-            allPromise.push(this.saveOneMaterial(fileUpload.files[i]), i)
+            allPromise.push(this.saveOneMaterial(fileUpload.files[i]), self.materials.length + 1+i)
           }
           Promise.all(allPromise).then(function (result) {
 
@@ -214,7 +214,7 @@
         let self = this;
         return new Promise(function (reslove, reject) {
 
-          self.$API.createMaterial(self.$route.params.id, self.materials.length + 1 + index, localFile.name, localFile, function (result) {
+          self.$API.createMaterial(self.$route.params.id, index, localFile.name, localFile, function (result) {
             self.materials.push({
               objectId: result.material.objectId,
               name: result.material.name,

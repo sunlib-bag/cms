@@ -73,7 +73,7 @@
         this.topicInfo.updateImage =  {filename: this.$refs.topicPicture.fileName, image: image}
       },
       createTopic: function(){
-        if(this.topicInfo.title && this.topicInfo.updateImage){
+        if(this.topicInfo.title && this.topicInfo.updateImage&&this.topicInfo.describe){
             this.$API.createTopicInfo(this.topicInfo, ()=>{
               this.$router.push('/topic');
             },()=>{

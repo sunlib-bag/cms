@@ -173,7 +173,7 @@ Api.install = function (Vue, options) {
     let updateMaterialList = [deleteMaterial];
     for (let i = 0; i < materials.length; i++) {
       let material = AV.Object.createWithoutData('Material', materials[i].objectId);
-      material.set('index', i + 1);
+      material.set('index', i+1);
       updateMaterialList.push(material)
     }
     AV.Object.saveAll(updateMaterialList).then(function () {
@@ -848,6 +848,7 @@ Api.install = function (Vue, options) {
     newData.objectId = data.id;
     newData.subject = {};
     newData.subject.objectId = data.subjectId;
+    newData.coverImage = data.coverImage;
     let materials = [];
     let allMaterials = data.materials || [];
 
@@ -873,13 +874,15 @@ Api.install = function (Vue, options) {
     materials.sort(sortByIndex);
 
     for (let i = 0; i < allMaterials.length; i++) {
+
       if (allMaterials[i].hasOwnProperty('parent')) {
+        console.log( allMaterials[i])
         let material = {};
         material.objectId = allMaterials[i].id;
         material.type = allMaterials[i].type;
         material.file = {};
         material.file.url = allMaterials[i].url;
-        material.name = allMaterials[i].name;
+        material.name = allMaterials[i].album_name;
         material.index = allMaterials[i].album_index;
         material.parent = allMaterials[i].parent;
         for (let j = 0; j < materials.length; j++) {

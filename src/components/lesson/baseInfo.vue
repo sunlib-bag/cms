@@ -4,6 +4,14 @@
     <el-form-item label="标题" prop="name">
       <el-input v-model="lessonInfo.name" :disabled="canEdit"></el-input>
     </el-form-item>
+
+    <el-form-item label="封面">
+      <div class="l-upload-container l-upload">
+        <picture-input  ref="coverImage" accept="image/jpeg,image/png" size="10" buttonClass="btn" @change="changeCoverImage" :prefill='lessonInfo.coverImage ? lessonInfo.coverImage.url : ""' :customStrings="{drag: '+'}">
+        </picture-input>
+      </div>
+
+    </el-form-item>
     <el-form-item label="所属科目" prop="region">
       <el-select v-model="lessonInfo.subject.objectId" placeholder="请选择所属科目" :disabled="canEdit">
         <el-option
@@ -65,13 +73,7 @@
         </el-option>
       </el-select>
     </el-form-item>
-    <el-form-item label="封面">
-      <div class="l-upload-container l-upload">
-        <picture-input  ref="coverImage" accept="image/jpeg,image/png" size="10" buttonClass="btn" @change="changeCoverImage" :prefill='lessonInfo.coverImage ? lessonInfo.coverImage.url : ""' :customStrings="{drag: '+'}">
-        </picture-input>
-      </div>
 
-    </el-form-item>
 
   </el-form>
 
@@ -121,9 +123,9 @@
       PictureInput,
     },
     watch: {
-      lessonInfo: function (value) {
-
-      }
+      // lessonInfo: function (value) {
+      //
+      // }
     },
     mounted(){
       this.getLabelList();
@@ -148,6 +150,7 @@
       },
       handelLabelList(labelList, type) {
         let sourceList = [];
+        console.log(labelList)
         for (let i = 0; i < labelList.length; i++) {
           if (labelList[i].type === type) {
             sourceList.push({text: labelList[i].name, value: labelList[i].name})

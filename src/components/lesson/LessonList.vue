@@ -144,6 +144,9 @@
   .warn {
     color: #F56C6C;
   }
+  .warn.is-disabled{
+    color: #c0c4cc;
+  }
 
   .black {
     color: #606266;

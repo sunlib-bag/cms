@@ -122,6 +122,7 @@
           self.examineLessonInfo =  JSON.parse(JSON.stringify(examineLessonInfo));
           let lesson = examineLessonInfo.lessonInfo;
 
+
           let newLessonInfo = JSON.parse(JSON.stringify(lesson));
           let tagsInfo = self.handleTags(newLessonInfo.tags);
           newLessonInfo.domain = tagsInfo.domain;
@@ -145,6 +146,7 @@
         let source;
         let misc = [];
         if (!tags) return {domain: domain, source: source, misc: misc};
+        console.log(tags)
         for (let i = 0; i < tags.length; i++) {
           let tagInfo = tags[i].split('.'); //todo
           if (tagInfo[0] === 'domain') {
