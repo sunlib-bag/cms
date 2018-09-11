@@ -50,7 +50,7 @@
       </div>
       <div>
         <div class="table-container">
-          <div v-for="(image, imageIndex) in images" class="mid-container">
+          <div v-for="(image, imageIndex) in images.map(item=>item).sort((a,b)=> a.index>b.index )" class="mid-container">
             <div class="image-container">
               <div class="extra-button-container">
                 <el-button type="text" icon="el-icon-delete" @click="deleteAtlasImage(imageIndex, image)"
@@ -97,6 +97,7 @@
     watch: {
       materials: {
         handler: function (value) {
+          console.log('===')
           this.$bus.emit('changeMaterial', value)
         },
         deep: true
@@ -156,7 +157,7 @@
           self.openLoading('正在上传');
           var allPromise = [];
           for (let i = 0; i < fileUpload.files.length; i++) {
-            allPromise.push(this.saveOneMaterial(fileUpload.files[i]), self.materials.length + 1+i)
+            allPromise.push(this.saveOneMaterial(fileUpload.files[i]), i)
           }
           Promise.all(allPromise).then(function (result) {
 
@@ -214,7 +215,7 @@
         let self = this;
         return new Promise(function (reslove, reject) {
 
-          self.$API.createMaterial(self.$route.params.id, index, localFile.name, localFile, function (result) {
+          self.$API.createMaterial(self.$route.params.id, self.materials.length + 1 + index, localFile.name, localFile, function (result) {
             self.materials.push({
               objectId: result.material.objectId,
               name: result.material.name,
