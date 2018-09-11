@@ -21,6 +21,7 @@
                 <img src="/static/video.png" v-if="material.type===2">
                 <img src="/static/music.png" v-if="material.type===1">
                 <img src="/static/folder.png" v-if="material.type===0">
+                <img src="/static/pdf.svg" v-if="material.type===4">
               </div>
 
             </el-col>
