@@ -24,15 +24,20 @@
               </div>
 
             </el-col>
-            <el-col :span="16">
+            <el-col :span="13">
               <div @click="goToAtlas(material,index)" class="materialName">{{ material.name }}</div>
             </el-col>
-
-            <el-col :span="5">
+            <el-col :span="8">
               <el-button type="text" icon="el-icon-edit" @click="editMaterialFile(index,material)"
                          :disabled="canEdit"></el-button>
               <el-button type="text" icon="el-icon-delete" @click="deleteMaterialFile(index,material)"
                          :disabled="canEdit"></el-button>
+              <el-switch
+                class="switch"
+                v-model="value2"
+                active-color="#13ce66"
+                inactive-color="#ff4949">
+              </el-switch>
             </el-col>
           </el-row>
         </div>
@@ -91,6 +96,8 @@
         currentAtlasName: '',
         currentAtlasIndex: '',
         images: [],
+        value1: true,
+        value2: true,
         loading: ''
       }
     },
@@ -100,7 +107,7 @@
           console.log('===')
           this.$bus.emit('changeMaterial', value)
         },
-        deep: true
+        deep: true,
       }
     },
     methods: {
@@ -446,7 +453,7 @@
   }
 
   .materialList {
-    width: 300px;
+    width: 350px;
     padding: 5px;
     border-bottom: solid 1px #e6e6e6;
     line-height: 51px;
@@ -465,12 +472,15 @@
   }
 
   .materialContainer {
-    width: 320px;
+    width: 350px;
     border: solid 1px #e6e6e6;
     margin-top: 10px
   }
 
   .image-contain img {
     width: 200px
+  }
+  .switch{
+    margin-left: 5px;width: 32px
   }
 </style>
