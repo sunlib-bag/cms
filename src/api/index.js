@@ -15,6 +15,7 @@ Api.install = function (Vue, options) {
     if (/image/.test(data.type)) type = 3;
     if (/audio/.test(data.type)) type = 1;
     if (/video/.test(data.type)) type = 2;
+    if (/pdf/.test(data.type)) type = 4;
     return type;
   }
 
