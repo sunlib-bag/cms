@@ -26,7 +26,7 @@
 
             </el-col>
             <el-col :span="13">
-              <div @click="goToAtlas(material,index)" class="materialName">{{ material.isRepeatShow }}</div>
+              <div @click="goToAtlas(material,index)" class="materialName">{{ material.name }}</div>
             </el-col>
             <el-col :span="8">
               <el-button type="text" icon="el-icon-edit" @click="editMaterialFile(index,material)"
@@ -350,14 +350,15 @@
       addAtlas() {
         let self = this;
         self.openLoading('正在上传');
-        this.$API.addAtlas(this.$route.params.id, (this.materials.length + 1), function (lessonMaterial) {
+        this.$API.addAtlas(this.$route.params.id, (this.materials.length + 1),status, function (lessonMaterial) {
           self.materials.push({
             objectId: lessonMaterial.material.objectId,
             name: lessonMaterial.material.name,
             files: [],
             type: lessonMaterial.material.type,
             index: lessonMaterial.index,
-            lessonMaterialId: lessonMaterial.objectId
+            lessonMaterialId: lessonMaterial.objectId,
+            status:self.isMaterialsShow,
           })
           self.closeLoading();
         }, function () {
