@@ -238,7 +238,7 @@
           newLessonInfo.misc = tagsInfo.misc;
           self.oldLeesonInfo = JSON.stringify(newLessonInfo);
           self.lessonInfo = newLessonInfo;
-//          console.log(self.lessonInfo)
+         console.log(self.lessonInfo)
           if(sucFuc){
             sucFuc()
           }

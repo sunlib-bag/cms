@@ -256,14 +256,17 @@ Api.install = function (Vue, options) {
         LessonMaterialQuery.ascending("index");
         LessonMaterialQuery.include('material');
         LessonMaterialQuery.find().then(function (lessonMaterial) {
+
           for (let i = 0; i < lessonMaterial.length; i++) {
             let lessonMaterialInfo = lessonMaterial[i].toJSON();
+            console.log(lessonMaterialInfo.material)
             let material = {
               name: lessonMaterialInfo.material.name,
               type: lessonMaterialInfo.material.type,
               index: lessonMaterialInfo.index,
               objectId: lessonMaterialInfo.material.objectId,
-              lessonMaterialId: lessonMaterialInfo.objectId
+              lessonMaterialId: lessonMaterialInfo.objectId,
+              isRepeatShow:lessonMaterialInfo.material.isRepeatShow
             };
 
             if (material.type !== 0) {
@@ -299,6 +302,7 @@ Api.install = function (Vue, options) {
                 materials[i].files = atlasFiles[materials[i].objectId] ? atlasFiles[materials[i].objectId] : [];
               }
             }
+
             newLessonInfo.materials = materials;
             newLessonInfo.topics = topics;
             console.log(newLessonInfo)
@@ -868,6 +872,7 @@ Api.install = function (Vue, options) {
 
         materailInfo.name = allMaterials[i].name;
         materailInfo.index = allMaterials[i].file_index;
+        materailInfo.isRepeatShow = allMaterials[i].isRepeatShow;
         materials.push(materailInfo);
       }
     }
@@ -886,6 +891,7 @@ Api.install = function (Vue, options) {
         material.name = allMaterials[i].album_name;
         material.index = allMaterials[i].album_index;
         material.parent = allMaterials[i].parent;
+        material.isRepeatShow = allMaterials[i].isRepeatShow;
         for (let j = 0; j < materials.length; j++) {
           if (materials[j].objectId === material.parent) {
             materials[j].files.push(material);

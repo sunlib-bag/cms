@@ -26,7 +26,7 @@
 
             </el-col>
             <el-col :span="13">
-              <div @click="goToAtlas(material,index)" class="materialName">{{ material.name }}</div>
+              <div @click="goToAtlas(material,index)" class="materialName">{{ material.isRepeatShow }}</div>
             </el-col>
             <el-col :span="8">
               <el-button type="text" icon="el-icon-edit" @click="editMaterialFile(index,material)"
@@ -35,9 +35,13 @@
                          :disabled="canEdit"></el-button>
               <el-switch
                 class="switch"
-                v-model="value2"
+                value=material.isRepeatShow
+                v-model="material.isRepeatShow"
+                :active-value="true"
+                :inactive-value="false"
+                @change="changeMaterialIsShow(index,material)"
                 active-color="#13ce66"
-                inactive-color="#ff4949">
+                inactive-color="#dcdfe5">
               </el-switch>
             </el-col>
           </el-row>
@@ -155,6 +159,12 @@
             message: message
           });
         });
+      },
+      changeMaterialIsShow(index,material){
+        console.log("===============start=============")
+        console.log(index);
+        console.log(material);
+        console.log("===============end=============")
       },
       createMaterial(value) {
 

@@ -129,6 +129,7 @@
           newLessonInfo.source = tagsInfo.source;
           newLessonInfo.misc = tagsInfo.misc;
           self.lessonInfo = newLessonInfo;
+          console.log(self.lessonInfo.materials);
           if(sucFuc){
             sucFuc()
           }
