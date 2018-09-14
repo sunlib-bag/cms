@@ -23,10 +23,8 @@
                 <img src="/static/folder.png" v-if="material.type===0">
                 <img src="/static/pdf.svg" v-if="material.type===4">
               </div>
-
             </el-col>
             <el-col :span="13">
-
               <div @click="goToAtlas(material,index)" class="materialName">{{ material.name}}</div>
             </el-col>
             <el-col :span="8">
@@ -176,8 +174,8 @@
           });
         })
       },
+      //上传文件
       createMaterial(value) {
-
         if (!value) return;
         let self = this;
         let fileUpload = $('#materialInput')[0];
@@ -249,7 +247,8 @@
               name: result.material.name,
               type: result.material.type,
               file: result.material.file,
-              lessonMaterialId: result.objectId
+              lessonMaterialId: result.objectId,
+              isRepeatShow:true
             });
             reslove({status: true, fileName: localFile.name})
           }, function () {
@@ -360,7 +359,7 @@
       addAtlas() {
         let self = this;
         self.openLoading('正在上传');
-        this.$API.addAtlas(this.$route.params.id, (this.materials.length + 1),status, function (lessonMaterial) {
+        this.$API.addAtlas(this.$route.params.id, (this.materials.length + 1), function (lessonMaterial) {
           self.materials.push({
             objectId: lessonMaterial.material.objectId,
             name: lessonMaterial.material.name,
@@ -368,11 +367,7 @@
             type: lessonMaterial.material.type,
             index: lessonMaterial.index,
             lessonMaterialId: lessonMaterial.objectId,
-<<<<<<< HEAD
-            status:self.isMaterialsShow,
-=======
             isRepeatShow:true
->>>>>>> 1a55ebbd39562c25bfb03b3c919917ca1cfed32d
           })
           self.closeLoading();
         }, function () {

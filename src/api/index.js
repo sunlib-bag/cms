@@ -167,7 +167,6 @@ Api.install = function (Vue, options) {
       materialLesson.destroy().then(function () {
         sucFuc()
       }).catch(function (error) {
-
         errFuc()
       })
     }).catch(function (error) {
