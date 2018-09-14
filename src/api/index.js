@@ -99,6 +99,16 @@ Api.install = function (Vue, options) {
     })
   };
 
+  Api.prototype.changeMaterialIsRepeatShow = function (material, sucFuc, errFuc) {
+    let materialWithdata = AV.Object.createWithoutData('Material', material.objectId);
+    materialWithdata.set('isRepeatShow', material.isRepeatShow);
+    materialWithdata.save().then(function (material) {
+      sucFuc(material.toJSON())
+    }).catch(function () {
+      errFuc();
+    })
+  };
+
   Api.prototype.createMaterial = function (lessonId, index, name, data, sucFuc, errFuc) {
     let type = getFileType(data);
 
