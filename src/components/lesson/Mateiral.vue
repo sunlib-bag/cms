@@ -26,7 +26,7 @@
 
             </el-col>
             <el-col :span="13">
-              <div @click="goToAtlas(material,index)" class="materialName">{{ material.isRepeatShow }}</div>
+              <div @click="goToAtlas(material,index)" class="materialName">{{ material.name}}</div>
             </el-col>
             <el-col :span="8">
               <el-button type="text" icon="el-icon-edit" @click="editMaterialFile(index,material)"
@@ -161,10 +161,19 @@
         });
       },
       changeMaterialIsShow(index,material){
-        console.log("===============start=============")
-        console.log(index);
-        console.log(material);
-        console.log("===============end=============")
+        var self = this;
+        self.openLoading('正在更新');
+        self.$API.changeMaterialIsRepeatShow(material, function (newMaterial) {
+          self.materials[index].isRepeatShow = newMaterial.isRepeatShow;
+          self.closeLoading();
+        }, function () {
+          self.materials[index].isRepeatShow = !material.isRepeatShow;
+          self.closeLoading();
+          self.$message({
+            type: 'error',
+            message: '修改失败!'
+          });
+        })
       },
       createMaterial(value) {
 
@@ -256,7 +265,7 @@
           cancelButtonText: '取消'
 
         }).then(({value}) => {
-          self.openLoading('正在上传');
+
           self.$API.changeMaterialName(material, value, function (newMaterial) {
             self.materials[self.currentAtlasIndex].files[index].name = newMaterial.name
             self.closeLoading();
@@ -357,7 +366,8 @@
             files: [],
             type: lessonMaterial.material.type,
             index: lessonMaterial.index,
-            lessonMaterialId: lessonMaterial.objectId
+            lessonMaterialId: lessonMaterial.objectId,
+            isRepeatShow:true
           })
           self.closeLoading();
         }, function () {
