@@ -109,9 +109,35 @@ Api.install = function (Vue, options) {
     })
   };
 
+  Api.prototype.createExternalMaterial = (lessonId, index, name, url, sucFuc, errFuc)=>{
+
+   let file =   AV.File.withURL(name, url);
+   file.save().then((file)=>{
+     let material = new AV.Object('Material');
+     material.set('name', name);
+     material.set('type', 5);
+     material.set('externalUrl', url);
+     material.set('file', file)
+     let lesson = AV.Object.createWithoutData('Lesson', lessonId);
+     let newLessonMaterial = new AV.Object('LessonMaterial');
+     newLessonMaterial.set('material', material);
+     newLessonMaterial.set('lesson', lesson);
+     newLessonMaterial.set('index', index);
+     newLessonMaterial.save().then(function (lessonMaterial) {
+       lessonMaterial = lessonMaterial.toJSON();
+       sucFuc(lessonMaterial);
+     }).catch(function (error) {
+       console.log(error)
+       errFuc()
+     });
+   }).catch(error=>{
+    console.log(error)
+   })
+
+  };
+
   Api.prototype.createMaterial = function (lessonId, index, name, data, sucFuc, errFuc) {
     let type = getFileType(data);
-
     let file = new AV.File(name, data);
     let material = new AV.Object('Material');
     material.set('name', name);
@@ -138,6 +164,7 @@ Api.install = function (Vue, options) {
   };
 
   Api.prototype.addAtlas = function (lessonId, index, sucFuc, errFuc) {
+    console.log(index)
     let newMaterial = new AV.Object('Material');
     newMaterial.set('name', '图集');
     newMaterial.set('type', 0);
@@ -268,7 +295,6 @@ Api.install = function (Vue, options) {
 
           for (let i = 0; i < lessonMaterial.length; i++) {
             let lessonMaterialInfo = lessonMaterial[i].toJSON();
-            console.log(lessonMaterialInfo.material)
             let material = {
               name: lessonMaterialInfo.material.name,
               type: lessonMaterialInfo.material.type,
@@ -278,8 +304,8 @@ Api.install = function (Vue, options) {
               isRepeatShow:lessonMaterialInfo.material.isRepeatShow
             };
 
-            if (material.type !== 0) {
-              let type = lessonMaterialInfo.material.file.name.split(".")[1];
+            if (material.type !== 0 && material.type !== 5) {
+              // let type = lessonMaterialInfo.material.file.name.split(".")[1];
               material.file = lessonMaterialInfo.material.file
             }
             materials.push(material)
@@ -317,15 +343,18 @@ Api.install = function (Vue, options) {
             console.log(newLessonInfo)
             sucFuc(newLessonInfo)
           }).catch(function (error) {
+            console.log(error)
             errFuc(error.code)
           });
 
         }).catch(function (error) {
+          console.log(error)
           errFuc(error.code)
         });
 
 
       }).catch(function (error) {
+        console.log(error)
         errFuc(error.code)
       });
     })

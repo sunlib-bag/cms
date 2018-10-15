@@ -5,6 +5,9 @@
         <el-button @click="change('materialInput')" :disabled="canEdit">
           上传文件
         </el-button>
+        <el-button @click="externalMaterialVisible=true" :disabled="canEdit">
+          上传网络文件
+        </el-button>
 
         <input v-on:change="createMaterial" id="materialInput" multiple="multiple" type='file' class="hide"/>
         <el-button @click="addAtlas" :disabled="canEdit">
@@ -22,6 +25,7 @@
                 <img src="/static/music.png" v-if="material.type===1">
                 <img src="/static/folder.png" v-if="material.type===0">
                 <img src="/static/pdf.svg" v-if="material.type===4">
+                <img src="/static/video.png" v-if="material.type===5">
               </div>
             </el-col>
             <el-col :span="13">
@@ -78,6 +82,27 @@
         </div>
       </div>
     </div>
+
+
+
+    <el-dialog title="网络文件" :visible.sync="externalMaterialVisible">
+      <el-form :model="externalMaterial" label-width="100px">
+        <el-form-item label="素材名" >
+          <el-input v-model="externalMaterial.name"></el-input>
+        </el-form-item>
+
+        <el-form-item label="素材链接" >
+          <el-input v-model="externalMaterial.url" ></el-input>
+        </el-form-item>
+
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogFormVisible = false">取 消</el-button>
+        <el-button type="primary" @click="addExternalMaterial">确 定</el-button>
+      </div>
+    </el-dialog>
+
+
   </div>
 
 </template>
@@ -102,13 +127,14 @@
         images: [],
         value1: true,
         value2: true,
-        loading: ''
+        loading: '',
+        externalMaterialVisible:false,
+        externalMaterial:{},
       }
     },
     watch: {
       materials: {
         handler: function (value) {
-          console.log('===')
           this.$bus.emit('changeMaterial', value)
         },
         deep: true,
@@ -183,7 +209,7 @@
           self.openLoading('正在上传');
           var allPromise = [];
           for (let i = 0; i < fileUpload.files.length; i++) {
-            allPromise.push(this.saveOneMaterial(fileUpload.files[i]), i)
+            allPromise.push(this.saveOneMaterial(fileUpload.files[i],i))
           }
           Promise.all(allPromise).then(function (result) {
 
@@ -239,8 +265,8 @@
 
       saveOneMaterial(localFile, index) {
         let self = this;
+        var  index = index
         return new Promise(function (reslove, reject) {
-
           self.$API.createMaterial(self.$route.params.id, self.materials.length + 1 + index, localFile.name, localFile, function (result) {
             self.materials.push({
               objectId: result.material.objectId,
@@ -314,7 +340,6 @@
             allPromise.push(this.uploadOneImage(fileUpload.files[i], i))
           }
           Promise.all(allPromise).then(function(uploadResults){
-
             self.closeLoading();
             var failFiles = [];
             var successFiles = [];
@@ -356,9 +381,49 @@
 //          })
         }
       },
+      addExternalMaterial(){
+        if(!this.externalMaterial.name || !this.externalMaterial.url){
+         return this.$message({
+             type: 'error',
+             message: '请将信息填些完成'
+           });
+        }
+
+
+        this.$API.createExternalMaterial(this.$route.params.id, this.materials.length + 1 , this.externalMaterial.name+'.mp4', this.externalMaterial.url,  (result) =>{
+          this.materials.push({
+            objectId: result.material.objectId,
+            name: result.material.name,
+            type: result.material.type,
+            file: result.material.file,
+            lessonMaterialId: result.objectId,
+            isRepeatShow:true
+          });
+          this.$message({
+            type: 'success',
+            message: '添加外部素材成功'
+          });
+          this.externalMaterialVisible =  false;
+        },  () => {
+          this.$message({
+            type: 'error',
+            message: '添加外部素材失败'
+          });
+          this.externalMaterialVisible =  false;
+        })
+
+
+
+
+
+
+
+
+      },
       addAtlas() {
         let self = this;
         self.openLoading('正在上传');
+
         this.$API.addAtlas(this.$route.params.id, (this.materials.length + 1), function (lessonMaterial) {
           self.materials.push({
             objectId: lessonMaterial.material.objectId,
