@@ -13,6 +13,7 @@ import NewTopic from '@/components/NewTopic'
 import  UpdateTopic from '@/components/UpdateTopic'
 import Labels from '@/components/Labels'
 import updataTeacherEXL from '@/components/updataTeacherEXL'
+import LearnUserAction from '@/components/LearnUserAction'
 
 
 
@@ -95,6 +96,11 @@ export default new Router({
       name: 'Login',
       component: Login
     },
+    {
+      path: '/learnUserAction',
+      name: 'LearnUserAction',
+      component:LearnUserAction
+    }
   ]
 })
 // Router.afterEach((to, from) => {

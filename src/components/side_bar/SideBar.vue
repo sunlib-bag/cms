@@ -34,6 +34,11 @@
           <i class="el-icon-tickets"></i>
           <span slot="title">导入用户表格</span>
         </el-menu-item>
+
+        <el-menu-item index="learnUserAction" v-if="isAdmin">
+          <i class="el-icon-tickets"></i>
+          <span slot="title">导出识字埋点</span>
+        </el-menu-item>
         <!--<el-menu-item index="updataTeacherEXL" v-if="isAdmin">-->
           <!--<i class="el-icon-tickets"></i>-->
           <!--<span slot="title">鲸打卡信息录入</span>-->
@@ -78,7 +83,17 @@
           this.$router.push('/login');
           return ;
         }
-        this.$router.push('/'+key )
+        else if (key == 'learnUserAction')
+        {
+          //导出识字助手中统计的埋点数据
+          console.log('导出识字助手中统计的埋点数据')
+          this.$router.push('/learnUserAction');
+
+        }
+        else {
+          this.$router.push('/'+key )
+        }
+
       },
       handleClose(key, keyPath) {
         console.log(key, keyPath);
