@@ -48,7 +48,7 @@
       </div>
       <div>
         <div class="table-container">
-          <div v-for="(image, imageIndex) in images" class="mid-container">
+          <div v-for="(image, imageIndex) in images"  class="mid-container">
             <div class="image-container">
               <div class="extra-button-container">
                 <el-button type="text" icon="el-icon-delete" @click="deleteAtlasImage(imageIndex, image)"></el-button>
@@ -98,8 +98,9 @@
     methods: {
       goToAtlas(material, index) {
         if (material.type === 0) {
+          let files = material.files.sort((a,b)=>{console.log(a);console.log(b);return a.index - b.index})
           this.isMaterialsShow = false;
-          this.images = material.files;
+          this.images = files;
           this.currentAtlasName = material.name;
           this.currentAtlasIndex = index;
         }
