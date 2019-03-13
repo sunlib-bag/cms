@@ -143,8 +143,9 @@
     methods: {
       goToAtlas(material, index) {
         if (material.type === 0) {
+          let files = material.files.sort((a,b)=>{console.log(a);console.log(b);return a.index - b.index})
           this.isMaterialsShow = false;
-          this.images = material.files;
+          this.images = files;
           this.currentAtlasName = material.name;
           this.currentAtlasIndex = index;
         }
