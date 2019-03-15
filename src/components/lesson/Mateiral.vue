@@ -63,7 +63,7 @@
       </div>
       <div>
         <div class="table-container">
-          <div v-for="(image, imageIndex) in images.map(item=>item).sort((a,b)=> a.index>b.index )" class="mid-container">
+          <div v-for="(image, imageIndex) in images.map(item=>item).sort((a,b)=> a.index-b.index )" class="mid-container">
             <div class="image-container">
               <div class="extra-button-container">
                 <el-button type="text" icon="el-icon-delete" @click="deleteAtlasImage(imageIndex, image)"
@@ -449,6 +449,7 @@
       uploadOneImage(localFile, index){
         var self = this;
         return new Promise(function(reslove, reject){
+          console.log()
           self.$API.createAtlasMaterial(self.materials[self.currentAtlasIndex].objectId, (self.images.length + 1 + index), localFile.name, localFile, function (result) {
             self.materials[self.currentAtlasIndex].files.push(result);
             self.images = self.materials[self.currentAtlasIndex].files;
